@@ -42,8 +42,7 @@ public class EventDriver implements Runnable {
 			// First batch			
 			Random random = new Random();
 			int min = 6;
-			int max = 14;	
-			
+			int max = 14;			
 			int end = random.nextInt(max - min + 1) + min;
 			TimeInterval batch = new TimeInterval(0,end);
 									

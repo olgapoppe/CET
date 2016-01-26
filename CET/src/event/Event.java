@@ -6,7 +6,7 @@ public class Event {
 	int sec;
 	int value;
 	
-	Event (int i, int t, int v) {
+	public Event (int i, int t, int v) {
 		id = i;
 		sec = t;
 		value = v;
@@ -24,5 +24,13 @@ public class Event {
     	//System.out.println(event.toString());    	
         return event;
 	}
-
+	
+	/** 
+	 * Print this activity report.
+	 */
+	public String toString() {
+		return 	"id: " + id + 
+				" sec: " + sec + 
+				" value: " + value;
+	}	
 }
