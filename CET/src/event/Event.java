@@ -3,7 +3,7 @@ package event;
 public class Event {
 	
 	int id;
-	int sec;
+	public int sec;
 	int value;
 	
 	public Event (int i, int t, int v) {
