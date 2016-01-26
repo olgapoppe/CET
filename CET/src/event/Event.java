@@ -25,12 +25,15 @@ public class Event {
         return event;
 	}
 	
-	/** 
-	 * Print this activity report.
-	 */
+	/** Print this event to console */
 	public String toString() {
 		return 	"id: " + id + 
 				" sec: " + sec + 
 				" value: " + value;
 	}	
+	
+	/** Print this event to file */
+	public String print2file() {
+		return id + "," + sec + "," + value + "\n";
+	}
 }

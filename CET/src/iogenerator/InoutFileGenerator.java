@@ -55,7 +55,7 @@ public class InoutFileGenerator {
 			// Generate sequences
 			ArrayList<ArrayDeque<Event>> sequences = new ArrayList<ArrayDeque<Event>> ();
 			
-			for (int seq_id = 0; seq_id<=seq_number; seq_id++) {
+			for (int seq_id = 1; seq_id<=seq_number; seq_id++) { // seq_id 0 is invalid
 				
 				ArrayDeque<Event> sequence = new ArrayDeque<Event> ();
 			
@@ -88,7 +88,7 @@ public class InoutFileGenerator {
 			while (saved_events<event_id) {
 				for (ArrayDeque<Event> sequence : sequences) {
 					while (sequence.peek()!=null && sequence.peek().sec == curr_sec) {
-						output.append(sequence.poll().toString()+"\n");
+						output.append(sequence.poll().print2file());
 						saved_events++;
 					}
 				}
