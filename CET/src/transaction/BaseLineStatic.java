@@ -16,7 +16,7 @@ import event.*;
  * At the end of the window, the static base line algorithm computes all CETs.  
  * @author Olga Poppe
  */
-public class StaticBaseLine { //extends Transaction {
+public class BaseLineStatic { //extends Transaction {
 	
 	/*public StaticBaseLine (ArrayList<Event> batch, long startOfSimulation, PrintWriter out) {		
 		super(batch, startOfSimulation, out);		
