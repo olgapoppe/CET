@@ -1,8 +1,10 @@
 package transaction;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -23,8 +25,9 @@ public class StaticBaseLine { //extends Transaction {
 	public static void main (String args[]) {
 		
 		try {
-			String filename = "src\\iofiles\\stream.txt";
-			Scanner scanner = new Scanner(new File(filename));		
+			// Input
+			String inputfile = "src\\iofiles\\stream.txt";
+			Scanner scanner = new Scanner(new File(inputfile));		
 			String line = scanner.nextLine();
 			ArrayList<Event> batch = new ArrayList<Event>();
 			Event event = Event.parse(line); 			
@@ -38,11 +41,17 @@ public class StaticBaseLine { //extends Transaction {
  				}
  			}
  			scanner.close(); 	
- 			get(batch);
-		} catch (FileNotFoundException e) {	e.printStackTrace(); }		
+ 			// Output
+ 			String outputfilename ="src\\iofiles\\sequences.txt";
+ 			File outputfile = new File(outputfilename);
+ 			BufferedWriter output = new BufferedWriter(new FileWriter(outputfile)); 
+ 			// Call the method
+ 			get(batch,output);
+		} catch (FileNotFoundException e) {	e.printStackTrace(); } 
+		  catch (IOException e) { e.printStackTrace(); }		
 	}
 	
-	public static void get(ArrayList<Event> batch) {	
+	public static void get(ArrayList<Event> batch, BufferedWriter outputfile) {	
 		
 		HashSet<TreeSet<Event>> results = new HashSet<TreeSet<Event>>();
 		HashSet<TreeSet<Event>> prefixes = new HashSet<TreeSet<Event>>();
@@ -121,13 +130,19 @@ public class StaticBaseLine { //extends Transaction {
 			}
 			//System.out.println("results size : " + results.size());					
 		}
-		for(TreeSet<Event> path : results) {
-			System.out.println(path);
-			for (Event event : path) {
-				System.out.print(event.id + ",");
+		/*** Write sequences to file ***/
+		try {
+			for(TreeSet<Event> sequence : results){
+				System.out.println(sequence);
+				for (Event event : sequence) {
+					System.out.print(event.id + ",");
+					outputfile.append(event.print2fileInASeq());
+				}
+				System.out.println("\n-----------------------");
+				outputfile.append("\n");
 			}
-			System.out.println("\n-----------------------");
-		}
-		System.out.println("results size : " + results.size());
+			outputfile.close();
+		} catch (IOException e) { e.printStackTrace(); }
+		System.out.println("Number of sequences: " + results.size());
 	}
 }

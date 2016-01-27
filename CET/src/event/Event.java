@@ -44,4 +44,9 @@ public class Event implements Comparable<Event> {
 	public String print2file() {
 		return id + "," + sec + "," + value + "\n";
 	}
+	
+	/** Print this event in a sequence to file */
+	public String print2fileInASeq() {
+		return id + "," + sec + "," + value + "; ";
+	}
 }
