@@ -2,13 +2,13 @@ package event;
 
 public class Event implements Comparable<Event> {
 	
-	public int id;
 	public int sec;
+	public int id;
 	int value;
 	
-	public Event (int i, int t, int v) {
+	public Event (int s, int i, int v) {
+		sec = s;
 		id = i;
-		sec = t;
 		value = v;
 	}
 	
@@ -16,11 +16,11 @@ public class Event implements Comparable<Event> {
 		
 		String[] values = line.split(",");
 		
-		int i = Integer.parseInt(values[0]);
-        int t = Integer.parseInt(values[1]);
+		int s = Integer.parseInt(values[0]);
+        int i = Integer.parseInt(values[1]);
         int v = Integer.parseInt(values[2]);          	
     	    	    	
-    	Event event = new Event(i,t,v);    	
+    	Event event = new Event(s,i,v);    	
     	//System.out.println(event.toString());    	
         return event;
 	}
@@ -35,18 +35,16 @@ public class Event implements Comparable<Event> {
 	
 	/** Print this event to console */
 	public String toString() {
-		return 	"id: " + id + 
-				" sec: " + sec + 
-				" value: " + value;
+		return "sec: " + sec + " id: " + id + " value: " + value;
 	}	
 	
 	/** Print this event to file */
 	public String print2file() {
-		return id + "," + sec + "," + value + "\n";
+		return sec + "," + id + "," + value + "\n";
 	}
 	
 	/** Print this event in a sequence to file */
 	public String print2fileInASeq() {
-		return id + "," + sec + "," + value + "; ";
+		return sec + "," + id + "," + value + "; ";
 	}
 }
