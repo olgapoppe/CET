@@ -72,66 +72,62 @@ public class StaticBaseLine { //extends Transaction {
 							//System.out.println("added to old : "+seq);
 						} else {	
 							/*** Duplicate elimination ***/
-							TreeSet<Event> newSeq;							
-							if(prefix.size()>0) {
-								newSeq =(TreeSet<Event>)prefix.clone();
-							} else 								
-								newSeq = new TreeSet<Event>();
-								//System.out.println("added new : "+ newSeq);								
-								boolean duplicate=true;
-								boolean unique=true;
-								for(TreeSet<Event> oldPrefix : prefixes) {
-									//System.out.println("before prefix : " + prefix);
-									if(oldPrefix.size()==newSeq.size()) {
-										Iterator<Event> oldIterator=oldPrefix.iterator();
-										Iterator<Event> newIterator=newSeq.iterator();
-										duplicate=true;
-										while(oldIterator.hasNext()) {
-											if(!(oldIterator.next().equals(newIterator.next()))) {
-												//System.out.println("duplicate prefix : " + newSeq);
-												duplicate=false;
-												break;												
-											}
-										}
-										if(duplicate) {
-											unique=false;
-											break;
+							TreeSet<Event> newSeq = (prefix.size()>0) ? (TreeSet<Event>)prefix.clone() : new TreeSet<Event>();
+							//System.out.println("added new : "+ newSeq);								
+							boolean duplicate=true;
+							boolean unique=true;
+							for(TreeSet<Event> oldPrefix : prefixes) {
+								//System.out.println("before prefix : " + prefix);
+								if(oldPrefix.size()==newSeq.size()) {
+									Iterator<Event> oldIterator=oldPrefix.iterator();
+									Iterator<Event> newIterator=newSeq.iterator();
+									duplicate=true;
+									while(oldIterator.hasNext()) {
+										if(!(oldIterator.next().equals(newIterator.next()))) {
+											//System.out.println("duplicate prefix : " + newSeq);
+											duplicate=false;
+											break;												
 										}
 									}
+									if(duplicate) {
+										unique=false;
+										break;
+									}
 								}
-								if(unique) prefixes.add(newSeq);								
 							}
+							if(unique) prefixes.add(newSeq);								
 						}
 					}
-					//System.out.println("prefixes-size : " + prefixes.size());
-					/*** CASE I: Create a new CET ***/
-					if(prefixes.isEmpty()) {
-						if(!isAdded) {
-							TreeSet<Event> newSeq = new TreeSet<Event>();
-							newSeq.add(event);
-							//System.out.println("on empty newSeq : "+ newSeq);
-							results.add(newSeq);
-						}						
-					} else {
-						/*** CASE III: Append to a compatible CET ***/
-						for(TreeSet<Event> prefix : prefixes) {
-							//System.out.println("before prefix : " + prefix);
-							
-							prefix.add(event);
-							//System.out.println("add from prefixes : " + prefix);
-							results.add(prefix);
-							//System.out.println("results size : " + results.size());
-						}
-					}					
 				}
-				//System.out.println("results size : " + results.size());					
+				//System.out.println("prefixes-size : " + prefixes.size());
+				/*** CASE I: Create a new CET ***/
+				if(prefixes.isEmpty()) {
+					if(!isAdded) {
+						TreeSet<Event> newSeq = new TreeSet<Event>();
+						newSeq.add(event);
+						//System.out.println("on empty newSeq : "+ newSeq);
+						results.add(newSeq);
+					}						
+				} else {
+					/*** CASE III: Append to a compatible CET ***/
+					for(TreeSet<Event> prefix : prefixes) {
+						//System.out.println("before prefix : " + prefix);
+						prefix.add(event);
+						//System.out.println("add from prefixes : " + prefix);
+						results.add(prefix);
+						//System.out.println("results size : " + results.size());
+					}
+				}					
 			}
-			for(TreeSet<Event> path : results) {
-				System.out.println(path);
-				for (Event event : path) {
-					System.out.print(event.id + ",");
-				}
-				System.out.println("\n-----------------------");
-			}
+			//System.out.println("results size : " + results.size());					
 		}
+		for(TreeSet<Event> path : results) {
+			System.out.println(path);
+			for (Event event : path) {
+				System.out.print(event.id + ",");
+			}
+			System.out.println("\n-----------------------");
+		}
+		System.out.println("results size : " + results.size());
+	}
 }
