@@ -10,17 +10,19 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Scanner;
 import java.util.TreeSet;
+import java.util.concurrent.CountDownLatch;
+
 import event.*;
 
 /** 
  * At the end of the window, the static base line algorithm computes all CETs.  
  * @author Olga Poppe
  */
-public class BaseLineStatic { //extends Transaction {
+public class BaseLineStatic extends Transaction {
 	
-	/*public StaticBaseLine (ArrayList<Event> batch, long startOfSimulation, PrintWriter out) {		
-		super(batch, startOfSimulation, out);		
-	}*/
+	public BaseLineStatic (ArrayList<Event> batch, long startOfSimulation, CountDownLatch transaction_number) {		
+		super(batch, startOfSimulation, transaction_number);		
+	}
 	
 	public static void main (String args[]) {
 		
@@ -46,12 +48,14 @@ public class BaseLineStatic { //extends Transaction {
  			File outputfile = new File(outputfilename);
  			BufferedWriter output = new BufferedWriter(new FileWriter(outputfile)); 
  			// Call the method
- 			get(batch,output);
+ 			//get(batch,output);
 		} catch (FileNotFoundException e) {	e.printStackTrace(); } 
 		  catch (IOException e) { e.printStackTrace(); }		
 	}
 	
-	public static void get(ArrayList<Event> batch, BufferedWriter outputfile) {	
+	//public static void get(ArrayList<Event> batch, BufferedWriter output) {
+	
+	public void run () {
 		
 		HashSet<TreeSet<Event>> results = new HashSet<TreeSet<Event>>();
 		HashSet<TreeSet<Event>> prefixes = new HashSet<TreeSet<Event>>();
@@ -131,18 +135,23 @@ public class BaseLineStatic { //extends Transaction {
 			//System.out.println("results size : " + results.size());					
 		}
 		/*** Write sequences to file ***/
-		try {
+		int min = Integer.MAX_VALUE;
+		int max = Integer.MIN_VALUE;
+		try {			
 			for(TreeSet<Event> sequence : results){
-				System.out.println(sequence);
+				//System.out.println(sequence);
 				for (Event event : sequence) {
-					System.out.print(event.id + ",");
-					outputfile.append(event.print2fileInASeq());
+					//System.out.print(event.id + ",");
+					if (min > event.sec) min = event.sec;
+					if (max < event.sec) max = event.sec;
+					output.append(event.print2fileInASeq());
 				}
-				System.out.println("\n-----------------------");
-				outputfile.append("\n");
+				//System.out.println("\n-----------------------");
+				output.append("\n");
 			}
-			outputfile.close();
+			output.close();
 		} catch (IOException e) { e.printStackTrace(); }
-		System.out.println("Number of sequences: " + results.size());
+		if (!results.isEmpty()) System.out.println("Number of sequences: " + results.size() + " Min: " + min + " Max: " + max);
+		transaction_number.countDown();
 	}
 }

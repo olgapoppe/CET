@@ -47,7 +47,7 @@ public class EventDriver implements Runnable {
 			TimeInterval batch = new TimeInterval(0,end);
 									
  			if (batch.end > lastsec) batch.end = lastsec;	
- 			//System.out.println("\n-------------------------\nBatch end: " + batch.end);
+ 			System.out.println("\n-------------------------\nBatch end: " + batch.end);
  			
  			/*** Put events within the current batch into the event queue ***/		
 	 		while (true) { 
@@ -99,7 +99,7 @@ public class EventDriver implements Runnable {
 					int new_end = batch.end + random.nextInt(max - min + 1) + min + new Double(driver_wakeup_time).intValue();
 					batch = new TimeInterval(new_start, new_end);
 					if (batch.end > lastsec) batch.end = lastsec;
-					//System.out.println("-------------------------\nBatch end: " + batch.end);
+					System.out.println("-------------------------\nBatch end: " + batch.end);
  				
 					if (driver_wakeup_time > 1) {
 						System.out.println(	"Distributor wakeup time is " + driver_wakeup_time + 

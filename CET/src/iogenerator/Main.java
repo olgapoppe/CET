@@ -26,8 +26,8 @@ public class Main {
 	    // Set default values
 	    String path = "src\\iofiles\\";
 		String filename ="stream.txt";
-	    int lastsec = 129;
-		int window_length = 5;
+	    int lastsec = 20;
+		int window_length = 10;
 		int window_overlap_size = 0;		
 		
 		// Read input parameters
@@ -62,7 +62,7 @@ public class Main {
 		 *   Scheduler reads from the event queue and submits event batches to the executor. ***/
 		EventDriver driver = new EventDriver (full_file_name, lastsec, eventqueue, startOfSimulation, driverProgress);				
 				
-		Scheduler scheduler = new Scheduler (lastsec, eventqueue, executor, done, startOfSimulation, driverProgress);		
+		Scheduler scheduler = new Scheduler (lastsec, eventqueue, executor, done, startOfSimulation, driverProgress, window_length);		
 		
 		Thread prodThread = new Thread(driver);
 		prodThread.setPriority(10);

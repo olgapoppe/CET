@@ -35,15 +35,17 @@ public class InoutFileGenerator {
 		
 			// Local variables
 			Random random = new Random();
-			int sec = 0;
-			int event_id = 0;			
 			int last_sec = last_min * 60;
+			int sec = 0;
+			int event_id = 0;					
 			int comp = 0;
 			int value = 1; // value 0 is irrelevant
 			int sequence_number = 0;
 			
 			// Output the parameters
-			System.out.println("\nMax time progress: " + max_time_progress +
+			System.out.println(
+					"Stream length: " + last_min + " min" +
+					"\nMax time progress: " + max_time_progress +
 					"\nMax compatibility: " + max_comp +
 					"\n---------------------");
 			
@@ -95,7 +97,8 @@ public class InoutFileGenerator {
 				}
 				curr_sec++;				
 			}	
-			System.out.println("---------------------\nSequence number: " + sequence_number);
+			System.out.println("---------------------\n" + 
+					"Sequence number: " + sequence_number);
 			// Close the file
 			output.close();
 			
