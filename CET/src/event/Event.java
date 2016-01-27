@@ -1,8 +1,8 @@
 package event;
 
-public class Event {
+public class Event implements Comparable<Event> {
 	
-	int id;
+	public int id;
 	public int sec;
 	int value;
 	
@@ -24,6 +24,14 @@ public class Event {
     	//System.out.println(event.toString());    	
         return event;
 	}
+	
+	public int compareTo(Event other) {
+		if(this.value == other.value && this.sec > other.sec){
+            return 1;
+        } else {
+            return -1;
+        }
+    }
 	
 	/** Print this event to console */
 	public String toString() {

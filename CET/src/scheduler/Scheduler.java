@@ -25,7 +25,7 @@ public class Scheduler implements Runnable {
 	}
 	
 	/**
-	 * As long as not all events are processed, iterate over all run task queues and pick tasks to execute in round-robin manner.
+	 * As long as not all events are processed, extract events from the event queue and execute them.
 	 */	
 	public void run() {	
 		
@@ -37,7 +37,8 @@ public class Scheduler implements Runnable {
 			//try {							
 				/*** Schedule the current second ***/
 				Event event = eventqueue.contents.peek();
-				while (event != null && event.sec == curr_sec) { 				
+				while (event != null && event.sec == curr_sec) { 
+					
 					Event e = eventqueue.contents.poll();
 					System.out.println(e.toString());		
 					event = eventqueue.contents.peek();

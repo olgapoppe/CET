@@ -12,12 +12,12 @@ import scheduler.*;
 public class Main {
 	
 	/**
-	 * Create and call the chain: Input file -> Driver -> Scheduler -> Executor -> Output files 
+	 * Create and call the chain: Input file -> Driver -> Executor -> Output files 
 	 * @param args: 
 	 */
 	public static void main (String[] args) { 
 		
-		/*** Print current time to know when the experiment started ***/
+		/*** Print current time ***/
 		Date dNow = new Date( );
 	    SimpleDateFormat ft = new SimpleDateFormat ("E yyyy.MM.dd 'at' hh:mm:ss a zzz");
 	    System.out.println("Current Date: " + ft.format(dNow));
