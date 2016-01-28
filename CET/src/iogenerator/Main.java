@@ -1,5 +1,9 @@
 package iogenerator;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
@@ -17,6 +21,8 @@ public class Main {
 	 */
 	public static void main (String[] args) { 
 		
+		try {
+		
 		/*** Print current time ***/
 		Date dNow = new Date( );
 	    SimpleDateFormat ft = new SimpleDateFormat ("E yyyy.MM.dd 'at' hh:mm:ss a zzz");
@@ -25,8 +31,12 @@ public class Main {
 	    /*** INPUT ***/
 	    // Set default values
 	    String path = "src\\iofiles\\";
-		String filename ="stream.txt";
-	    int lastsec = 20;
+		String inputfile ="stream.txt";
+		String outputfile ="sequences.txt";
+		File output_file = new File(path + outputfile);
+		BufferedWriter output = new BufferedWriter(new FileWriter(output_file)); 
+		
+	    int lastsec = 57;
 		int window_length = 20;
 		int window_overlap_size = 0;	
 		boolean incremental = false;
@@ -34,16 +44,16 @@ public class Main {
 		// Read input parameters
 	    for (int i=0; i<args.length; i++){
 			if (args[i].equals("-path")) 		path = args[++i];
-			if (args[i].equals("-filename")) 	filename = args[++i];
+			if (args[i].equals("-filename")) 	inputfile = args[++i];
 			if (args[i].equals("-sec")) 		lastsec = Integer.parseInt(args[++i]);
 			if (args[i].equals("-wl")) 			window_length = Integer.parseInt(args[++i]);
 			if (args[i].equals("-wos")) 		window_overlap_size = Integer.parseInt(args[++i]);
 			if (args[i].equals("-inc")) 		incremental = (Integer.parseInt(args[++i])==1);
 		}
-	    String full_file_name = path + filename;
+	    String input = path + inputfile;
 	    
 	    // Print input parameters
-	    System.out.println(	"Input file: " + full_file_name +
+	    System.out.println(	"Input file: " + input +
 	    					"\nLast sec: " + lastsec +
 	    					"\nWindow length: " + window_length + 
 							"\nWindow overlap length: " + window_overlap_size +
@@ -63,9 +73,9 @@ public class Main {
 		/*** Create and start the event driver and the scheduler THREADS.
 		 *   Driver reads from the file and writes into the event queue.
 		 *   Scheduler reads from the event queue and submits event batches to the executor. ***/
-		EventDriver driver = new EventDriver (full_file_name, lastsec, eventqueue, startOfSimulation, driverProgress);				
+		EventDriver driver = new EventDriver (input, lastsec, eventqueue, startOfSimulation, driverProgress);				
 				
-		Scheduler scheduler = new Scheduler (lastsec, eventqueue, executor, done, startOfSimulation, driverProgress, window_length, incremental);		
+		Scheduler scheduler = new Scheduler (lastsec, eventqueue, executor, done, startOfSimulation, driverProgress, window_length, incremental, output);		
 		
 		Thread prodThread = new Thread(driver);
 		prodThread.setPriority(10);
@@ -73,14 +83,15 @@ public class Main {
 		
 		Thread consThread = new Thread(scheduler);
 		consThread.setPriority(10);
-		consThread.start();
-		
-		try {			
-			/*** Wait till all input events are processed and terminate the executor ***/
-			done.await();		
-			executor.shutdown();	
-			System.out.println("Executor is done.\nMain is done.");
+		consThread.start();		
+				
+		/*** Wait till all input events are processed and terminate the executor ***/
+		done.await();		
+		executor.shutdown();	
+		output.close();
+		System.out.println("Executor is done.\nMain is done.");
 			
 		} catch (InterruptedException e) { e.printStackTrace(); }
+		  catch (IOException e1) { e1.printStackTrace(); }
 	}	
 }

@@ -22,8 +22,8 @@ public class BaseLine extends Transaction {
 	
 	HashSet<TreeSet<Event>> results;
 	
-	public BaseLine (ArrayList<Event> batch, long startOfSimulation, CountDownLatch transaction_number, HashSet<TreeSet<Event>> r) {		
-		super(batch, startOfSimulation, transaction_number);	
+	public BaseLine (ArrayList<Event> batch, long startOfSimulation, CountDownLatch transaction_number, HashSet<TreeSet<Event>> r, BufferedWriter output) {		
+		super(batch, startOfSimulation, transaction_number, output);	
 		results = r;
 	}
 	
@@ -60,7 +60,7 @@ public class BaseLine extends Transaction {
 	
 	public void run () {
 		
-		//HashSet<TreeSet<Event>> results = new HashSet<TreeSet<Event>>();
+		HashSet<TreeSet<Event>> new_results = new HashSet<TreeSet<Event>>();
 		HashSet<TreeSet<Event>> prefixes = new HashSet<TreeSet<Event>>();
 			
 		for (Event event: batch) {
@@ -71,7 +71,8 @@ public class BaseLine extends Transaction {
 				TreeSet<Event> newSeq = new TreeSet<Event>();
 				newSeq.add(event);
 				//System.out.println("seq on empty result : " + newSeq);
-				results.add(newSeq);					
+				new_results.add(newSeq);	
+				results.add(newSeq);
 			} else {
 				boolean isAdded=false;
 				for (TreeSet<Event> seq : results) {
@@ -122,6 +123,7 @@ public class BaseLine extends Transaction {
 						TreeSet<Event> newSeq = new TreeSet<Event>();
 						newSeq.add(event);
 						//System.out.println("on empty newSeq : "+ newSeq);
+						new_results.add(newSeq);
 						results.add(newSeq);
 					}						
 				} else {
@@ -130,6 +132,7 @@ public class BaseLine extends Transaction {
 						//System.out.println("before prefix : " + prefix);
 						prefix.add(event);
 						//System.out.println("add from prefixes : " + prefix);
+						new_results.add(prefix);
 						results.add(prefix);
 						//System.out.println("results size : " + results.size());
 					}
@@ -141,7 +144,7 @@ public class BaseLine extends Transaction {
 		int min = Integer.MAX_VALUE;
 		int max = Integer.MIN_VALUE;
 		try {			
-			for(TreeSet<Event> sequence : results){
+			for(TreeSet<Event> sequence : new_results){
 				//System.out.println(sequence);
 				for (Event event : sequence) {
 					//System.out.print(event.id + ",");
@@ -152,8 +155,8 @@ public class BaseLine extends Transaction {
 				//System.out.println("\n-----------------------");
 				output.append("\n");
 			}
-			output.close();
 		} catch (IOException e) { e.printStackTrace(); }
+		/*** Output the number of results and decrease the transaction number ***/
 		if (!results.isEmpty()) System.out.println("Number of sequences: " + results.size() + " Min: " + min + " Max: " + max);
 		transaction_number.countDown();
 	}
