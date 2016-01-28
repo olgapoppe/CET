@@ -27,8 +27,9 @@ public class Main {
 	    String path = "src\\iofiles\\";
 		String filename ="stream.txt";
 	    int lastsec = 20;
-		int window_length = 10;
-		int window_overlap_size = 0;		
+		int window_length = 20;
+		int window_overlap_size = 0;	
+		boolean incremental = false;
 		
 		// Read input parameters
 	    for (int i=0; i<args.length; i++){
@@ -37,6 +38,7 @@ public class Main {
 			if (args[i].equals("-sec")) 		lastsec = Integer.parseInt(args[++i]);
 			if (args[i].equals("-wl")) 			window_length = Integer.parseInt(args[++i]);
 			if (args[i].equals("-wos")) 		window_overlap_size = Integer.parseInt(args[++i]);
+			if (args[i].equals("-inc")) 		incremental = (Integer.parseInt(args[++i])==1);
 		}
 	    String full_file_name = path + filename;
 	    
@@ -44,7 +46,8 @@ public class Main {
 	    System.out.println(	"Input file: " + full_file_name +
 	    					"\nLast sec: " + lastsec +
 	    					"\nWindow length: " + window_length + 
-							"\nWindow overlap length: " + window_overlap_size);
+							"\nWindow overlap length: " + window_overlap_size +
+							"\nIncremental: " + incremental);
 
 		/*** SHARED DATA STRUCTURES ***/		
 		AtomicInteger driverProgress = new AtomicInteger(-1);	
@@ -62,7 +65,7 @@ public class Main {
 		 *   Scheduler reads from the event queue and submits event batches to the executor. ***/
 		EventDriver driver = new EventDriver (full_file_name, lastsec, eventqueue, startOfSimulation, driverProgress);				
 				
-		Scheduler scheduler = new Scheduler (lastsec, eventqueue, executor, done, startOfSimulation, driverProgress, window_length);		
+		Scheduler scheduler = new Scheduler (lastsec, eventqueue, executor, done, startOfSimulation, driverProgress, window_length, incremental);		
 		
 		Thread prodThread = new Thread(driver);
 		prodThread.setPriority(10);
@@ -76,8 +79,7 @@ public class Main {
 			/*** Wait till all input events are processed and terminate the executor ***/
 			done.await();		
 			executor.shutdown();	
-			System.out.println("Executor is done.");
-			System.out.println("Main is done.");
+			System.out.println("Executor is done.\nMain is done.");
 			
 		} catch (InterruptedException e) { e.printStackTrace(); }
 	}	

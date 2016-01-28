@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class EventQueue {
 	
 	public ConcurrentLinkedQueue<Event> contents;
-	AtomicInteger driverProgress;
+	public AtomicInteger driverProgress;
 				
 	public EventQueue (AtomicInteger dp) {
 		

@@ -18,10 +18,13 @@ import event.*;
  * At the end of the window, the static base line algorithm computes all CETs.  
  * @author Olga Poppe
  */
-public class BaseLineStatic extends Transaction {
+public class BaseLine extends Transaction {
 	
-	public BaseLineStatic (ArrayList<Event> batch, long startOfSimulation, CountDownLatch transaction_number) {		
-		super(batch, startOfSimulation, transaction_number);		
+	HashSet<TreeSet<Event>> results;
+	
+	public BaseLine (ArrayList<Event> batch, long startOfSimulation, CountDownLatch transaction_number, HashSet<TreeSet<Event>> r) {		
+		super(batch, startOfSimulation, transaction_number);	
+		results = r;
 	}
 	
 	public static void main (String args[]) {
@@ -57,7 +60,7 @@ public class BaseLineStatic extends Transaction {
 	
 	public void run () {
 		
-		HashSet<TreeSet<Event>> results = new HashSet<TreeSet<Event>>();
+		//HashSet<TreeSet<Event>> results = new HashSet<TreeSet<Event>>();
 		HashSet<TreeSet<Event>> prefixes = new HashSet<TreeSet<Event>>();
 			
 		for (Event event: batch) {
