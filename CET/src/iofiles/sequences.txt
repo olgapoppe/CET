@@ -1,0 +1,6 @@
+[0,20] with 484 events.
+[10,30] with 230 events.
+[20,40] with 124 events.
+[30,50] with 51 events.
+[40,57] with 18 events.
+[50,57] with 7 events.

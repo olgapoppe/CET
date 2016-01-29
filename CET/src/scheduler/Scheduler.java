@@ -1,15 +1,12 @@
 package scheduler;
 
-import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import event.*;
-import transaction.*;
+import iogenerator.*;
 
 public class Scheduler implements Runnable {
 	
@@ -22,10 +19,10 @@ public class Scheduler implements Runnable {
 	AtomicInteger drProgress;
 	int window_length;
 	int window_slide;
-	boolean incremental;
-	BufferedWriter output;
+	//boolean incremental;
+	OutputFileGenerator output;
 	
-	public Scheduler (int last, EventQueue eq, ExecutorService exe, CountDownLatch d, long start, AtomicInteger dp, int wl, int ws, boolean incr, BufferedWriter o) {	
+	public Scheduler (int last, EventQueue eq, ExecutorService exe, CountDownLatch d, long start, AtomicInteger dp, int wl, int ws, OutputFileGenerator o) {	
 		
 		lastsec = last;
 		eventqueue = eq;
@@ -36,7 +33,7 @@ public class Scheduler implements Runnable {
 		drProgress = dp;
 		window_length = wl;
 		window_slide = ws;
-		incremental = incr;
+		//incremental = incr;
 		output = o;
 	}
 	
@@ -84,9 +81,13 @@ public class Scheduler implements Runnable {
 				if (first_expired) {					
 					Window window = windows.poll();
 					System.out.println(window.toString());
-					// Submit for execution
-					transaction_number.countDown();
 					
+					// Submit for execution
+					if (output.isAvailable()) {
+						try { output.file.append(window.toString() + "\n"); } catch (IOException e1) { e1.printStackTrace(); }
+						output.setAvailable();
+						transaction_number.countDown();
+					}					
 					first_expired = false;
 				}
 				event = eventqueue.contents.peek();
@@ -104,10 +105,16 @@ public class Scheduler implements Runnable {
 			}									
 		}
 		/*** Poll the last windows and submit them for execution ***/
-		for (Window window : windows) {
-			System.out.println(window.toString());
-			// Submit for execution
-			transaction_number.countDown();
+		if (output.isAvailable()) {
+			for (Window window : windows) {
+				
+				System.out.println(window.toString());
+			
+				// Submit for execution
+				try { output.file.append(window.toString() + "\n"); } catch (IOException e) { e.printStackTrace(); }				
+				transaction_number.countDown();				
+			}
+			output.setAvailable();
 		}
 		/*** Terminate ***/
 		try { transaction_number.await(); } catch (InterruptedException e) { e.printStackTrace(); }
