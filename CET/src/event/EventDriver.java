@@ -44,7 +44,7 @@ public class EventDriver implements Runnable {
 			int min = 6;
 			int max = 14;			
 			int end = random.nextInt(max - min + 1) + min;
-			TimeInterval batch = new TimeInterval(0,end);
+			Window batch = new Window(0,end);
 									
  			if (batch.end > lastsec) batch.end = lastsec;	
  			System.out.println("\n-------------------------\nBatch end: " + batch.end);
@@ -97,7 +97,7 @@ public class EventDriver implements Runnable {
 					/*** Rest batch_limit ***/
 					int new_start = batch.end + 1;
 					int new_end = batch.end + random.nextInt(max - min + 1) + min + new Double(driver_wakeup_time).intValue();
-					batch = new TimeInterval(new_start, new_end);
+					batch = new Window(new_start, new_end);
 					if (batch.end > lastsec) batch.end = lastsec;
 					System.out.println("-------------------------\nBatch end: " + batch.end);
  				
