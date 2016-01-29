@@ -1,6 +1,7 @@
 package scheduler;
 
 import java.io.BufferedWriter;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.TreeSet;
@@ -45,11 +46,12 @@ public class Scheduler implements Runnable {
 		
 		/*** Set local variables ***/
 		int progress = Math.min(window_slide,lastsec);
-		ArrayList<Window> windows = new ArrayList<Window>();
+		ArrayDeque<Window> windows = new ArrayDeque<Window>();
 		Window first_window = new Window(0,window_length);
 		windows.add(first_window);
 		int new_window_creation = window_slide; 
 		boolean last_iteration = false;
+		boolean first_expired = false;
 							
 		/*** Get the permission to schedule current second ***/
 		while (eventqueue.getDriverProgress(progress)) {
@@ -63,12 +65,22 @@ public class Scheduler implements Runnable {
 					int end = (new_window_creation+window_length > lastsec) ? lastsec : (new_window_creation+window_length); 
 					Window new_window = new Window(new_window_creation, end);					
 					windows.add(new_window);
-					//System.out.println(new_window.toString());					
+					// System.out.println(new_window.toString());					
 					new_window_creation += window_slide;					
 				}				
 				for (Window window : windows) {
-					if (window.relevant(e)) window.events.add(e); 
+					if (window.relevant(e)) {
+						window.events.add(e); 
+					} else {						
+						first_expired = true;
+					}
 				}			
+				if (first_expired) {
+					/*** Poll the window and submit it for execution ***/
+					Window window = windows.poll();
+					System.out.println(window.toString());					
+					first_expired = false;
+				}
 				event = eventqueue.contents.peek();
 			}		 
 			/*** Update progress ***/
@@ -81,13 +93,12 @@ public class Scheduler implements Runnable {
 				} else {
 					progress += window_slide;
 				}
-			}
-									
+			}									
 		}
-		/*** Show the contents of a window ***/
-		/*for (Window window : windows) {
+		/*** Poll the last windows and submit them for execution ***/
+		for (Window window : windows) {
 			System.out.println(window.toString());						
-		}*/
+		}
 		/*** Terminate ***/
 		done.countDown();
 		System.out.println("Scheduler is done.");
