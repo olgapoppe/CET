@@ -30,6 +30,7 @@ public class Scheduler implements Runnable {
 		lastsec = last;
 		eventqueue = eq;
 		executor = exe;
+		transaction_number = new CountDownLatch(0);
 		done = d;
 		startOfSimulation = start;
 		drProgress = dp;
@@ -53,7 +54,7 @@ public class Scheduler implements Runnable {
 		boolean last_iteration = false;
 		boolean first_expired = false;
 							
-		/*** Get the permission to schedule current second ***/
+		/*** Get the permission to schedule current slide ***/
 		while (eventqueue.getDriverProgress(progress)) {
 			
 			/*** Schedule the available events ***/
@@ -61,24 +62,31 @@ public class Scheduler implements Runnable {
 			while (event != null && event.sec <= progress) { 
 					
 				Event e = eventqueue.contents.poll();
+				
+				/*** Create new windows ***/
 				if (e.sec >= new_window_creation && new_window_creation < lastsec) {
 					int end = (new_window_creation+window_length > lastsec) ? lastsec : (new_window_creation+window_length); 
 					Window new_window = new Window(new_window_creation, end);					
 					windows.add(new_window);
 					// System.out.println(new_window.toString());					
-					new_window_creation += window_slide;					
-				}				
+					new_window_creation += window_slide;
+					transaction_number = new CountDownLatch((int)transaction_number.getCount()+1);
+				}		
+				/*** Fill windows with events ***/
 				for (Window window : windows) {
 					if (window.relevant(e)) {
 						window.events.add(e); 
 					} else {						
 						first_expired = true;
 					}
-				}			
-				if (first_expired) {
-					/*** Poll the window and submit it for execution ***/
+				}
+				/*** Poll an expired window and submit it for execution ***/
+				if (first_expired) {					
 					Window window = windows.poll();
-					System.out.println(window.toString());					
+					System.out.println(window.toString());
+					// Submit for execution
+					transaction_number.countDown();
+					
 					first_expired = false;
 				}
 				event = eventqueue.contents.peek();
@@ -97,9 +105,12 @@ public class Scheduler implements Runnable {
 		}
 		/*** Poll the last windows and submit them for execution ***/
 		for (Window window : windows) {
-			System.out.println(window.toString());						
+			System.out.println(window.toString());
+			// Submit for execution
+			transaction_number.countDown();
 		}
 		/*** Terminate ***/
+		try { transaction_number.await(); } catch (InterruptedException e) { e.printStackTrace(); }
 		done.countDown();
 		System.out.println("Scheduler is done.");
 	}	
