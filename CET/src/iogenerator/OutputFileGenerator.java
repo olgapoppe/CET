@@ -32,6 +32,4 @@ public class OutputFileGenerator {
 		available.set(false);
 		return true;		
 	}
-
-
 }

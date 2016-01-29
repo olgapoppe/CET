@@ -62,7 +62,7 @@ public class Main {
 		long startOfSimulation = System.currentTimeMillis();	
 		
 		/*** EXECUTORS ***/
-		int number_of_executors = 1;// Integer.parseInt(args[0]);
+		int number_of_executors = 3;// Integer.parseInt(args[0]);
 		//System.out.println("Number of executors: " + number_of_executors);
 		ExecutorService executor = Executors.newFixedThreadPool(number_of_executors);
 			

@@ -11,8 +11,8 @@ import java.util.Iterator;
 import java.util.Scanner;
 import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
-
 import event.*;
+import iogenerator.*;
 
 /** 
  * At the end of the window, the static base line algorithm computes all CETs.  
@@ -22,9 +22,9 @@ public class BaseLine extends Transaction {
 	
 	HashSet<TreeSet<Event>> results;
 	
-	public BaseLine (ArrayList<Event> batch, long startOfSimulation, CountDownLatch transaction_number, HashSet<TreeSet<Event>> r, BufferedWriter output) {		
+	public BaseLine (ArrayList<Event> batch, long startOfSimulation, CountDownLatch transaction_number, OutputFileGenerator output) {		
 		super(batch, startOfSimulation, transaction_number, output);	
-		results = r;
+		results = new HashSet<TreeSet<Event>>();
 	}
 	
 	public static void main (String args[]) {
@@ -143,17 +143,20 @@ public class BaseLine extends Transaction {
 		/*** Write sequences to file ***/
 		int min = Integer.MAX_VALUE;
 		int max = Integer.MIN_VALUE;
-		try {			
-			for(TreeSet<Event> sequence : new_results){
-				//System.out.println(sequence);
-				for (Event event : sequence) {
-					//System.out.print(event.id + ",");
-					if (min > event.sec) min = event.sec;
-					if (max < event.sec) max = event.sec;
-					output.append(event.print2fileInASeq());
+		try {	
+			if (output.isAvailable()) {
+				for(TreeSet<Event> sequence : new_results) {
+					//System.out.println(sequence);
+					for (Event event : sequence) {
+						//System.out.print(event.id + ",");
+						if (min > event.sec) min = event.sec;
+						if (max < event.sec) max = event.sec;
+						output.file.append(event.print2fileInASeq());
+					}
+					//System.out.println("\n-----------------------");
+					output.file.append("\n");
 				}
-				//System.out.println("\n-----------------------");
-				output.append("\n");
+				output.setAvailable();
 			}
 		} catch (IOException e) { e.printStackTrace(); }
 		/*** Output the number of results and decrease the transaction number ***/

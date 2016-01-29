@@ -1,12 +1,12 @@
 package scheduler;
 
-import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import event.*;
 import iogenerator.*;
+import transaction.*;
 
 public class Scheduler implements Runnable {
 	
@@ -27,7 +27,8 @@ public class Scheduler implements Runnable {
 		lastsec = last;
 		eventqueue = eq;
 		executor = exe;
-		transaction_number = new CountDownLatch(0);
+		int window_number = last/ws + 1;
+		transaction_number = new CountDownLatch(window_number);
 		done = d;
 		startOfSimulation = start;
 		drProgress = dp;
@@ -44,9 +45,11 @@ public class Scheduler implements Runnable {
 		
 		/*** Set local variables ***/
 		int progress = Math.min(window_slide,lastsec);
+		
 		ArrayDeque<Window> windows = new ArrayDeque<Window>();
 		Window first_window = new Window(0,window_length);
 		windows.add(first_window);
+		
 		int new_window_creation = window_slide; 
 		boolean last_iteration = false;
 		boolean first_expired = false;
@@ -65,9 +68,7 @@ public class Scheduler implements Runnable {
 					int end = (new_window_creation+window_length > lastsec) ? lastsec : (new_window_creation+window_length); 
 					Window new_window = new Window(new_window_creation, end);					
 					windows.add(new_window);
-					// System.out.println(new_window.toString());					
 					new_window_creation += window_slide;
-					transaction_number = new CountDownLatch((int)transaction_number.getCount()+1);
 				}		
 				/*** Fill windows with events ***/
 				for (Window window : windows) {
@@ -80,14 +81,10 @@ public class Scheduler implements Runnable {
 				/*** Poll an expired window and submit it for execution ***/
 				if (first_expired) {					
 					Window window = windows.poll();
-					System.out.println(window.toString());
-					
-					// Submit for execution
-					if (output.isAvailable()) {
-						try { output.file.append(window.toString() + "\n"); } catch (IOException e1) { e1.printStackTrace(); }
-						output.setAvailable();
-						transaction_number.countDown();
-					}					
+										
+					BaseLine transaction = new BaseLine(window.events,startOfSimulation,transaction_number,output);				
+					executor.execute(transaction);
+								
 					first_expired = false;
 				}
 				event = eventqueue.contents.peek();
@@ -105,17 +102,10 @@ public class Scheduler implements Runnable {
 			}									
 		}
 		/*** Poll the last windows and submit them for execution ***/
-		if (output.isAvailable()) {
-			for (Window window : windows) {
-				
-				System.out.println(window.toString());
-			
-				// Submit for execution
-				try { output.file.append(window.toString() + "\n"); } catch (IOException e) { e.printStackTrace(); }				
-				transaction_number.countDown();				
-			}
-			output.setAvailable();
-		}
+		for (Window window : windows) {				
+			BaseLine transaction = new BaseLine(window.events,startOfSimulation,transaction_number,output);				
+			executor.execute(transaction);						
+		}		
 		/*** Terminate ***/
 		try { transaction_number.await(); } catch (InterruptedException e) { e.printStackTrace(); }
 		done.countDown();
