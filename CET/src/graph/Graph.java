@@ -47,8 +47,10 @@ public class Graph {
 	}
 	
 	public void connect (Node first, Node second) {
-		first.following.add(second);
-		second.previous.add(first);
+		if (!first.following.contains(second)) {
+			first.following.add(second);
+			second.previous.add(first);
+		}
 	}
 	
 	public static Graph constructGraph (ArrayList<Event> events) {		
@@ -57,7 +59,7 @@ public class Graph {
 				
 		for (Event event : events) {
 			
-			//System.out.println(event.toString());
+			//System.out.println("--------------" + event.id);
 			
 			// Create a new node
 			Node node = new Node(event);
@@ -78,7 +80,7 @@ public class Graph {
 						graph.connect(last,node);
 						old_last_nodes.add(last);
 						new_last_nodes.add(node);
-						//System.out.println("Case 2");
+						//System.out.println(last.event.id + " is connencted to " + node.event.id);
 						
 					} else {
 							
@@ -89,7 +91,7 @@ public class Graph {
 								if (comp_node.event.sec<event.sec) {
 									graph.connect(comp_node,node);
 									first = false;
-									//System.out.println("Case 3");
+									//System.out.println(comp_node.event.id + " is connencted to " + node.event.id);
 								}
 							}							 
 						}						
@@ -104,9 +106,11 @@ public class Graph {
 			}
 			// Add the new node to the graph
 			graph.nodes.add(node);	
-			/*for (Node last2 : graph.last_nodes) { System.out.println("last: " + last2.event.id + ","); }
-			for (Node first2 : graph.first_nodes) { System.out.println("first: " + first2.event.id + ","); }*/
+			//for (Node last2 : graph.last_nodes) { System.out.println("last: " + last2.event.id + ","); }
+			//for (Node first2 : graph.first_nodes) { System.out.println("first: " + first2.event.id + ","); }
 		}
+		//for (Node node : graph.nodes) { System.out.println(node.toString()); }
+		
 		return graph;
 	}
 }

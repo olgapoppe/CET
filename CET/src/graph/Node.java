@@ -24,6 +24,10 @@ public class Node {
 	public boolean equals(Node other) {
 		return this.event.equals(other.event);
 	}
+	
+	public String toString() {
+		return event.id + " has " + previous.size() + " previuos and " + following.size() + " following events."; 
+	}
 }
 
 
