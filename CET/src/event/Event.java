@@ -4,7 +4,7 @@ public class Event implements Comparable<Event> {
 	
 	public int sec;
 	public int id;
-	int value;
+	public int value;
 	
 	public Event (int s, int i, int v) {
 		sec = s;
@@ -32,6 +32,14 @@ public class Event implements Comparable<Event> {
             return -1;
         }
     }
+	
+	public boolean isCompatible(Event other) {
+		return this.value==other.value && this.sec<other.sec;
+	}
+	
+	public boolean equals(Event other) {
+		return this.id==other.id;
+	}
 	
 	/** Print this event to console */
 	public String toString() {
