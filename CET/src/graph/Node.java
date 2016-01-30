@@ -5,14 +5,16 @@ import event.*;
 
 public class Node {
 	
-	Event event;
-	ArrayList<Node> previous;
-	ArrayList<Node> following;
+	public Event event;
+	public ArrayList<Node> previous;
+	public ArrayList<Node> following;
+	public boolean visited;
 	
 	public Node (Event e) {
 		event = e;
 		previous = new ArrayList<Node>();
 		following = new ArrayList<Node>();
+		visited = false;
 	}
 	
 	public boolean isCompatible(Node other) {

@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
 import event.*;
+import transaction.*;
 
 public class Graph {
 	
@@ -37,8 +38,11 @@ public class Graph {
  				}
  			}
  			scanner.close(); 	
- 			// Call the method
- 			constructGraph(batch);
+ 			// Call the methods
+ 			Graph graph = constructGraph(batch);
+ 			NonDynamic nd = new NonDynamic(graph);
+ 			nd.traverse();
+ 			
 		} catch (FileNotFoundException e) {	e.printStackTrace(); } 		
 	}
 	
