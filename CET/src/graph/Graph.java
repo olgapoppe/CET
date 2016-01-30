@@ -8,10 +8,14 @@ import event.*;
 
 public class Graph {
 	
-	ArrayList<Node> nodes;
+	public ArrayList<Node> nodes;
+	public ArrayList<Node> first_nodes;
+	public ArrayList<Node> last_nodes;
 	
-	Graph () {
+	public Graph () {
 		nodes = new ArrayList<Node>();
+		first_nodes = new ArrayList<Node>();
+		last_nodes = new ArrayList<Node>();
 	}
 	
 	public static void main (String args[]) {
@@ -34,8 +38,7 @@ public class Graph {
  			}
  			scanner.close(); 	
  			// Call the method
- 			Graph graph = new Graph();
- 			graph.constructGraph(batch);
+ 			constructGraph(batch);
 		} catch (FileNotFoundException e) {	e.printStackTrace(); } 		
 	}
 	
@@ -44,10 +47,10 @@ public class Graph {
 		second.previous.add(first);
 	}
 	
-	public void constructGraph (ArrayList<Event> events) {		
+	public static Graph constructGraph (ArrayList<Event> events) {		
 		
-		ArrayList<Node> last_nodes = new ArrayList<Node>();
-		
+		Graph graph = new Graph();
+				
 		for (Event event : events) {
 			
 			//System.out.println(event.toString());
@@ -56,18 +59,19 @@ public class Graph {
 			Node node = new Node(event);
 			
 			/*** Case I: Graph is empty. Add this event to the last nodes. ***/
-			if (last_nodes.isEmpty()) {
-				last_nodes.add(node);
+			if (graph.last_nodes.isEmpty()) {
+				graph.first_nodes.add(node);
+				graph.last_nodes.add(node);
 				//System.out.println("Case 1a");
 			} else {
 				
 				ArrayList<Node> new_last_nodes = new ArrayList<Node>();
 				ArrayList<Node> old_last_nodes = new ArrayList<Node>();
-				for (Node last : last_nodes) {					
+				for (Node last : graph.last_nodes) {					
 			
 					/*** Case II: This event is compatible with the last event. Add an edge between last and this. ***/
 					if (last.isCompatible(node)) {
-						connect(last,node);
+						graph.connect(last,node);
 						old_last_nodes.add(last);
 						new_last_nodes.add(node);
 						//System.out.println("Case 2");
@@ -75,27 +79,30 @@ public class Graph {
 					} else {
 							
 						/*** Case III: This event is compatible with a previous event of the last event. Add an edge between previous and this. ***/
+						boolean first = true;
 						if (last.event.value==event.value) {
 							for (Node comp_node : last.previous) {
 								if (comp_node.event.sec<event.sec) {
-									connect(comp_node,node);
+									graph.connect(comp_node,node);
+									first = false;
 									//System.out.println("Case 3");
 								}
 							}							 
 						}						
 						/*** Case I: This event is compatible with no previous event. Add this event to the last nodes. ***/
+						if (first) graph.first_nodes.add(node);
 						new_last_nodes.add(node);
 						//System.out.println("Case 1b");
 					}					
 				}
-				last_nodes.removeAll(old_last_nodes);
-				last_nodes.addAll(new_last_nodes);
+				graph.last_nodes.removeAll(old_last_nodes);
+				graph.last_nodes.addAll(new_last_nodes);
 			}
 			// Add the new node to the graph
-			nodes.add(node);	
-			/*for (Node last2 : last_nodes) {
-				System.out.println(last2.event.id + ",");
-			}*/
-		}		
+			graph.nodes.add(node);	
+			/*for (Node last2 : graph.last_nodes) { System.out.println("last: " + last2.event.id + ","); }
+			for (Node first2 : graph.first_nodes) { System.out.println("first: " + first2.event.id + ","); }*/
+		}
+		return graph;
 	}
 }
