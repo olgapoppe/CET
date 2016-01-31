@@ -1,68 +1,34 @@
 package transaction;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Scanner;
 import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
 import event.*;
 import iogenerator.*;
 
-/** 
- * At the end of the window, the static base line algorithm computes all CETs.  
- * @author Olga Poppe
- */
-public class BaseLine extends Transaction {
+public class BaseLine extends Transaction {	
 	
 	HashSet<TreeSet<Event>> results;
 	
-	public BaseLine (ArrayList<Event> batch, long startOfSimulation, CountDownLatch transaction_number, OutputFileGenerator output) {		
-		super(batch, startOfSimulation, transaction_number, output);	
+	public BaseLine (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, long start) {		
+		super(b,o,tn,start);
 		results = new HashSet<TreeSet<Event>>();
 	}
 	
-	public static void main (String args[]) {
-		
-		try {
-			// Input
-			String inputfile = "src\\iofiles\\stream.txt";
-			Scanner scanner = new Scanner(new File(inputfile));		
-			String line = scanner.nextLine();
-			ArrayList<Event> batch = new ArrayList<Event>();
-			Event event = Event.parse(line); 			
- 			while (event != null) { 				
- 				batch.add(event);
- 				if (scanner.hasNextLine()) {		 				
- 					line = scanner.nextLine();   
- 					event = Event.parse(line);		 				
- 				} else {
- 					event = null;		 				
- 				}
- 			}
- 			scanner.close(); 	
- 			// Output
- 			String outputfilename ="src\\iofiles\\sequences.txt";
- 			File outputfile = new File(outputfilename);
- 			BufferedWriter output = new BufferedWriter(new FileWriter(outputfile)); 
- 			// Call the method
- 			//get(batch,output);
-		} catch (FileNotFoundException e) {	e.printStackTrace(); } 
-		  catch (IOException e) { e.printStackTrace(); }		
+	public void run () {		
+		computeResults();
+		writeOutput2File();		
+		transaction_number.countDown();
 	}
 	
-	//public static void get(ArrayList<Event> batch, BufferedWriter output) {
-	
-	public void run () {
+	public void computeResults() {
 		
-		HashSet<TreeSet<Event>> new_results = new HashSet<TreeSet<Event>>();
-		HashSet<TreeSet<Event>> prefixes = new HashSet<TreeSet<Event>>();
-			
+		//HashSet<TreeSet<Event>> new_results = new HashSet<TreeSet<Event>>();
+		HashSet<TreeSet<Event>> prefixes = new HashSet<TreeSet<Event>>();					
+				
 		for (Event event: batch) {
 			//System.out.println(node);
 			prefixes = new HashSet<TreeSet<Event>>();
@@ -71,12 +37,12 @@ public class BaseLine extends Transaction {
 				TreeSet<Event> newSeq = new TreeSet<Event>();
 				newSeq.add(event);
 				//System.out.println("seq on empty result : " + newSeq);
-				new_results.add(newSeq);	
+				//new_results.add(newSeq);	
 				results.add(newSeq);
 			} else {
 				boolean isAdded=false;
 				for (TreeSet<Event> seq : results) {
-					TreeSet<Event> prefix = (TreeSet<Event>) seq.headSet(event);
+					TreeSet<Event> prefix = (TreeSet<Event>) seq.headSet(event); // !!!
 					//System.out.println("prefix: "+prefix);
 					//System.out.println("prefix-size : " + prefix.size());
 					if (!prefix.isEmpty() && prefix.size() > 0) {
@@ -123,7 +89,7 @@ public class BaseLine extends Transaction {
 						TreeSet<Event> newSeq = new TreeSet<Event>();
 						newSeq.add(event);
 						//System.out.println("on empty newSeq : "+ newSeq);
-						new_results.add(newSeq);
+						//new_results.add(newSeq);
 						results.add(newSeq);
 					}						
 				} else {
@@ -132,20 +98,22 @@ public class BaseLine extends Transaction {
 						//System.out.println("before prefix : " + prefix);
 						prefix.add(event);
 						//System.out.println("add from prefixes : " + prefix);
-						new_results.add(prefix);
+						//new_results.add(prefix);
 						results.add(prefix);
 						//System.out.println("results size : " + results.size());
 					}
 				}					
 			}
 			//System.out.println("results size : " + results.size());					
-		}
-		/*** Write sequences to file ***/
+		}		
+	}	
+	
+	public void writeOutput2File() {
 		int min = Integer.MAX_VALUE;
 		int max = Integer.MIN_VALUE;
 		try {	
 			if (output.isAvailable()) {
-				for(TreeSet<Event> sequence : new_results) {
+				for(TreeSet<Event> sequence : results) { // new_results
 					//System.out.println(sequence);
 					for (Event event : sequence) {
 						//System.out.print(event.id + ",");
@@ -159,8 +127,37 @@ public class BaseLine extends Transaction {
 				output.setAvailable();
 			}
 		} catch (IOException e) { e.printStackTrace(); }
-		/*** Output the number of results and decrease the transaction number ***/
 		if (!results.isEmpty()) System.out.println("Number of sequences: " + results.size() + " Min: " + min + " Max: " + max);
-		transaction_number.countDown();
 	}
+	
+	/*public static void main (String args[]) {
+	
+	try {
+		// Input
+		String inputfile = "src\\iofiles\\stream.txt";
+		Scanner scanner = new Scanner(new File(inputfile));		
+		String line = scanner.nextLine();
+		ArrayList<Event> batch = new ArrayList<Event>();
+		Event event = Event.parse(line); 			
+			while (event != null) { 				
+				batch.add(event);
+				if (scanner.hasNextLine()) {		 				
+					line = scanner.nextLine();   
+					event = Event.parse(line);		 				
+				} else {
+					event = null;		 				
+				}
+			}
+			scanner.close(); 	
+			// Output
+			String outputfilename ="src\\iofiles\\sequences.txt";
+			File outputfile = new File(outputfilename);
+			BufferedWriter output = new BufferedWriter(new FileWriter(outputfile)); 
+			// Call the method
+			//get(batch,output);
+	} catch (FileNotFoundException e) {	e.printStackTrace(); } 
+	  catch (IOException e) { e.printStackTrace(); }		
+	}
+
+	public static void get(ArrayList<Event> batch, BufferedWriter output) {*/
 }

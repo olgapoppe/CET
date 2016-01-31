@@ -10,31 +10,39 @@ import transaction.*;
 
 public class Scheduler implements Runnable {
 	
+	final EventQueue eventqueue;
 	int lastsec;
-	final EventQueue eventqueue;	
-	ExecutorService executor;
-	CountDownLatch transaction_number;
-	CountDownLatch done;
-	long startOfSimulation;
-	AtomicInteger drProgress;
 	int window_length;
 	int window_slide;
+	int algorithm;
 	//boolean incremental;
+	
+	ExecutorService executor;
+	
+	AtomicInteger drProgress;
+	CountDownLatch transaction_number;
+	CountDownLatch done;
+	
+	long startOfSimulation;		
 	OutputFileGenerator output;
 	
-	public Scheduler (int last, EventQueue eq, ExecutorService exe, CountDownLatch d, long start, AtomicInteger dp, int wl, int ws, OutputFileGenerator o) {	
+	public Scheduler (EventQueue eq, int last, int wl, int ws, int a, ExecutorService exe, 
+			AtomicInteger dp, CountDownLatch d, long start, OutputFileGenerator o) {	
 		
-		lastsec = last;
 		eventqueue = eq;
+		lastsec = last;
+		window_length = wl;
+		window_slide = ws;
+		algorithm = a;
+		
 		executor = exe;
+		
+		drProgress = dp;
 		int window_number = last/ws + 1;
 		transaction_number = new CountDownLatch(window_number);
 		done = d;
-		startOfSimulation = start;
-		drProgress = dp;
-		window_length = wl;
-		window_slide = ws;
-		//incremental = incr;
+		
+		startOfSimulation = start;	
 		output = o;
 	}
 	
@@ -64,7 +72,7 @@ public class Scheduler implements Runnable {
 				Event e = eventqueue.contents.poll();
 				
 				/*** Create new windows ***/
-				if (e.sec >= new_window_creation && new_window_creation < lastsec) {
+				if (e.sec >= new_window_creation && new_window_creation <= lastsec) {
 					int end = (new_window_creation+window_length > lastsec) ? lastsec : (new_window_creation+window_length); 
 					Window new_window = new Window(new_window_creation, end);					
 					windows.add(new_window);
@@ -82,7 +90,7 @@ public class Scheduler implements Runnable {
 				if (first_expired) {					
 					Window window = windows.poll();
 										
-					BaseLine transaction = new BaseLine(window.events,startOfSimulation,transaction_number,output);				
+					BaseLine transaction = new BaseLine(window.events,output,transaction_number,startOfSimulation);				
 					executor.execute(transaction);
 								
 					first_expired = false;
@@ -102,9 +110,14 @@ public class Scheduler implements Runnable {
 			}									
 		}
 		/*** Poll the last windows and submit them for execution ***/
-		for (Window window : windows) {				
-			BaseLine transaction = new BaseLine(window.events,startOfSimulation,transaction_number,output);				
-			executor.execute(transaction);						
+		for (Window window : windows) {
+			Transaction transaction;
+			if (algorithm == 1) {
+				transaction = new BaseLine(window.events,output,transaction_number,startOfSimulation);		
+			} else {
+				transaction = new NonDynamic(window.events,output,transaction_number,startOfSimulation);
+			}
+			executor.execute(transaction);				
 		}		
 		/*** Terminate ***/
 		try { transaction_number.await(); } catch (InterruptedException e) { e.printStackTrace(); }

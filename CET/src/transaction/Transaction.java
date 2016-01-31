@@ -5,21 +5,19 @@ import java.util.concurrent.CountDownLatch;
 import event.*;
 import iogenerator.*;
 
-/** 
- * A transaction has an event batch, start of simulation and transaction number. 
- * @author Olga Poppe
- */
 public abstract class Transaction implements Runnable {
 	
-	ArrayList<Event> batch;	
-	long startOfSimulation;
-	public CountDownLatch transaction_number;
+	ArrayList<Event> batch;		
 	OutputFileGenerator output;
+	public CountDownLatch transaction_number;
+	long startOfSimulation;	
 	
-	public Transaction (ArrayList<Event> b, long start, CountDownLatch tn, OutputFileGenerator o) {		
-		batch = b;		
-		startOfSimulation = start;	
-		transaction_number = tn;
+	public Transaction (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, long start) {		
+		batch = b;			
 		output = o; 
+		transaction_number = tn;
+		startOfSimulation = start;	
 	}	
+	
+	
 }
