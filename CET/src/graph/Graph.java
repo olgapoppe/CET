@@ -44,7 +44,7 @@ public class Graph {
 				ArrayList<Node> nodes = new ArrayList<Node>();
 				nodes.add(node);
 				graph.last_nodes.put(event.value,nodes);
-				//System.out.println("Case 1a");
+				//System.out.println(event.id + " starts a new sequence.");
 			} else {
 				
 				ArrayList<Node> new_last_nodes = new ArrayList<Node>();
@@ -74,7 +74,7 @@ public class Graph {
 						/*** Case I: This event is compatible with no previous event. Add this event to the last nodes. ***/
 						if (first) graph.first_nodes.add(node);
 						new_last_nodes.add(node);
-						//System.out.println("Case 1b");
+						//System.out.println(event.id + " starts a new sequence.");
 					}			
 				}
 				lnodes.removeAll(old_last_nodes);
@@ -84,7 +84,7 @@ public class Graph {
 			// Add the new node to the graph
 			graph.nodes.add(node);	
 		}
-		for (Node node : graph.nodes) { System.out.println(node.toString()); }		
+		//for (Node node : graph.nodes) { System.out.println(node.toString()); }		
 		return graph;
 	}
 	
