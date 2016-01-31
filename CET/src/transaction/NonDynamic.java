@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Stack;
-import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
 import event.Event;
 import graph.*;
@@ -54,7 +53,7 @@ public class NonDynamic extends Transaction {
         	}        	
         }
         current_sequence.pop();
-        //System.out.println("poped " + top.event.id);
+        //System.out.println("popped " + top.event.id);
     }
 	
 	public void writeOutput2File() {

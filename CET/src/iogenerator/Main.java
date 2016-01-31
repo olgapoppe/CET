@@ -33,9 +33,9 @@ public class Main {
 		OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
 		
 	    int lastsec = 57;
-		int window_length = 20;
-		int window_slide = 10;	
-		int algorithm = 2;
+		int window_length = 10;
+		int window_slide = 5;	
+		int algorithm = 1;
 		//boolean incremental = false;
 		
 		// Read input parameters
