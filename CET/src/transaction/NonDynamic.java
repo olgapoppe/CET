@@ -34,7 +34,7 @@ public class NonDynamic extends Transaction {
 	public void computeResults (Node node, Stack<Node> current_sequence) {       
 		
 		current_sequence.push(node);
-		System.out.println("pushed " + node.event.id);
+		//System.out.println("pushed " + node.event.id);
         
 		/*** Base case: We hit the end of the graph. Output the current CET. ***/
         if (node.following.isEmpty()) {   
@@ -45,7 +45,7 @@ public class NonDynamic extends Transaction {
         		result.add(n);
         	}
         	results.add(result);  
-        	System.out.println("result " + result.toString());
+        	//System.out.println("result " + result.toString());
         } else {
         /*** Recursive case: Traverse the following nodes. ***/        	
         	for(Node following : node.following) {        		
@@ -54,7 +54,7 @@ public class NonDynamic extends Transaction {
         	}        	
         }
         Node top = current_sequence.pop();
-        System.out.println("popped " + top.event.id);
+        //System.out.println("popped " + top.event.id);
     }
 	
 	public void writeOutput2File() {
