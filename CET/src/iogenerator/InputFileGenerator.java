@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import event.*;
 
-public class InoutFileGenerator {
+public class InputFileGenerator {
 	
 	/**
 	 * INPUT PARAMETERS:
@@ -41,6 +41,7 @@ public class InoutFileGenerator {
 			int comp = 0;
 			int value = 1; // value 0 is irrelevant
 			int sequence_number = 0;
+			int max_event_rate = 0;
 			
 			// Output the parameters
 			System.out.println(
@@ -58,7 +59,7 @@ public class InoutFileGenerator {
 				int curr_sequence_number = 1;
 			
 				// First event in a sequence
-				sec = 0;
+				sec = random.nextInt(max_time_progress);
 				value++;
 				Event e1 = new Event(sec,event_id,value);	
 				events_with_same_value.add(e1);
@@ -88,17 +89,23 @@ public class InoutFileGenerator {
 			// Put events in the file in order by time stamp
 			int saved_events = 0;
 			int curr_sec = 0;
+			int event_rate = 0;
 			while (saved_events<event_id) {
+				event_rate = 0;
 				for (ArrayDeque<Event> events_with_same_value : all_events) {
 					while (events_with_same_value.peek()!=null && events_with_same_value.peek().sec == curr_sec) {
 						output.append(events_with_same_value.poll().print2file());
 						saved_events++;
+						event_rate++;
 					}
 				}
+				if (max_event_rate < event_rate) max_event_rate = event_rate;
 				curr_sec++;				
 			}	
-			System.out.println("---------------------\n" + 
-					"Sequence number: " + sequence_number);
+			System.out.println("---------------------" + 
+					"\nSequence number: " + sequence_number +
+					"\nEvent number: " + event_id +
+					"\nEvent rate: " + max_event_rate);
 			// Close the file
 			output.close();
 			
