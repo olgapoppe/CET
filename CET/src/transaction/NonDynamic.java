@@ -30,11 +30,11 @@ public class NonDynamic extends Transaction {
 		transaction_number.countDown();
 	}
 	
-	// DFS
+	// DFS recomputing intermediate results
 	public void computeResults (Node node, Stack<Node> current_sequence) {       
 		
 		current_sequence.push(node);
-		//System.out.println("pushed " + node.event.id);
+		System.out.println("pushed " + node.event.id);
         
 		/*** Base case: We hit the end of the graph. Output the current CET. ***/
         if (node.following.isEmpty()) {   
@@ -44,16 +44,17 @@ public class NonDynamic extends Transaction {
         		Node n = iter.next();
         		result.add(n);
         	}
-        	results.add(result);       	       	        	
+        	results.add(result);  
+        	System.out.println("result " + result.toString());
         } else {
-        /*** Recursive case: Update the current CET and traverse the following nodes. ***/        	
+        /*** Recursive case: Traverse the following nodes. ***/        	
         	for(Node following : node.following) {        		
         		//System.out.println("following of " + node.event.id + " is " + following.event.id);
         		computeResults(following,current_sequence);        		
         	}        	
         }
-        current_sequence.pop();
-        //System.out.println("popped " + top.event.id);
+        Node top = current_sequence.pop();
+        System.out.println("popped " + top.event.id);
     }
 	
 	public void writeOutput2File() {

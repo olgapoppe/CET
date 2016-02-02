@@ -115,8 +115,11 @@ public class Scheduler implements Runnable {
 			if (algorithm == 1) {
 				transaction = new BaseLine(window.events,output,transaction_number,startOfSimulation);		
 			} else {
+			if (algorithm == 2) {
 				transaction = new NonDynamic(window.events,output,transaction_number,startOfSimulation);
-			}
+			} else {
+				transaction = new Dynamic(window.events,output,transaction_number,startOfSimulation);
+			}}
 			executor.execute(transaction);				
 		}		
 		/*** Terminate ***/

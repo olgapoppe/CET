@@ -28,14 +28,14 @@ public class Main {
 	    /*** Input and output ***/
 	    // Set default values
 	    String path = "src\\iofiles\\";
-		String inputfile ="stream.txt";
+		String inputfile ="stream1.txt";
 		String outputfile ="sequences.txt";
 		OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
 		
-	    int lastsec = 57;
-		int window_length = 10;
-		int window_slide = 5;	
-		int algorithm = 1;
+	    int lastsec = 2;
+		int window_length = 3;
+		int window_slide = 3;	
+		int algorithm = 3;
 		//boolean incremental = false;
 		
 		// Read input parameters

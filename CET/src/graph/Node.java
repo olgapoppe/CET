@@ -9,12 +9,14 @@ public class Node {
 	public ArrayList<Node> previous;
 	public ArrayList<Node> following;
 	public boolean visited;
+	public ArrayList<ArrayList<Node>> results;
 	
 	public Node (Event e) {
 		event = e;
 		previous = new ArrayList<Node>();
 		following = new ArrayList<Node>();
 		visited = false;
+		results = new ArrayList<ArrayList<Node>>();
 	}
 	
 	public boolean isCompatible(Node other) {
@@ -26,7 +28,7 @@ public class Node {
 	}
 	
 	public String toString() {
-		return event.id + " has " + previous.size() + " previuos and " + following.size() + " following events."; 
+		return event.id + ""; // + " has " + previous.size() + " previuos and " + following.size() + " following events."; 
 	}
 }
 
