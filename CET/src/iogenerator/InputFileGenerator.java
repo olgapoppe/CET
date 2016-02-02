@@ -41,7 +41,6 @@ public class InputFileGenerator {
 			int comp = 0;
 			int value = 1; // value 0 is irrelevant
 			int sequence_number = 0;
-			int max_event_rate = 0;
 			
 			// Output the parameters
 			System.out.println(
@@ -49,6 +48,11 @@ public class InputFileGenerator {
 					"\nMax time progress: " + max_time_progress +
 					"\nMax compatibility: " + max_comp +
 					"\n---------------------");
+			
+			//for (int init_sec = 0; init_sec+100<=end; init_sec+=99) {
+				
+				//int last_sec = init_sec + 100;
+				//sec = init_sec;
 			
 			// Generate sequences
 			ArrayList<ArrayDeque<Event>> all_events = new ArrayList<ArrayDeque<Event>> ();
@@ -87,28 +91,37 @@ public class InputFileGenerator {
 				sequence_number += curr_sequence_number;				
 			}
 			// Put events in the file in order by time stamp
-			int saved_events = 0;
-			int curr_sec = 0;
-			int event_rate = 0;
-			while (saved_events<event_id) {
-				event_rate = 0;
-				for (ArrayDeque<Event> events_with_same_value : all_events) {
-					while (events_with_same_value.peek()!=null && events_with_same_value.peek().sec == curr_sec) {
-						output.append(events_with_same_value.poll().print2file());
-						saved_events++;
-						event_rate++;
-					}
-				}
-				if (max_event_rate < event_rate) max_event_rate = event_rate;
-				curr_sec++;				
-			}	
-			System.out.println("---------------------" + 
-					"\nSequence number: " + sequence_number +
-					"\nEvent number: " + event_id +
-					"\nEvent rate: " + max_event_rate);
+			write2File(all_events,output,event_id,sequence_number);
+		    //}
+			
 			// Close the file
 			output.close();
 			
 		} catch (IOException e) { e.printStackTrace(); }
+	}
+	
+	public static void write2File(ArrayList<ArrayDeque<Event>> all_events, BufferedWriter output, int event_id, int sequence_number) {
+		
+		int saved_events = 0;
+		int curr_sec = 0;
+		int event_rate = 0;
+		int max_event_rate = 0;
+		
+		while (saved_events<event_id) {
+			event_rate = 0;
+			for (ArrayDeque<Event> events_with_same_value : all_events) {
+				while (events_with_same_value.peek()!=null && events_with_same_value.peek().sec == curr_sec) {
+					try { output.append(events_with_same_value.poll().print2file()); } catch (IOException e) { e.printStackTrace(); }
+					saved_events++;
+					event_rate++;
+				}
+			}
+			if (max_event_rate < event_rate) max_event_rate = event_rate;
+			curr_sec++;				
+		}	
+		System.out.println("---------------------" + 
+				"\nSequence number: " + sequence_number +
+				"\nEvent number: " + event_id +
+				"\nEvent rate: " + max_event_rate);		
 	}
 }
