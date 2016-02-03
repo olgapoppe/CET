@@ -35,12 +35,15 @@ public class InputFileGenerator {
 		
 			// Local variables
 			Random random = new Random();
-			int last_sec = last_min * 60;
-			int sec = 0;
-			int event_id = 0;					
-			int comp = 0;
-			int value = 1; // value 0 is irrelevant
+			int batch_size = 300; // 300
+			int last_sec = last_min * 60; 
+			int comp = 0;	
+			
+			int event_id = 0;
+			int value = 0; 
+			
 			int sequence_number = 0;
+			int max_event_rate = 0;
 			
 			// Output the parameters
 			System.out.println(
@@ -49,65 +52,76 @@ public class InputFileGenerator {
 					"\nMax compatibility: " + max_comp +
 					"\n---------------------");
 			
-			//for (int init_sec = 0; init_sec+100<=end; init_sec+=99) {
-				
-				//int last_sec = init_sec + 100;
-				//sec = init_sec;
-			
-			// Generate sequences
+			// Generate sequences in batches
 			ArrayList<ArrayDeque<Event>> all_events = new ArrayList<ArrayDeque<Event>> ();
 			
-			while (sec<=last_sec) {			
+			for (int iteration_number=0; iteration_number<last_sec/batch_size; iteration_number++) { 
+				
+				int sec = 0;
+				int offset = iteration_number*batch_size;
+				int event_number = 0;
+				all_events.clear();
+						
+				System.out.println("Iteration " + iteration_number);
+			
+				while (sec<=batch_size) {			
 				 
-				ArrayDeque<Event> events_with_same_value = new ArrayDeque<Event> ();
-				int curr_sequence_number = 1;
+					ArrayDeque<Event> events_with_same_value = new ArrayDeque<Event> ();
+					int curr_sequence_number = 1;
 			
-				// First event in a sequence
-				sec = random.nextInt(max_time_progress);
-				value++;
-				Event e1 = new Event(sec,event_id,value);	
-				events_with_same_value.add(e1);
-				//System.out.println(e1.toString());
-				event_id++;
-				comp = random.nextInt(max_comp + 1);
-				//System.out.println(comp);
-				if (comp>1) curr_sequence_number *= comp;
-			
-				// All following events
-				while (comp>0) {
-					sec = sec + random.nextInt(max_time_progress) + 1;
-					if (sec>last_sec) break;
-					for (int i=0; i<comp; i++) {						
-						Event e2 = new Event(sec,event_id,value);
-						events_with_same_value.add(e2);
-						//System.out.println(e2.toString());
-						event_id++;
-					}
+					// First event in a sequence
+					sec = random.nextInt(max_time_progress);
+					value++;
+					Event e1 = new Event(sec+offset,event_id,value);	
+					events_with_same_value.add(e1);				
+					//System.out.println(e1.toString());				
+					event_id++;
 					comp = random.nextInt(max_comp + 1);
 					//System.out.println(comp);
 					if (comp>1) curr_sequence_number *= comp;
-				}	
-				all_events.add(events_with_same_value);
-				sequence_number += curr_sequence_number;				
-			}
-			// Put events in the file in order by time stamp
-			write2File(all_events,output,event_id,sequence_number);
-		    //}
+			
+					// All following events
+					while (comp>0) {
+						sec = sec + random.nextInt(max_time_progress) + 1;
+						if (sec>batch_size) break;
+						for (int i=0; i<comp; i++) {						
+							Event e2 = new Event(sec+offset,event_id,value);
+							events_with_same_value.add(e2);
+							//System.out.println(e2.toString());
+							event_id++;
+						}
+						comp = random.nextInt(max_comp + 1);
+						//System.out.println(comp);
+						if (comp>1) curr_sequence_number *= comp;
+					}	
+					all_events.add(events_with_same_value);
+					event_number += events_with_same_value.size();
+					sequence_number += curr_sequence_number;				
+				}
+				// Put events in the file in order by time stamp
+				int event_rate = write2File(all_events,output,event_number,sequence_number);	
+				if (max_event_rate<event_rate) max_event_rate = event_rate;				
+		    }
 			
 			// Close the file
-			output.close();
+			output.close();	
+			
+			System.out.println("---------------------" + 
+					"\nSequence number: " + sequence_number +
+					"\nEvent number: " + event_id +
+					"\nEvent rate: " + max_event_rate);	
 			
 		} catch (IOException e) { e.printStackTrace(); }
 	}
 	
-	public static void write2File(ArrayList<ArrayDeque<Event>> all_events, BufferedWriter output, int event_id, int sequence_number) {
+	public static int write2File(ArrayList<ArrayDeque<Event>> all_events, BufferedWriter output, int event_number, int sequence_number) {
 		
 		int saved_events = 0;
 		int curr_sec = 0;
 		int event_rate = 0;
 		int max_event_rate = 0;
 		
-		while (saved_events<event_id) {
+		while (saved_events<event_number) {
 			event_rate = 0;
 			for (ArrayDeque<Event> events_with_same_value : all_events) {
 				while (events_with_same_value.peek()!=null && events_with_same_value.peek().sec == curr_sec) {
@@ -119,9 +133,6 @@ public class InputFileGenerator {
 			if (max_event_rate < event_rate) max_event_rate = event_rate;
 			curr_sec++;				
 		}	
-		System.out.println("---------------------" + 
-				"\nSequence number: " + sequence_number +
-				"\nEvent number: " + event_id +
-				"\nEvent rate: " + max_event_rate);		
+		return max_event_rate;
 	}
 }
