@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicLong;
+
 import event.*;
 import iogenerator.*;
 
@@ -13,18 +15,18 @@ public class BaseLine extends Transaction {
 	
 	HashSet<TreeSet<Event>> results;
 	
-	public BaseLine (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, long start) {		
-		super(b,o,tn,start);
+	public BaseLine (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT) {		
+		super(b,o,tn,pT);
 		results = new HashSet<TreeSet<Event>>();
 	}
 	
 	public void run () {
 		
-		//long start =  System.currentTimeMillis();
+		long start =  System.currentTimeMillis();
 		computeResults();
-		/*long end =  System.currentTimeMillis();
+		long end =  System.currentTimeMillis();
 		long processingDuration = end - start;
-		processingTime.set(processingTime.get() + processingDuration);*/
+		processingTime.set(processingTime.get() + processingDuration);
 		
 		writeOutput2File();		
 		transaction_number.countDown();

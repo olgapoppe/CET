@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
 import event.*;
 import iogenerator.*;
 import transaction.*;
@@ -24,11 +26,11 @@ public class Scheduler implements Runnable {
 	CountDownLatch transaction_number;
 	CountDownLatch done;
 	
-	long startOfSimulation;		
+	AtomicLong processingTime;		
 	OutputFileGenerator output;
 	
 	public Scheduler (EventQueue eq, int last, int wl, int ws, int a, ExecutorService exe, 
-			AtomicInteger dp, CountDownLatch d, long start, OutputFileGenerator o) {	
+			AtomicInteger dp, CountDownLatch d, AtomicLong pT, OutputFileGenerator o) {	
 		
 		eventqueue = eq;
 		lastsec = last;
@@ -43,7 +45,7 @@ public class Scheduler implements Runnable {
 		transaction_number = new CountDownLatch(window_number);
 		done = d;
 		
-		startOfSimulation = start;	
+		processingTime = pT;	
 		output = o;
 	}
 	
@@ -120,12 +122,12 @@ public class Scheduler implements Runnable {
 	public void execute(ArrayList<Event> events) {
 		Transaction transaction;
 		if (algorithm == 1) {
-			transaction = new BaseLine(events,output,transaction_number,startOfSimulation);		
+			transaction = new BaseLine(events,output,transaction_number,processingTime);		
 		} else {
 		if (algorithm == 2) {
-			transaction = new NonDynamic(events,output,transaction_number,startOfSimulation);
+			transaction = new NonDynamic(events,output,transaction_number,processingTime);
 		} else {
-			transaction = new Dynamic(events,output,transaction_number,startOfSimulation);
+			transaction = new Dynamic(events,output,transaction_number,processingTime);
 		}}
 		executor.execute(transaction);	
 	}

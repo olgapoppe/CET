@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicLong;
+
 import event.Event;
 import graph.*;
 
@@ -14,18 +16,23 @@ public class NonDynamic extends Transaction {
 	Graph graph;
 	ArrayList<ArrayList<Node>> results;
 	
-	public NonDynamic (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, long start) {
-		super(b,o,tn,start);	
+	public NonDynamic (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT) {
+		super(b,o,tn,pT);	
 		results = new ArrayList<ArrayList<Node>>();
 	}
 	
 	public void run() {
 		
+		long start =  System.currentTimeMillis();
 		graph = Graph.constructGraph(batch);		
 		for (Node first : graph.first_nodes) {
 			Stack<Node> current_sequence = new Stack<Node>();
 			computeResults(first,current_sequence);
-		}	
+		}
+		long end =  System.currentTimeMillis();
+		long processingDuration = end - start;
+		processingTime.set(processingTime.get() + processingDuration);
+		
 		writeOutput2File();		
 		transaction_number.countDown();
 	}

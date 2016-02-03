@@ -7,6 +7,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
 import event.*;
 import scheduler.*;
  
@@ -62,7 +64,8 @@ public class Main {
 		AtomicInteger driverProgress = new AtomicInteger(-1);	
 		EventQueue eventqueue = new EventQueue(driverProgress);						
 		CountDownLatch done = new CountDownLatch(1);
-		long startOfSimulation = System.currentTimeMillis();	
+		long startOfSimulation = System.currentTimeMillis();
+		AtomicLong processingTime = new AtomicLong(0);	
 		
 		/*** EXECUTORS ***/
 		int number_of_executors = 3;// Integer.parseInt(args[0]);
@@ -75,7 +78,7 @@ public class Main {
 		EventDriver driver = new EventDriver (input, lastsec, eventqueue, startOfSimulation, driverProgress);				
 				
 		Scheduler scheduler = new Scheduler (eventqueue, lastsec, window_length, window_slide, algorithm, executor, 
-				driverProgress, done, startOfSimulation, output);		
+				driverProgress, done, processingTime, output);		
 		
 		Thread prodThread = new Thread(driver);
 		prodThread.setPriority(10);
@@ -90,7 +93,9 @@ public class Main {
 		executor.shutdown();	
 		output.file.close();
 		
-		System.out.println("Executor is done.\nMain is done.");
+		System.out.println("Processing time: " + processingTime.get() +
+				"\nExecutor is done."+
+				"\nMain is done.");
 			
 		} catch (InterruptedException e) { e.printStackTrace(); }
 		  catch (IOException e1) { e1.printStackTrace(); }

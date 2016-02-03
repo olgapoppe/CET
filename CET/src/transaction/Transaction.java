@@ -11,16 +11,13 @@ public abstract class Transaction implements Runnable {
 	
 	ArrayList<Event> batch;		
 	OutputFileGenerator output;
-	public CountDownLatch transaction_number;
-	
-	long startOfSimulation;
+	public CountDownLatch transaction_number;	
 	AtomicLong processingTime;
 	
-	public Transaction (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, long start) {		
+	public Transaction (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT) {		
 		batch = b;			
 		output = o; 
 		transaction_number = tn;
-		startOfSimulation = start;	
-		processingTime = new AtomicLong(0);
+		processingTime = pT;
 	}	
 }

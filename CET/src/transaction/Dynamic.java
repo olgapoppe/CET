@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicLong;
+
 import event.Event;
 import graph.Graph;
 import graph.Node;
@@ -13,18 +15,22 @@ public class Dynamic extends Transaction {
 	
 	Graph graph;
 	
-	public Dynamic (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, long start) {
-		super(b,o,tn,start);	
-		
+	public Dynamic (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT) {
+		super(b,o,tn,pT);			
 	}
 	
 	public void run() {
 		
+		long start =  System.currentTimeMillis();
 		graph = Graph.constructGraph(batch);		
 		for (Node first : graph.first_nodes) {
 			Stack<Node> current_sequence = new Stack<Node>();
 			computeResults(first,current_sequence);				
 		}	
+		long end =  System.currentTimeMillis();
+		long processingDuration = end - start;
+		processingTime.set(processingTime.get() + processingDuration);
+		
 		writeOutput2File();
 		transaction_number.countDown();
 	}
