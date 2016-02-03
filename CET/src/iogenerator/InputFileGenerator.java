@@ -35,7 +35,7 @@ public class InputFileGenerator {
 		
 			// Local variables
 			Random random = new Random();
-			int batch_size = 300; // 300
+			int batch_size = 300; 
 			int last_sec = last_min * 60; 
 			int comp = 0;	
 			
@@ -109,7 +109,7 @@ public class InputFileGenerator {
 			System.out.println("---------------------" + 
 					"\nSequence number: " + sequence_number +
 					"\nEvent number: " + event_id +
-					"\nEvent rate: " + max_event_rate);	
+					"\nMax event rate: " + max_event_rate);	
 			
 		} catch (IOException e) { e.printStackTrace(); }
 	}

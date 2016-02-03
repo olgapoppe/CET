@@ -18,8 +18,14 @@ public class BaseLine extends Transaction {
 		results = new HashSet<TreeSet<Event>>();
 	}
 	
-	public void run () {		
+	public void run () {
+		
+		//long start =  System.currentTimeMillis();
 		computeResults();
+		/*long end =  System.currentTimeMillis();
+		long processingDuration = end - start;
+		processingTime.set(processingTime.get() + processingDuration);*/
+		
 		writeOutput2File();		
 		transaction_number.countDown();
 	}

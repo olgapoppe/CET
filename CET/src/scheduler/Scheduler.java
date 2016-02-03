@@ -1,6 +1,7 @@
 package scheduler;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -89,10 +90,7 @@ public class Scheduler implements Runnable {
 				/*** Poll an expired window and submit it for execution ***/
 				if (first_expired) {					
 					Window window = windows.poll();
-										
-					BaseLine transaction = new BaseLine(window.events,output,transaction_number,startOfSimulation);				
-					executor.execute(transaction);
-								
+					execute(window.events);							
 					first_expired = false;
 				}
 				event = eventqueue.contents.peek();
@@ -111,22 +109,26 @@ public class Scheduler implements Runnable {
 		}
 		/*** Poll the last windows and submit them for execution ***/
 		for (Window window : windows) {
-			Transaction transaction;
-			if (algorithm == 1) {
-				transaction = new BaseLine(window.events,output,transaction_number,startOfSimulation);		
-			} else {
-			if (algorithm == 2) {
-				transaction = new NonDynamic(window.events,output,transaction_number,startOfSimulation);
-			} else {
-				transaction = new Dynamic(window.events,output,transaction_number,startOfSimulation);
-			}}
-			executor.execute(transaction);				
+			execute(window.events);			
 		}		
 		/*** Terminate ***/
 		try { transaction_number.await(); } catch (InterruptedException e) { e.printStackTrace(); }
-		done.countDown();
+		done.countDown();	
 		System.out.println("Scheduler is done.");
 	}	
+	
+	public void execute(ArrayList<Event> events) {
+		Transaction transaction;
+		if (algorithm == 1) {
+			transaction = new BaseLine(events,output,transaction_number,startOfSimulation);		
+		} else {
+		if (algorithm == 2) {
+			transaction = new NonDynamic(events,output,transaction_number,startOfSimulation);
+		} else {
+			transaction = new Dynamic(events,output,transaction_number,startOfSimulation);
+		}}
+		executor.execute(transaction);	
+	}
 	
 	/*public void run() {	
 		
