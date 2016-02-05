@@ -29,7 +29,7 @@ public class Main {
 	    
 	    /*** Input and output ***/
 	    // Set default values
-	    String path = "src\\iofiles\\";
+	    String path = "CET\\src\\iofiles\\";
 		String inputfile ="stream.txt";
 		String outputfile ="sequences.txt";
 		OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
