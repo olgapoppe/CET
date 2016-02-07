@@ -1,15 +1,12 @@
 package transaction;
 
 import iogenerator.OutputFileGenerator;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
-import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
 import event.Event;
 import graph.Graph;
 import graph.Node;

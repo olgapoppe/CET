@@ -120,32 +120,16 @@ public class BaseLine extends Transaction {
 	public void writeOutput2File() {
 		
 		int memory4results = 0;
-		/*int min = Integer.MAX_VALUE;
-		int max = Integer.MIN_VALUE;*/
-		
+				
 		if (output.isAvailable()) {
-			for(TreeSet<Event> sequence : results) { // new_results
-					
+			for(TreeSet<Event> sequence : results) { 					
 				try { output.file.append(sequence.toString() + "\n"); } catch (IOException e) { e.printStackTrace(); }
-				memory4results +=sequence.size();
-					
-				/*//System.out.println(sequence);
-				for (Event event : sequence) {
-					//System.out.print(event.id + ",");
-					if (min > event.sec) min = event.sec;
-					if (max < event.sec) max = event.sec;
-					output.file.append(event.print2fileInASeq());
-				}
-				//System.out.println("\n-----------------------");
-				output.file.append("\n");*/
+				memory4results +=sequence.size();				
 			}
 			output.setAvailable();
-		}
-			
+		}			
 		// Output of statistics
-		if (maxMemoryPerWindow.get() < memory4results) maxMemoryPerWindow.getAndAdd(memory4results);
-		
-		//if (!results.isEmpty()) System.out.println("Number of sequences: " + results.size() + " Min: " + min + " Max: " + max);
+		if (maxMemoryPerWindow.get() < memory4results) maxMemoryPerWindow.getAndAdd(memory4results);	
 	}
 	
 	/*public static void main (String args[]) {

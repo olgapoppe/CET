@@ -38,7 +38,7 @@ public class Node {
 		int memory4results = 0;
 		for(String sequence : results) { 				
 			try { output.file.append(sequence + "\n"); } catch (IOException e) { e.printStackTrace(); }
-			memory4results +=sequence.length();
+			memory4results += sequence.length();
 		}	
 		return memory4results;
 	}
