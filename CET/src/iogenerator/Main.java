@@ -30,16 +30,15 @@ public class Main {
 	    /*** Input and output ***/
 	    // Set default values
 	    String path = "CET\\src\\iofiles\\";
-		String inputfile ="stream.txt";
+		String inputfile ="rate200.txt";
 		String outputfile ="sequences.txt";
 		OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
 		
-	    int lastsec = 310;
-		int window_length = 100;
-		int window_slide = 50;	
-		int algorithm = 3;
-		//boolean incremental = false;
-		
+	    int lastsec = 120;
+		int window_length = 60;
+		int window_slide = 30;	
+		int algorithm = 2;
+				
 		// Read input parameters
 	    for (int i=0; i<args.length; i++){
 			if (args[i].equals("-path")) 		path = args[++i];
@@ -48,7 +47,6 @@ public class Main {
 			if (args[i].equals("-wl")) 			window_length = Integer.parseInt(args[++i]);
 			if (args[i].equals("-wos")) 		window_slide = Integer.parseInt(args[++i]);
 			if (args[i].equals("-algo")) 		algorithm = Integer.parseInt(args[++i]);
-			//if (args[i].equals("-inc")) 		incremental = (Integer.parseInt(args[++i])==1);
 		}
 	    String input = path + inputfile;
 	    
@@ -57,8 +55,8 @@ public class Main {
 	    					"\nLast sec: " + lastsec +
 	    					"\nWindow length: " + window_length + 
 							"\nWindow slide: " + window_slide +
-							"\nAlgorithm: " + algorithm);
-							//"\nIncremental: " + incremental);
+							"\nAlgorithm: " + algorithm +
+							"\n----------------------------------");
 
 		/*** SHARED DATA STRUCTURES ***/		
 		AtomicInteger driverProgress = new AtomicInteger(-1);	
@@ -66,6 +64,8 @@ public class Main {
 		CountDownLatch done = new CountDownLatch(1);
 		long startOfSimulation = System.currentTimeMillis();
 		AtomicLong processingTime = new AtomicLong(0);	
+		AtomicInteger eventNumber = new AtomicInteger(0);
+		AtomicInteger maxMemoryPerWindow = new AtomicInteger(0);
 		
 		/*** EXECUTORS ***/
 		int number_of_executors = 3;// Integer.parseInt(args[0]);
@@ -75,10 +75,10 @@ public class Main {
 		/*** Create and start the event driver and the scheduler THREADS.
 		 *   Driver reads from the file and writes into the event queue.
 		 *   Scheduler reads from the event queue and submits event batches to the executor. ***/
-		EventDriver driver = new EventDriver (input, lastsec, eventqueue, startOfSimulation, driverProgress);				
+		EventDriver driver = new EventDriver (input, lastsec, eventqueue, startOfSimulation, driverProgress, eventNumber);				
 				
 		Scheduler scheduler = new Scheduler (eventqueue, lastsec, window_length, window_slide, algorithm, executor, 
-				driverProgress, done, processingTime, output);		
+				driverProgress, done, processingTime, maxMemoryPerWindow, output);		
 		
 		Thread prodThread = new Thread(driver);
 		prodThread.setPriority(10);
@@ -93,8 +93,12 @@ public class Main {
 		executor.shutdown();	
 		output.file.close();
 		
-		System.out.println("Processing time: " + processingTime.get() +
-				"\nExecutor is done."+
+		System.out.println(
+				"Event number: " + eventNumber.get() +
+				"\nProcessing time: " + processingTime.get() +
+				"\nThroughput: " + eventNumber.get()/processingTime.get() +
+				"\nMemory: " + maxMemoryPerWindow.get() +
+				"\nExecutor is done." +
 				"\nMain is done.");
 			
 		} catch (InterruptedException e) { e.printStackTrace(); }

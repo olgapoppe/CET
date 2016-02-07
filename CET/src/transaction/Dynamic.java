@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import event.Event;
@@ -17,14 +18,14 @@ public class Dynamic extends Transaction {
 	
 	Graph graph;
 	
-	public Dynamic (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT) {
-		super(b,o,tn,pT);			
+	public Dynamic (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT,AtomicInteger mMPW) {
+		super(b,o,tn,pT,mMPW);			
 	}
 	
 	public void run() {
 		
 		long start =  System.currentTimeMillis();
-		graph = Graph.constructGraph(batch);			
+		graph = Graph.constructGraph(batch);
 		computeResults(graph.first_nodes);		
 		long end =  System.currentTimeMillis();
 		long processingDuration = end - start;
@@ -34,7 +35,7 @@ public class Dynamic extends Transaction {
 		transaction_number.countDown();
 	}
 	
-	// BFS storing intermediate results in the current level
+	// BFS storing intermediate results in all nodes at the current level
 	public void computeResults (ArrayList<Node> current_level) { 
 		
 		ArrayList<Node> next_level = new ArrayList<Node>();
@@ -66,17 +67,21 @@ public class Dynamic extends Transaction {
 	}
 	
 	public void writeOutput2File() {
-		int min = Integer.MAX_VALUE;
+		
+		int memory4results = 0;
+		/*int min = Integer.MAX_VALUE;
 		int max = Integer.MIN_VALUE;
-		int count = 0;
-		try {	
+		int sequence_count = 0;*/		
+		
+		//try {	
 			if (output.isAvailable()) {
 				Set<Integer> keys = graph.last_nodes.keySet();
 				for (Integer key : keys) {
 					ArrayList<Node> last_nodes = graph.last_nodes.get(key);
 					for (Node last : last_nodes) {
-						for(ArrayList<Node> sequence : last.results) { 
-							//System.out.println(sequence);
+						memory4results += last.printResults(output);
+						/*for(ArrayList<Node> sequence : last.results) { 							
+							//System.out.println(sequence.toString());							
 							for (Node node : sequence) {
 								//System.out.print(event.id + ",");
 								if (min > node.event.sec) min = node.event.sec;
@@ -86,12 +91,18 @@ public class Dynamic extends Transaction {
 							//System.out.println("\n-----------------------");
 							output.file.append("\n");
 						}
-						count += last.results.size();
+						sequence_count += last.results.size();*/
 					}
 				}
 				output.setAvailable();
 			}
-		} catch (IOException e) { e.printStackTrace(); }
-		if (count>0) System.out.println("Number of sequences: " + count + " Min: " + min + " Max: " + max);
+		//} catch (IOException e) { e.printStackTrace(); }
+			
+		// Output of statistics
+		int memory = graph.nodes.size() + graph.edgeNumber + memory4results;
+		if (maxMemoryPerWindow.get() < memory) maxMemoryPerWindow.getAndAdd(memory);
+		
+		//System.out.println("Current max memory: " + memory);
+		//if (sequence_count>0) System.out.println("Number of sequences: " + sequence_count + " Min: " + min + " Max: " + max);
 	}
 }

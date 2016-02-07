@@ -11,11 +11,13 @@ import event.*;
 public class Graph {
 	
 	public ArrayList<Node> nodes;
+	public int edgeNumber;
 	public ArrayList<Node> first_nodes;
 	public HashMap<Integer,ArrayList<Node>> last_nodes; // Maps value to the last events in sequences with this value 
 	
 	public Graph () {
 		nodes = new ArrayList<Node>();
+		edgeNumber = 0;
 		first_nodes = new ArrayList<Node>();
 		last_nodes = new HashMap<Integer,ArrayList<Node>>();
 	}
@@ -24,6 +26,7 @@ public class Graph {
 		if (!first.following.contains(second)) {
 			first.following.add(second);
 			second.previous.add(first);
+			edgeNumber++;
 		}
 	}
 	

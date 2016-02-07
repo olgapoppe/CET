@@ -18,19 +18,19 @@ public class Scheduler implements Runnable {
 	int window_length;
 	int window_slide;
 	int algorithm;
-	//boolean incremental;
-	
+		
 	ExecutorService executor;
 	
 	AtomicInteger drProgress;
 	CountDownLatch transaction_number;
 	CountDownLatch done;
 	
-	AtomicLong processingTime;		
+	AtomicLong processingTime;	
+	AtomicInteger maxMemoryPerWindow;
 	OutputFileGenerator output;
 	
 	public Scheduler (EventQueue eq, int last, int wl, int ws, int a, ExecutorService exe, 
-			AtomicInteger dp, CountDownLatch d, AtomicLong pT, OutputFileGenerator o) {	
+			AtomicInteger dp, CountDownLatch d, AtomicLong pT, AtomicInteger mMPW, OutputFileGenerator o) {	
 		
 		eventqueue = eq;
 		lastsec = last;
@@ -45,6 +45,7 @@ public class Scheduler implements Runnable {
 		transaction_number = new CountDownLatch(window_number);
 		done = d;
 		
+		maxMemoryPerWindow = mMPW;
 		processingTime = pT;	
 		output = o;
 	}
@@ -122,12 +123,12 @@ public class Scheduler implements Runnable {
 	public void execute(ArrayList<Event> events) {
 		Transaction transaction;
 		if (algorithm == 1) {
-			transaction = new BaseLine(events,output,transaction_number,processingTime);		
+			transaction = new BaseLine(events,output,transaction_number,processingTime,maxMemoryPerWindow);		
 		} else {
 		if (algorithm == 2) {
-			transaction = new NonDynamic(events,output,transaction_number,processingTime);
+			transaction = new NonDynamic(events,output,transaction_number,processingTime,maxMemoryPerWindow);
 		} else {
-			transaction = new Dynamic(events,output,transaction_number,processingTime);
+			transaction = new Dynamic(events,output,transaction_number,processingTime,maxMemoryPerWindow);
 		}}
 		executor.execute(transaction);	
 	}

@@ -13,14 +13,16 @@ public class EventDriver implements Runnable {
 	final EventQueue eventqueue;			
 	long startOfSimulation;
 	AtomicInteger drProgress;
+	AtomicInteger eventNumber;
 		
-	public EventDriver (String f, int last, EventQueue eq, long start, AtomicInteger dp) {
+	public EventDriver (String f, int last, EventQueue eq, long start, AtomicInteger dp, AtomicInteger eN) {
 		
 		filename = f;
 		lastsec = last;
 		eventqueue = eq;			
 		startOfSimulation = start;
 		drProgress = dp;
+		eventNumber = eN;
 	}
 
 	/** 
@@ -47,15 +49,18 @@ public class EventDriver implements Runnable {
 			Window batch = new Window(0,end);
 									
  			if (batch.end > lastsec) batch.end = lastsec;	
- 			System.out.println("\n-------------------------\nBatch end: " + batch.end);
+ 			//System.out.println("\n-------------------------\nBatch end: " + batch.end);
  			
  			/*** Put events within the current batch into the event queue ***/		
 	 		while (true) { 
 	 		
 	 			while (event != null && event.sec <= batch.end) {	 			
 	 				
-	 				/*** Put the event into the event queue ***/						
-	 				if (event.value > 0) eventqueue.contents.add(event);	
+	 				/*** Put the event into the event queue and increment the counter ***/						
+	 				if (event.value > 0) {
+	 					eventqueue.contents.add(event);	
+	 					eventNumber.set(eventNumber.get()+1);
+	 				}
 	 					
 	 				/*** Set distributer progress ***/	
 	 				if (curr_sec < event.sec) {		
@@ -99,7 +104,7 @@ public class EventDriver implements Runnable {
 					int new_end = batch.end + random.nextInt(max - min + 1) + min + new Double(driver_wakeup_time).intValue();
 					batch = new Window(new_start, new_end);
 					if (batch.end > lastsec) batch.end = lastsec;
-					System.out.println("-------------------------\nBatch end: " + batch.end);
+					//System.out.println("-------------------------\nBatch end: " + batch.end);
  				
 					if (driver_wakeup_time > 1) {
 						System.out.println(	"Distributor wakeup time is " + driver_wakeup_time + 

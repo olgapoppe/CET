@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import event.*;
@@ -15,8 +16,8 @@ public class BaseLine extends Transaction {
 	
 	HashSet<TreeSet<Event>> results;
 	
-	public BaseLine (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT) {		
-		super(b,o,tn,pT);
+	public BaseLine (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW) {		
+		super(b,o,tn,pT,mMPW);
 		results = new HashSet<TreeSet<Event>>();
 	}
 	
