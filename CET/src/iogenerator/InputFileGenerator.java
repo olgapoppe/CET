@@ -14,24 +14,25 @@ public class InputFileGenerator {
 	/**
 	 * INPUT PARAMETERS:
 	 * @param args
-	 * 0 output file
-	 * 1 max_time_progress 
-	 * 2 max_comp
-	 * 3 last minute
+	 * 0 output file CET/src/iofiles/stream.txt
+	 * 1 max_time_progress 30
+	 * 2 max_comp 2
+	 * 3 last minute 5
 	 */	
 	public static void main (String [] args) {
 		
 		try { 		
 			// Open the output file
-			String output_file_name = args[0];
+			String output_file_name = "CET\\src\\iofiles\\stream.txt"; //args[0];
 			File output_file = new File(output_file_name);
 			BufferedWriter output;
 			output = new BufferedWriter(new FileWriter(output_file)); 
 			
 			// Read input parameters
-			int max_time_progress = Integer.parseInt(args[1]);
-			int max_comp = Integer.parseInt(args[2]); 
-			int last_min = Integer.parseInt(args[3]);
+			int max_time_progress = 40; //Integer.parseInt(args[1]);
+			int max_comp = 2; //Integer.parseInt(args[2]); 
+			int last_min = 30; //Integer.parseInt(args[3]);
+			int rate_limit = 10;
 		
 			// Local variables
 			Random random = new Random();
@@ -50,6 +51,7 @@ public class InputFileGenerator {
 					"Stream length: " + last_min + " min" +
 					"\nMax time progress: " + max_time_progress +
 					"\nMax compatibility: " + max_comp +
+					"\nEvent rate limit: " + rate_limit +
 					"\n---------------------");
 			
 			// Generate sequences in batches
@@ -99,7 +101,7 @@ public class InputFileGenerator {
 					sequence_number += curr_sequence_number;				
 				}
 				// Put events in the file in order by time stamp
-				int event_rate = write2File(all_events,output,event_number,sequence_number);	
+				int event_rate = write2File(all_events,output,event_number,rate_limit);	
 				if (max_event_rate<event_rate) max_event_rate = event_rate;				
 		    }
 			
@@ -107,14 +109,14 @@ public class InputFileGenerator {
 			output.close();	
 			
 			System.out.println("---------------------" + 
-					"\nSequence number: " + sequence_number +
-					"\nEvent number: " + event_id +
+					//"\nSequence number: " + sequence_number +
+					//"\nEvent number: " + event_id +
 					"\nMax event rate: " + max_event_rate);	
 			
 		} catch (IOException e) { e.printStackTrace(); }
 	}
 	
-	public static int write2File(ArrayList<ArrayDeque<Event>> all_events, BufferedWriter output, int event_number, int sequence_number) {
+	public static int write2File(ArrayList<ArrayDeque<Event>> all_events, BufferedWriter output, int event_number, int rate_limit) {
 		
 		int saved_events = 0;
 		int curr_sec = 0;
@@ -125,9 +127,14 @@ public class InputFileGenerator {
 			event_rate = 0;
 			for (ArrayDeque<Event> events_with_same_value : all_events) {
 				while (events_with_same_value.peek()!=null && events_with_same_value.peek().sec == curr_sec) {
-					try { output.append(events_with_same_value.poll().print2file()); } catch (IOException e) { e.printStackTrace(); }
-					saved_events++;
-					event_rate++;
+					try { 
+						Event e = events_with_same_value.poll();
+						if (event_rate <= rate_limit) {
+							output.append(e.print2file());
+							event_rate++;
+						}						
+					} catch (IOException e) { e.printStackTrace(); }
+					saved_events++;				
 				}
 			}
 			if (max_event_rate < event_rate) max_event_rate = event_rate;
