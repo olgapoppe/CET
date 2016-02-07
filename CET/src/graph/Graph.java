@@ -1,11 +1,7 @@
 package graph;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Scanner;
-
 import event.*;
 
 public class Graph {
@@ -13,7 +9,8 @@ public class Graph {
 	public ArrayList<Node> nodes;
 	public int edgeNumber;
 	public ArrayList<Node> first_nodes;
-	public HashMap<Integer,ArrayList<Node>> last_nodes; // Maps value to the last events in sequences with this value 
+	// Maps value to the last events in sequences with this value
+	public HashMap<Integer,ArrayList<Node>> last_nodes;  
 	
 	public Graph () {
 		nodes = new ArrayList<Node>();
@@ -26,6 +23,8 @@ public class Graph {
 		if (!first.following.contains(second)) {
 			first.following.add(second);
 			second.previous.add(first);
+			first.isLastNode = false;
+			second.isLastNode = true;
 			edgeNumber++;
 		}
 	}
@@ -47,6 +46,7 @@ public class Graph {
 				ArrayList<Node> nodes = new ArrayList<Node>();
 				nodes.add(node);
 				graph.last_nodes.put(event.value,nodes);
+				node.isLastNode = true;
 				//System.out.println(event.id + " starts a new sequence.");
 			} else {
 				
@@ -59,7 +59,7 @@ public class Graph {
 					/*** Case II: This event is compatible with the last event. Add an edge between last and this. ***/
 					if (last.isCompatible(node)) {
 						graph.connect(last,node);
-						if (!old_last_nodes.contains(node)) old_last_nodes.add(last);
+						if (!old_last_nodes.contains(last)) old_last_nodes.add(last);
 						if (!new_last_nodes.contains(node)) new_last_nodes.add(node);
 						//System.out.println(last.event.id + " is connected to " + event.id);
 						
@@ -76,7 +76,10 @@ public class Graph {
 						}							 
 						/*** Case I: This event is compatible with no previous event. Add this event to the last nodes. ***/
 						if (first) graph.first_nodes.add(node);
-						if (!new_last_nodes.contains(node)) new_last_nodes.add(node);
+						if (!new_last_nodes.contains(node)) {
+							new_last_nodes.add(node);
+							node.isLastNode = true;
+						}
 						//System.out.println(event.id + " starts a new sequence.");
 					}			
 				}
@@ -89,30 +92,5 @@ public class Graph {
 		}
 		//for (Node node : graph.nodes) { System.out.println(node.toString()); }		
 		return graph;
-	}
-	
-	public static void main (String args[]) {	
-		try {
-			// Input
-			String inputfile = "src\\iofiles\\stream1.txt";
-			Scanner scanner = new Scanner(new File(inputfile));		
-			String line = scanner.nextLine();
-			ArrayList<Event> batch = new ArrayList<Event>();
-			Event event = Event.parse(line); 			
-			while (event != null) { 				
-				batch.add(event);
-				if (scanner.hasNextLine()) {		 				
-					line = scanner.nextLine();   
-					event = Event.parse(line);		 				
-				} else {
-					event = null;		 				
-				}
-			}
-			scanner.close(); 	
-			// Call the methods
-			constructGraph(batch);
-			//NonDynamic nd = new NonDynamic(graph);
-			//nd.traverse();			
-		} catch (FileNotFoundException e) {	e.printStackTrace(); } 		
-	}
+	}	
 }

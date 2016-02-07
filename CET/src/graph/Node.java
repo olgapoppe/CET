@@ -10,13 +10,16 @@ public class Node {
 	public Event event;
 	public ArrayList<Node> previous;
 	public ArrayList<Node> following;
-	public ArrayList<ArrayList<Node>> results;
+	public boolean isLastNode;
+	// A result is a string of comma separated event ids
+	public ArrayList<String> results; 
 	
 	public Node (Event e) {
 		event = e;
 		previous = new ArrayList<Node>();
 		following = new ArrayList<Node>();
-		results = new ArrayList<ArrayList<Node>>();
+		isLastNode = false;
+		results = new ArrayList<String>();
 	}
 	
 	public boolean isCompatible(Node other) {
@@ -33,9 +36,9 @@ public class Node {
 	
 	public int printResults(OutputFileGenerator output) {
 		int memory4results = 0;
-		for(ArrayList<Node> sequence : results) { 				
-			try { output.file.append(sequence.toString() + "\n"); } catch (IOException e) { e.printStackTrace(); }
-			memory4results +=sequence.size();
+		for(String sequence : results) { 				
+			try { output.file.append(sequence + "\n"); } catch (IOException e) { e.printStackTrace(); }
+			memory4results +=sequence.length();
 		}	
 		return memory4results;
 	}

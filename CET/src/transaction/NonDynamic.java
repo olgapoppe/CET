@@ -8,18 +8,18 @@ import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
 import event.Event;
 import graph.*;
 
 public class NonDynamic extends Transaction {
 	
 	Graph graph;
-	ArrayList<ArrayList<Node>> results;
+	// A result is a string of comma separated event ids
+	ArrayList<String> results;
 	
 	public NonDynamic (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW) {
 		super(b,o,tn,pT,mMPW);	
-		results = new ArrayList<ArrayList<Node>>();
+		results = new ArrayList<String>();
 	}
 	
 	public void run() {
@@ -46,14 +46,14 @@ public class NonDynamic extends Transaction {
         
 		/*** Base case: We hit the end of the graph. Output the current CET. ***/
         if (node.following.isEmpty()) {   
-        	ArrayList<Node> result = new ArrayList<Node>();        	
+        	String result = "";        	
         	Iterator<Node> iter = current_sequence.iterator();
         	while(iter.hasNext()) {
         		Node n = iter.next();
-        		result.add(n);
+        		result += n.toString() + ";";
         	}
-        	results.add(result);  // String of comma separated event ids
-        	//System.out.println("result " + result.toString());
+        	results.add(result);  
+        	//System.out.println("result " + result);
         } else {
         /*** Recursive case: Traverse the following nodes. ***/        	
         	for(Node following : node.following) {        		
@@ -68,33 +68,16 @@ public class NonDynamic extends Transaction {
 	public void writeOutput2File() {
 		
 		int maxSeqLength = 0;
-		/*int min = Integer.MAX_VALUE;
-		int max = Integer.MIN_VALUE;*/
-		
-		if (output.isAvailable()) {
-			
-			for(ArrayList<Node> sequence : results) { // new_results
-							 				
-				try { output.file.append(sequence.toString() + "\n"); } catch (IOException e) { e.printStackTrace(); }
-				if (maxSeqLength < sequence.size()) maxSeqLength = sequence.size();
-						
-				/*//System.out.println(sequence);
-				for (Node node : sequence) {
-					//System.out.print(event.id + ",");
-					if (min > node.event.sec) min = node.event.sec;
-					if (max < node.event.sec) max = node.event.sec;
-					output.file.append(node.event.print2fileInASeq());
-				}
-				//System.out.println("\n-----------------------");
-				output.file.append("\n");*/
+				
+		if (output.isAvailable()) {			
+			for(String sequence : results) {							 				
+				try { output.file.append(sequence + "\n"); } catch (IOException e) { e.printStackTrace(); }
+				if (maxSeqLength < sequence.length()) maxSeqLength = sequence.length();			
 			}
 			output.setAvailable();
-		}
-		
+		}		
 		// Output of statistics
 		int memory = graph.nodes.size() + graph.edgeNumber + maxSeqLength;
-		if (maxMemoryPerWindow.get() < memory) maxMemoryPerWindow.getAndAdd(memory);
-				
-		//if (!results.isEmpty()) System.out.println("Number of sequences: " + results.size() + " Min: " + min + " Max: " + max);
+		if (maxMemoryPerWindow.get() < memory) maxMemoryPerWindow.getAndAdd(memory);	
 	}
 }

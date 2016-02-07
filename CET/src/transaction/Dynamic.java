@@ -38,71 +38,50 @@ public class Dynamic extends Transaction {
 	// BFS storing intermediate results in all nodes at the current level
 	public void computeResults (ArrayList<Node> current_level) { 
 		
-		ArrayList<Node> next_level = new ArrayList<Node>();
+		// Array for recursive call of this method
+		ArrayList<Node> next_level_array = new ArrayList<Node>();
+		// Hash for quick lookup of saved nodes
+		HashMap<Integer,Integer> next_level_hash = new HashMap<Integer,Integer>();
+		
 		for (Node this_node : current_level) {
 			// Base case: Create the results for the first nodes
-			if (this_node.results.isEmpty()) {
-				ArrayList<Node> result = new ArrayList<Node>();
-				result.add(this_node);
-				this_node.results.add(result); // String of comma separated event ids
-			}
+			if (this_node.results.isEmpty()) this_node.results.add(this_node.toString()); 
+			
 			// Recursive case: Copy results from the current node to its following node and 
 			// append this following node to each copied result 
 			for (Node next_node : this_node.following) {
-				for (ArrayList<Node> result : this_node.results) {
-					ArrayList<Node> new_result = new ArrayList<Node>();
-					new_result.addAll(result);
-					new_result.add(next_node);
-					next_node.results.add(new_result);	// String of comma separated event ids 
+				for (String sequence : this_node.results) {					
+					next_node.results.add(sequence + ";" + next_node.toString()); 
 				}	
 				// Check that following is not in next_level
-				if (!next_level.contains(next_node)) next_level.add(next_node); // Hash
+				if (!next_level_hash.containsKey(next_node.event.id)) {
+					next_level_array.add(next_node); 
+					next_level_hash.put(next_node.event.id,1);
+				}
 			}
-			// Free data structures
-			ArrayList<Node> last_nodes = graph.last_nodes.get(this_node.event.value);
-			if (!last_nodes.contains(this_node)) this_node.results.clear();	// Hash		
+			// Delete intermediate results
+			if (!this_node.isLastNode) this_node.results.clear();
 		}		
 		// Call this method recursively
-		if (!next_level.isEmpty()) computeResults(next_level);
+		if (!next_level_array.isEmpty()) computeResults(next_level_array);
 	}
 	
 	public void writeOutput2File() {
 		
 		int memory4results = 0;
-		/*int min = Integer.MAX_VALUE;
-		int max = Integer.MIN_VALUE;
-		int sequence_count = 0;*/		
-		
-		//try {	
-			if (output.isAvailable()) {
-				Set<Integer> keys = graph.last_nodes.keySet();
-				for (Integer key : keys) {
-					ArrayList<Node> last_nodes = graph.last_nodes.get(key);
-					for (Node last : last_nodes) {
-						memory4results += last.printResults(output);
-						/*for(ArrayList<Node> sequence : last.results) { 							
-							//System.out.println(sequence.toString());							
-							for (Node node : sequence) {
-								//System.out.print(event.id + ",");
-								if (min > node.event.sec) min = node.event.sec;
-								if (max < node.event.sec) max = node.event.sec;
-								output.file.append(node.event.print2fileInASeq());
-							}
-							//System.out.println("\n-----------------------");
-							output.file.append("\n");
-						}
-						sequence_count += last.results.size();*/
-					}
+				
+		if (output.isAvailable()) {
+			Set<Integer> keys = graph.last_nodes.keySet();
+			for (Integer key : keys) {
+				ArrayList<Node> last_nodes = graph.last_nodes.get(key);
+				for (Node last : last_nodes) {
+					memory4results += last.printResults(output);
 				}
-				output.setAvailable();
 			}
-		//} catch (IOException e) { e.printStackTrace(); }
-			
+			output.setAvailable();
+		}
 		// Output of statistics
 		int memory = graph.nodes.size() + graph.edgeNumber + memory4results;
-		if (maxMemoryPerWindow.get() < memory) maxMemoryPerWindow.getAndAdd(memory);
-		
-		//System.out.println("Current max memory: " + memory);
-		//if (sequence_count>0) System.out.println("Number of sequences: " + sequence_count + " Min: " + min + " Max: " + max);
+		if (maxMemoryPerWindow.get() < memory) maxMemoryPerWindow.getAndAdd(memory);	
 	}
 }
