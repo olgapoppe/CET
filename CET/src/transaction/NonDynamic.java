@@ -52,7 +52,7 @@ public class NonDynamic extends Transaction {
         		Node n = iter.next();
         		result.add(n);
         	}
-        	results.add(result);  
+        	results.add(result);  // String of comma separated event ids
         	//System.out.println("result " + result.toString());
         } else {
         /*** Recursive case: Traverse the following nodes. ***/        	

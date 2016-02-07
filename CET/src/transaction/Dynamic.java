@@ -44,7 +44,7 @@ public class Dynamic extends Transaction {
 			if (this_node.results.isEmpty()) {
 				ArrayList<Node> result = new ArrayList<Node>();
 				result.add(this_node);
-				this_node.results.add(result);
+				this_node.results.add(result); // String of comma separated event ids
 			}
 			// Recursive case: Copy results from the current node to its following node and 
 			// append this following node to each copied result 
@@ -53,14 +53,14 @@ public class Dynamic extends Transaction {
 					ArrayList<Node> new_result = new ArrayList<Node>();
 					new_result.addAll(result);
 					new_result.add(next_node);
-					next_node.results.add(new_result);	
+					next_node.results.add(new_result);	// String of comma separated event ids 
 				}	
 				// Check that following is not in next_level
-				if (!next_level.contains(next_node)) next_level.add(next_node); 
+				if (!next_level.contains(next_node)) next_level.add(next_node); // Hash
 			}
 			// Free data structures
 			ArrayList<Node> last_nodes = graph.last_nodes.get(this_node.event.value);
-			if (!last_nodes.contains(this_node)) this_node.results.clear();			
+			if (!last_nodes.contains(this_node)) this_node.results.clear();	// Hash		
 		}		
 		// Call this method recursively
 		if (!next_level.isEmpty()) computeResults(next_level);
