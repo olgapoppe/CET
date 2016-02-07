@@ -52,7 +52,7 @@ public class EventDriver implements Runnable {
  			/*** Put events within the current batch into the event queue ***/		
 	 		while (true) { 
 	 		
-	 			while (event != null && event.sec <= batch.end) {	 			
+	 			while (event != null && event.value > 0 && event.sec <= batch.end) {	 			
 	 				
 	 				/*** Put the event into the event queue ***/						
 	 				eventqueue.contents.add(event);	

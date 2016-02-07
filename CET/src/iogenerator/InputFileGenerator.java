@@ -29,10 +29,10 @@ public class InputFileGenerator {
 			output = new BufferedWriter(new FileWriter(output_file)); 
 			
 			// Read input parameters
-			int max_time_progress = 40; //Integer.parseInt(args[1]);
+			int max_time_progress = 30; //Integer.parseInt(args[1]);
 			int max_comp = 2; //Integer.parseInt(args[2]); 
 			int last_min = 30; //Integer.parseInt(args[3]);
-			int rate_limit = 10;
+			int rate_limit = 200;
 		
 			// Local variables
 			Random random = new Random();
@@ -74,7 +74,8 @@ public class InputFileGenerator {
 					// First event in a sequence
 					sec = random.nextInt(max_time_progress);
 					value++;
-					Event e1 = new Event(sec+offset,event_id,value);	
+					int x=random.nextInt(2); 
+					Event e1 = new Event(sec+offset,event_id,value*x);	
 					events_with_same_value.add(e1);				
 					//System.out.println(e1.toString());				
 					event_id++;
@@ -86,8 +87,9 @@ public class InputFileGenerator {
 					while (comp>0) {
 						sec = sec + random.nextInt(max_time_progress) + 1;
 						if (sec>batch_size) break;
-						for (int i=0; i<comp; i++) {						
-							Event e2 = new Event(sec+offset,event_id,value);
+						for (int i=0; i<comp; i++) {
+							int y=random.nextInt(2); 
+							Event e2 = new Event(sec+offset,event_id,value*y);
 							events_with_same_value.add(e2);
 							//System.out.println(e2.toString());
 							event_id++;

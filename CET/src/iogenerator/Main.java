@@ -34,10 +34,10 @@ public class Main {
 		String outputfile ="sequences.txt";
 		OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
 		
-	    int lastsec = 70;
-		int window_length = 20;
-		int window_slide = 10;	
-		int algorithm = 1;
+	    int lastsec = 1777;
+		int window_length = 300;
+		int window_slide = 180;	
+		int algorithm = 3;
 		//boolean incremental = false;
 		
 		// Read input parameters
