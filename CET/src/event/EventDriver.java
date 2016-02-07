@@ -52,10 +52,10 @@ public class EventDriver implements Runnable {
  			/*** Put events within the current batch into the event queue ***/		
 	 		while (true) { 
 	 		
-	 			while (event != null && event.value > 0 && event.sec <= batch.end) {	 			
+	 			while (event != null && event.sec <= batch.end) {	 			
 	 				
 	 				/*** Put the event into the event queue ***/						
-	 				eventqueue.contents.add(event);	
+	 				if (event.value > 0) eventqueue.contents.add(event);	
 	 					
 	 				/*** Set distributer progress ***/	
 	 				if (curr_sec < event.sec) {		
@@ -94,7 +94,7 @@ public class EventDriver implements Runnable {
 						driver_wakeup_time = (System.currentTimeMillis() - startOfSimulation)/1000 - batch.end; // !!!
 					} 
 					
-					/*** Rest batch_limit ***/
+					/*** Reset batch_limit ***/
 					int new_start = batch.end + 1;
 					int new_end = batch.end + random.nextInt(max - min + 1) + min + new Double(driver_wakeup_time).intValue();
 					batch = new Window(new_start, new_end);
