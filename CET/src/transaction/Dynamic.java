@@ -58,7 +58,8 @@ public class Dynamic extends Transaction {
 				if (!next_level.contains(next_node)) next_level.add(next_node); 
 			}
 			// Free data structures
-			//node.results.clear();			
+			ArrayList<Node> last_nodes = graph.last_nodes.get(this_node.event.value);
+			if (!last_nodes.contains(this_node)) this_node.results.clear();			
 		}		
 		// Call this method recursively
 		if (!next_level.isEmpty()) computeResults(next_level);
