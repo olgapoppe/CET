@@ -30,13 +30,13 @@ public class Main {
 	    /*** Input and output ***/
 	    // Set default values
 	    String path = "CET\\src\\iofiles\\";
-		String inputfile ="stream.txt";
+		String inputfile ="stream1.txt";
 		String outputfile ="sequences.txt";
 		OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
 		
-	    int lastsec = 70;
-		int window_length = 20;
-		int window_slide = 10;	
+	    int lastsec = 2;
+		int window_length = 3;
+		int window_slide = 3;	
 		int algorithm = 3;
 		//boolean incremental = false;
 		

@@ -56,8 +56,8 @@ public class Graph {
 					/*** Case II: This event is compatible with the last event. Add an edge between last and this. ***/
 					if (last.isCompatible(node)) {
 						graph.connect(last,node);
-						old_last_nodes.add(last);
-						new_last_nodes.add(node);
+						if (!old_last_nodes.contains(node)) old_last_nodes.add(last);
+						if (!new_last_nodes.contains(node)) new_last_nodes.add(node);
 						//System.out.println(last.event.id + " is connected to " + event.id);
 						
 					} else {
@@ -73,7 +73,7 @@ public class Graph {
 						}							 
 						/*** Case I: This event is compatible with no previous event. Add this event to the last nodes. ***/
 						if (first) graph.first_nodes.add(node);
-						new_last_nodes.add(node);
+						if (!new_last_nodes.contains(node)) new_last_nodes.add(node);
 						//System.out.println(event.id + " starts a new sequence.");
 					}			
 				}

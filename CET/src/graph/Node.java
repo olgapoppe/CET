@@ -8,14 +8,12 @@ public class Node {
 	public Event event;
 	public ArrayList<Node> previous;
 	public ArrayList<Node> following;
-	public boolean visited;
 	public ArrayList<ArrayList<Node>> results;
 	
 	public Node (Event e) {
 		event = e;
 		previous = new ArrayList<Node>();
 		following = new ArrayList<Node>();
-		visited = false;
 		results = new ArrayList<ArrayList<Node>>();
 	}
 	
