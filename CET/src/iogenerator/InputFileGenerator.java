@@ -29,9 +29,10 @@ public class InputFileGenerator {
 			output = new BufferedWriter(new FileWriter(output_file)); 
 			
 			// Read input parameters
-			int max_time_progress = 30; //Integer.parseInt(args[1]);
-			int max_comp = 2; //Integer.parseInt(args[2]); 
-			int last_min = 30; //Integer.parseInt(args[3]);
+			int max_time_progress = 33; //Integer.parseInt(args[1]);
+			int max_comp = 3; //Integer.parseInt(args[2]); 
+			//int max_graph_number = 5;
+			int last_min = 10; //Integer.parseInt(args[3]);
 			int rate_limit = 200;
 		
 			// Local variables
@@ -41,7 +42,7 @@ public class InputFileGenerator {
 			int comp = 0;	
 			
 			int event_id = 0;
-			int value = 0; 
+			int value = 1; 
 			
 			int sequence_number = 0;
 			int max_event_rate = 0;
@@ -51,6 +52,7 @@ public class InputFileGenerator {
 					"Stream length: " + last_min + " min" +
 					"\nMax time progress: " + max_time_progress +
 					"\nMax compatibility: " + max_comp +
+					//"\nMax graph number: " + max_graph_number +
 					"\nEvent rate limit: " + rate_limit +
 					"\n---------------------");
 			
@@ -73,13 +75,12 @@ public class InputFileGenerator {
 			
 					// First event in a sequence
 					sec = random.nextInt(max_time_progress);
-					value++;
-					int x=random.nextInt(2); 
-					Event e1 = new Event(sec+offset,event_id,value*x);	
+					//value++;
+					Event e1 = new Event(sec+offset,event_id,value);	
 					events_with_same_value.add(e1);				
 					//System.out.println(e1.toString());				
 					event_id++;
-					comp = random.nextInt(max_comp + 1);
+					comp = random.nextInt(max_comp + 1) + 1;
 					//System.out.println(comp);
 					if (comp>1) curr_sequence_number *= comp;
 			
@@ -88,19 +89,19 @@ public class InputFileGenerator {
 						sec = sec + random.nextInt(max_time_progress) + 1;
 						if (sec>batch_size) break;
 						for (int i=0; i<comp; i++) {
-							int y=random.nextInt(2); 
-							Event e2 = new Event(sec+offset,event_id,value*y);
+							Event e2 = new Event(sec+offset,event_id,value);
 							events_with_same_value.add(e2);
 							//System.out.println(e2.toString());
 							event_id++;
 						}
-						comp = random.nextInt(max_comp + 1);
+						comp = random.nextInt(max_comp + 1) + 1;
 						//System.out.println(comp);
 						if (comp>1) curr_sequence_number *= comp;
 					}	
 					all_events.add(events_with_same_value);
 					event_number += events_with_same_value.size();
-					sequence_number += curr_sequence_number;				
+					sequence_number += curr_sequence_number;
+					System.out.println(" Value " + value + " graph size " + events_with_same_value.size());
 				}
 				// Put events in the file in order by time stamp
 				int event_rate = write2File(all_events,output,event_number,rate_limit);	
@@ -111,8 +112,8 @@ public class InputFileGenerator {
 			output.close();	
 			
 			System.out.println("---------------------" + 
-					//"\nSequence number: " + sequence_number +
-					//"\nEvent number: " + event_id +
+					"\nSequence number: " + sequence_number +
+					"\nEvent number: " + event_id +
 					"\nMax event rate: " + max_event_rate);	
 			
 		} catch (IOException e) { e.printStackTrace(); }
@@ -131,10 +132,10 @@ public class InputFileGenerator {
 				while (events_with_same_value.peek()!=null && events_with_same_value.peek().sec == curr_sec) {
 					try { 
 						Event e = events_with_same_value.poll();
-						if (event_rate <= rate_limit) {
+						//if (event_rate <= rate_limit) {
 							output.append(e.print2file());
 							event_rate++;
-						}						
+						//}						
 					} catch (IOException e) { e.printStackTrace(); }
 					saved_events++;				
 				}

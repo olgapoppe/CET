@@ -34,7 +34,7 @@ public class Main {
 		String outputfile ="sequences.txt";
 		OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
 		
-	    int lastsec = 120;
+	    int lastsec = 123;
 		int window_length = 60;
 		int window_slide = 30;	
 		int algorithm = 2;
