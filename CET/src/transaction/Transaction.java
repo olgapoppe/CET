@@ -23,4 +23,12 @@ public abstract class Transaction implements Runnable {
 		processingTime = pT;
 		maxMemoryPerWindow = mMPW;
 	}	
+	
+	public int getEventNumber (String sequence) {
+		int number = 1;
+		for (int i=0; i<sequence.length(); i++) {
+			if (sequence.substring(i,i+1).equals(";")) number++;
+		}
+		return number;
+	}
 }

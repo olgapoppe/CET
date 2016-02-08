@@ -72,7 +72,8 @@ public class NonDynamic extends Transaction {
 		if (output.isAvailable()) {			
 			for(String sequence : results) {							 				
 				try { output.file.append(sequence + "\n"); } catch (IOException e) { e.printStackTrace(); }
-				if (maxSeqLength < sequence.length()) maxSeqLength = sequence.length();			
+				int eventNumber = getEventNumber(sequence);
+				if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;			
 			}
 			output.setAvailable();
 		}		

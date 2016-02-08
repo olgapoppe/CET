@@ -124,7 +124,7 @@ public class BaseLine extends Transaction {
 		if (output.isAvailable()) {
 			for(TreeSet<Event> sequence : results) { 					
 				try { output.file.append(sequence.toString() + "\n"); } catch (IOException e) { e.printStackTrace(); }
-				memory4results +=sequence.size();				
+				memory4results += sequence.size();	
 			}
 			output.setAvailable();
 		}			

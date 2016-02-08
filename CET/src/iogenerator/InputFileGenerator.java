@@ -23,16 +23,15 @@ public class InputFileGenerator {
 		
 		try { 		
 			// Open the output file
-			String output_file_name = "CET\\src\\iofiles\\rate200.txt"; //args[0];
+			String output_file_name = "CET\\src\\iofiles\\rate200.txt"; 
 			File output_file = new File(output_file_name);
 			BufferedWriter output;
 			output = new BufferedWriter(new FileWriter(output_file)); 
 			
 			// Read input parameters
-			int max_time_progress = 33; //Integer.parseInt(args[1]);
-			int max_comp = 3; //Integer.parseInt(args[2]); 
-			//int max_graph_number = 5;
-			int last_min = 10; //Integer.parseInt(args[3]);
+			int max_time_progress = 25; 
+			int max_comp = 3;  
+			int last_min = 10;
 			int rate_limit = 200;
 		
 			// Local variables
@@ -52,7 +51,6 @@ public class InputFileGenerator {
 					"Stream length: " + last_min + " min" +
 					"\nMax time progress: " + max_time_progress +
 					"\nMax compatibility: " + max_comp +
-					//"\nMax graph number: " + max_graph_number +
 					"\nEvent rate limit: " + rate_limit +
 					"\n---------------------");
 			
@@ -75,13 +73,10 @@ public class InputFileGenerator {
 			
 					// First event in a sequence
 					sec = random.nextInt(max_time_progress);
-					//value++;
 					Event e1 = new Event(sec+offset,event_id,value);	
 					events_with_same_value.add(e1);				
-					//System.out.println(e1.toString());				
 					event_id++;
 					comp = random.nextInt(max_comp + 1) + 1;
-					//System.out.println(comp);
 					if (comp>1) curr_sequence_number *= comp;
 			
 					// All following events
@@ -91,11 +86,9 @@ public class InputFileGenerator {
 						for (int i=0; i<comp; i++) {
 							Event e2 = new Event(sec+offset,event_id,value);
 							events_with_same_value.add(e2);
-							//System.out.println(e2.toString());
 							event_id++;
 						}
 						comp = random.nextInt(max_comp + 1) + 1;
-						//System.out.println(comp);
 						if (comp>1) curr_sequence_number *= comp;
 					}	
 					all_events.add(events_with_same_value);
@@ -123,11 +116,12 @@ public class InputFileGenerator {
 		
 		int saved_events = 0;
 		int curr_sec = 0;
+		int prev_min = 1;
 		int event_rate = 0;
 		int max_event_rate = 0;
 		
 		while (saved_events<event_number) {
-			event_rate = 0;
+			int curr_min = curr_sec/60 + 1;
 			for (ArrayDeque<Event> events_with_same_value : all_events) {
 				while (events_with_same_value.peek()!=null && events_with_same_value.peek().sec == curr_sec) {
 					try { 
@@ -140,7 +134,11 @@ public class InputFileGenerator {
 					saved_events++;				
 				}
 			}
-			if (max_event_rate < event_rate) max_event_rate = event_rate;
+			if (curr_min > prev_min && max_event_rate < event_rate) {
+				max_event_rate = event_rate;
+				prev_min = curr_min;
+				event_rate = 0;
+			}
 			curr_sec++;				
 		}	
 		return max_event_rate;

@@ -22,30 +22,31 @@ public class Main {
 		
 		try {
 		
+		long hs = Runtime.getRuntime().maxMemory();
 		/*** Print current time ***/
 		Date dNow = new Date( );
 	    SimpleDateFormat ft = new SimpleDateFormat ("E yyyy.MM.dd 'at' hh:mm:ss a zzz");
-	    System.out.println("Current Date: " + ft.format(dNow));
+	    System.out.println("Current Date: " + ft.format(dNow) + " hs: " + hs);
 	    
 	    /*** Input and output ***/
 	    // Set default values
 	    String path = "CET\\src\\iofiles\\";
-		String inputfile ="rate200.txt";
-		String outputfile ="sequences.txt";
+		String inputfile = "stream1.txt";
+		String outputfile = "sequences.txt";
 		OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
 		
-	    int lastsec = 123;
-		int window_length = 60;
-		int window_slide = 30;	
+	    int lastsec = 2;
+		int window_length = 3;
+		int window_slide = 3;	
 		int algorithm = 2;
 				
 		// Read input parameters
 	    for (int i=0; i<args.length; i++){
 			if (args[i].equals("-path")) 		path = args[++i];
-			if (args[i].equals("-filename")) 	inputfile = args[++i];
+			if (args[i].equals("-file")) 		inputfile = args[++i];
 			if (args[i].equals("-sec")) 		lastsec = Integer.parseInt(args[++i]);
 			if (args[i].equals("-wl")) 			window_length = Integer.parseInt(args[++i]);
-			if (args[i].equals("-wos")) 		window_slide = Integer.parseInt(args[++i]);
+			if (args[i].equals("-ws")) 			window_slide = Integer.parseInt(args[++i]);
 			if (args[i].equals("-algo")) 		algorithm = Integer.parseInt(args[++i]);
 		}
 	    String input = path + inputfile;
@@ -68,11 +69,10 @@ public class Main {
 		AtomicInteger maxMemoryPerWindow = new AtomicInteger(0);
 		
 		/*** EXECUTORS ***/
-		int number_of_executors = 3;// Integer.parseInt(args[0]);
-		//System.out.println("Number of executors: " + number_of_executors);
+		int number_of_executors = 3;
 		ExecutorService executor = Executors.newFixedThreadPool(number_of_executors);
 			
-		/*** Create and start the event driver and the scheduler THREADS.
+		/*** Create and start the event driver and the scheduler threads.
 		 *   Driver reads from the file and writes into the event queue.
 		 *   Scheduler reads from the event queue and submits event batches to the executor. ***/
 		EventDriver driver = new EventDriver (input, lastsec, eventqueue, startOfSimulation, driverProgress, eventNumber);				
