@@ -30,7 +30,7 @@ public class Main {
 	    
 	    /*** Input and output ***/
 	    // Set default values
-	    String path = "src/iofiles/";
+	    String path = "iofiles/";
 		String inputfile = "stream1.txt";
 		String outputfile = "sequences.txt";
 		OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
