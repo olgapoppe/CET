@@ -15,7 +15,7 @@ public class InputFileGenerator {
 		
 		try {
 		// Open the output file
-		String output_file_name = "CET\\src\\iofiles\\rate9.txt"; 
+		String output_file_name = "CET\\src\\iofiles\\rate90.txt"; 
 		File output_file = new File(output_file_name);
 		BufferedWriter output = new BufferedWriter(new FileWriter(output_file));
 		
@@ -35,7 +35,7 @@ public class InputFileGenerator {
 		int last_sec = 1800;
 		int window_length = 600;
 		int window_slide = 300;
-		int event_number_per_window = 10;
+		int event_number_per_window = 90;
 		int max_comp = 3;
 		
 		// Local variables
@@ -69,6 +69,9 @@ public class InputFileGenerator {
 			}
 			event_id += event_number_per_window;
 		}	
+		// Generate the last event to know the last second in the input stream
+		Event last_event = new Event(last_sec,event_id,1);
+		try { output.append(last_event.print2file()); } catch (IOException e) { e.printStackTrace(); }
 	}	
 	
 	public static ArrayList<Event> getEvents(Window window, int event_id, int event_number_per_window, int max_comp) {
@@ -80,8 +83,8 @@ public class InputFileGenerator {
 		Event e1 = new Event(sec,event_id,1);
 		events.add(e1);
 		event_id++;
+		
 		int event_number = 1;
-							
 		Random random = new Random();
 		
 		while (event_number<event_number_per_window && sec<=window.end) {
@@ -98,9 +101,7 @@ public class InputFileGenerator {
 				event_id++;
 				event_number++;
 			}
-		}
-		
-		
+		}	
 		return events;		
 	}
 	
