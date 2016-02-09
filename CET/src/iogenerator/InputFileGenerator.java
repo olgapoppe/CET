@@ -23,15 +23,15 @@ public class InputFileGenerator {
 		
 		try { 		
 			// Open the output file
-			String output_file_name = "CET\\src\\iofiles\\rate200.txt"; 
+			String output_file_name = "CET\\src\\iofiles\\rate.txt"; 
 			File output_file = new File(output_file_name);
 			BufferedWriter output;
 			output = new BufferedWriter(new FileWriter(output_file)); 
 			
 			// Read input parameters
-			int max_time_progress = 25; 
+			int max_time_progress = 150; 
 			int max_comp = 3;  
-			int last_min = 10;
+			int last_min = 30;
 			int rate_limit = 200;
 		
 			// Local variables
