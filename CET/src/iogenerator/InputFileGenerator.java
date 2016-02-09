@@ -23,7 +23,7 @@ public class InputFileGenerator {
 		
 		try { 		
 			// Open the output file
-			String output_file_name = "CET\\src\\iofiles\\rate8.txt"; 
+			String output_file_name = "CET\\src\\iofiles\\rate9.txt"; 
 			File output_file = new File(output_file_name);
 			BufferedWriter output;
 			output = new BufferedWriter(new FileWriter(output_file)); 
