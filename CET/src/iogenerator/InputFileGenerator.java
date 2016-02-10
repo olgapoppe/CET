@@ -11,9 +11,11 @@ import event.*;
 
 public class InputFileGenerator {
 	
+	static int total_sequence_number; 
+	
 	public static void main (String[] args) {
 		
-		int event_number_per_window = 25;
+		int event_number_per_window = 30;
 		
 		try {
 		// Open the output file
@@ -73,6 +75,7 @@ public class InputFileGenerator {
 		// Generate the last event to know the last second in the input stream
 		Event last_event = new Event(last_sec,event_id,1);
 		try { output.append(last_event.print2file()); } catch (IOException e) { e.printStackTrace(); }
+		System.out.println("Average sequence number is " + total_sequence_number/windows.size());
 	}	
 	
 	public static ArrayList<Event> getEvents(Window window, int event_id, int event_number_per_window, int max_comp) {
@@ -105,7 +108,7 @@ public class InputFileGenerator {
 				event_number++;
 			}
 		}	
-		System.out.println("Sequence number in the window [" + window.start + "," + window.end + "] is " + sequence_number);
+		total_sequence_number += sequence_number;
 		return events;		
 	}
 	
