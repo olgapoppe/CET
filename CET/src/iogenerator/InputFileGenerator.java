@@ -15,17 +15,22 @@ public class InputFileGenerator {
 	
 	public static void main (String[] args) {
 		
-		int event_number_per_window = 30;
+		// Parameters to vary
+		int event_number_per_window = 20;
+		int max_comp = 15;
+		int window_length = 600;
+		int window_slide = 300;
 		
 		try {
 		// Open the output file
-		String output_file_name = "CET\\src\\iofiles\\rate" + event_number_per_window + ".txt"; 
+		//String output_file_name = "CET\\src\\iofiles\\rate" + event_number_per_window + ".txt"; 
+		String output_file_name = "CET\\src\\iofiles\\comp" + max_comp + ".txt";
 		File output_file = new File(output_file_name);
 		BufferedWriter output = new BufferedWriter(new FileWriter(output_file));
 		
 		// Generate the input event stream
 		//generate_batches(output);
-		generate_windows(output,event_number_per_window);
+		generate_windows(output,event_number_per_window,max_comp,window_length,window_slide);
 		
 		// Close the file
 		output.close();	
@@ -33,25 +38,20 @@ public class InputFileGenerator {
 		} catch (IOException e) { e.printStackTrace(); }
 	}
 	
-	public static void generate_windows (BufferedWriter output, int event_number_per_window) {
-		
-		// Read input parameters
-		int last_sec = 1800;
-		int window_length = 600;
-		int window_slide = 300;
-		int max_comp = 3;
+	public static void generate_windows (BufferedWriter output, int event_number_per_window, int max_comp, int window_length, int window_slide) {
 		
 		// Local variables
+		int last_sec = 1800;
 		double window_number = Math.ceil((double)last_sec / (double)window_slide);
 				
 		// Output the parameters
 		System.out.println(
-				"Stream length: " + last_sec + " sec" +
+				"Event number per window: " + event_number_per_window +
+				"\nMax compatibility: " + max_comp +
 				"\nWindow length: " + window_length +
 				"\nWindow slide: " + window_slide +
-				"\nWindow number: " + window_number +
-				"\nEvent number per window: " + event_number_per_window +
-				"\nMax compatibility: " + max_comp +
+				"\nStream length: " + last_sec + " sec" +	
+				"\nWindow number: " + window_number +				
 				"\n---------------------");
 		
 		// Generate windows
