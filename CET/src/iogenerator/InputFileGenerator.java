@@ -13,15 +13,17 @@ public class InputFileGenerator {
 	
 	public static void main (String[] args) {
 		
+		int event_number_per_window = 25;
+		
 		try {
 		// Open the output file
-		String output_file_name = "CET\\src\\iofiles\\rate90.txt"; 
+		String output_file_name = "CET\\src\\iofiles\\rate" + event_number_per_window + ".txt"; 
 		File output_file = new File(output_file_name);
 		BufferedWriter output = new BufferedWriter(new FileWriter(output_file));
 		
 		// Generate the input event stream
 		//generate_batches(output);
-		generate_windows(output);
+		generate_windows(output,event_number_per_window);
 		
 		// Close the file
 		output.close();	
@@ -29,13 +31,12 @@ public class InputFileGenerator {
 		} catch (IOException e) { e.printStackTrace(); }
 	}
 	
-	public static void generate_windows (BufferedWriter output) {
+	public static void generate_windows (BufferedWriter output, int event_number_per_window) {
 		
 		// Read input parameters
 		int last_sec = 1800;
 		int window_length = 600;
 		int window_slide = 300;
-		int event_number_per_window = 90;
 		int max_comp = 3;
 		
 		// Local variables
@@ -85,6 +86,7 @@ public class InputFileGenerator {
 		event_id++;
 		
 		int event_number = 1;
+		int sequence_number = 1;
 		Random random = new Random();
 		
 		while (event_number<event_number_per_window && sec<=window.end) {
@@ -93,6 +95,7 @@ public class InputFileGenerator {
 			sec++;
 			// Random event compatibility
 			int comp = random.nextInt(max_comp + 1) + 1;
+			sequence_number *= comp;
 			if (event_number+comp>event_number_per_window) comp = event_number_per_window - event_number;
 			// Following events
 			for (int i=1; i<=comp; i++) {
@@ -102,6 +105,7 @@ public class InputFileGenerator {
 				event_number++;
 			}
 		}	
+		System.out.println("Sequence number in the window [" + window.start + "," + window.end + "] is " + sequence_number);
 		return events;		
 	}
 	
