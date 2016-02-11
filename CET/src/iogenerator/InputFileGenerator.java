@@ -17,14 +17,15 @@ public class InputFileGenerator {
 		
 		// Parameters to vary
 		int event_number_per_window = 20;
-		int max_comp = 15;
+		int max_comp = 3;
 		int window_length = 600;
 		int window_slide = 300;
 		
 		try {
 		// Open the output file
 		//String output_file_name = "CET\\src\\iofiles\\rate" + event_number_per_window + ".txt"; 
-		String output_file_name = "CET\\src\\iofiles\\comp" + max_comp + ".txt";
+		//String output_file_name = "CET\\src\\iofiles\\comp" + max_comp + ".txt";
+		String output_file_name = "CET\\src\\iofiles\\stream.txt";
 		File output_file = new File(output_file_name);
 		BufferedWriter output = new BufferedWriter(new FileWriter(output_file));
 		
@@ -95,7 +96,7 @@ public class InputFileGenerator {
 		while (event_number<event_number_per_window && sec<=window.end) {
 			
 			// Random time progress 
-			sec++;
+			sec+=30;
 			// Random event compatibility
 			int comp = random.nextInt(max_comp + 1) + 1;
 			sequence_number *= comp;
