@@ -85,7 +85,7 @@ public class Scheduler implements Runnable {
 					if (window.relevant(e)) window.events.add(e); 
 				}
 				/*** Poll an expired window and submit it for execution ***/
-				if (!windows.getFirst().relevant(e)) {					
+				if (!windows.isEmpty() && windows.getFirst().expired(e)) {					
 					Window window = windows.poll();
 					System.out.println(window.toString());
 					execute(window.events);					

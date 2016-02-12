@@ -20,6 +20,10 @@ public class Window {
 		return start <= e.sec && e.sec <= end;
 	}
 	
+	public boolean expired (Event e) {
+		return end < e.sec;
+	}
+	
 	public String toString() {
 		return "[" + start + "," + end + "] with " + events.size() + " events.";
 	}
