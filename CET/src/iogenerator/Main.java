@@ -32,8 +32,7 @@ public class Main {
 	    // Set default values
 	    String path = "iofiles/";
 		String inputfile = "stream1.txt";
-		String outputfile = "sequences.txt";
-		OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
+		String outputfile = "sequences.txt";		
 		
 	    int lastsec = 2;
 		int window_length = 3;
@@ -50,6 +49,7 @@ public class Main {
 			if (args[i].equals("-algo")) 		algorithm = Integer.parseInt(args[++i]);
 		}
 	    String input = path + inputfile;
+	    OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
 	    
 	    // Print input parameters
 	    System.out.println(	"Input file: " + input +

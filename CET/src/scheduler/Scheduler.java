@@ -55,17 +55,22 @@ public class Scheduler implements Runnable {
 	 */	
 	public void run() {	
 		
+		/*** Create windows ***/		
+		ArrayDeque<Window> windows = new ArrayDeque<Window>();
+		int start = 0;
+		int end = window_length;
+		while (start <= lastsec) {
+			Window window = new Window(start, end);					
+			windows.add(window);
+			start += window_slide;
+			end = (start+window_length > lastsec) ? lastsec : (start+window_length); 
+			System.out.println(window.toString() + " created.");
+		}			
+		
 		/*** Set local variables ***/
 		int progress = Math.min(window_slide,lastsec);
-		
-		ArrayDeque<Window> windows = new ArrayDeque<Window>();
-		Window first_window = new Window(0,window_length);
-		windows.add(first_window);
-		
-		int new_window_creation = window_slide; 
 		boolean last_iteration = false;
-		boolean first_expired = false;
-							
+									
 		/*** Get the permission to schedule current slide ***/
 		while (eventqueue.getDriverProgress(progress)) {
 			
@@ -75,26 +80,15 @@ public class Scheduler implements Runnable {
 					
 				Event e = eventqueue.contents.poll();
 				
-				/*** Create new windows ***/
-				if (e.sec >= new_window_creation && new_window_creation <= lastsec) {
-					int end = (new_window_creation+window_length > lastsec) ? lastsec : (new_window_creation+window_length); 
-					Window new_window = new Window(new_window_creation, end);					
-					windows.add(new_window);
-					new_window_creation += window_slide;
-				}		
 				/*** Fill windows with events ***/
 				for (Window window : windows) {
-					if (window.relevant(e)) {
-						window.events.add(e); 
-					} else {						
-						first_expired = true;
-					}
+					if (window.relevant(e)) window.events.add(e); 
 				}
 				/*** Poll an expired window and submit it for execution ***/
-				if (first_expired) {					
+				if (!windows.getFirst().relevant(e)) {					
 					Window window = windows.poll();
-					execute(window.events);							
-					first_expired = false;
+					System.out.println(window.toString());
+					execute(window.events);					
 				}
 				event = eventqueue.contents.peek();
 			}		 
@@ -112,6 +106,7 @@ public class Scheduler implements Runnable {
 		}
 		/*** Poll the last windows and submit them for execution ***/
 		for (Window window : windows) {
+			System.out.println(window.toString());
 			execute(window.events);			
 		}		
 		/*** Terminate ***/
