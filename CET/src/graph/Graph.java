@@ -9,14 +9,13 @@ public class Graph {
 	public ArrayList<Node> nodes;
 	public int edgeNumber;
 	public ArrayList<Node> first_nodes;
-	// Maps value to the last events in sequences with this value
-	public HashMap<Integer,ArrayList<Node>> last_nodes;  
+	public ArrayList<Node> last_nodes;  
 	
 	public Graph () {
 		nodes = new ArrayList<Node>();
 		edgeNumber = 0;
 		first_nodes = new ArrayList<Node>();
-		last_nodes = new HashMap<Integer,ArrayList<Node>>();
+		last_nodes = new ArrayList<Node>();
 	}
 	
 	public void connect (Node first, Node second) {
@@ -41,20 +40,17 @@ public class Graph {
 			Node node = new Node(event);
 			
 			/*** Case I: This event starts a new sequence. It is a first and a last event. ***/
-			if (!graph.last_nodes.containsKey(event.value)) {
+			if (!graph.last_nodes.isEmpty()) {
 				graph.first_nodes.add(node);
-				ArrayList<Node> nodes = new ArrayList<Node>();
-				nodes.add(node);
-				graph.last_nodes.put(event.value,nodes);
+				graph.last_nodes.add(node);
 				node.isLastNode = true;
 				//System.out.println(event.id + " starts a new sequence.");
 			} else {
 				
 				ArrayList<Node> new_last_nodes = new ArrayList<Node>();
 				ArrayList<Node> old_last_nodes = new ArrayList<Node>();
-				ArrayList<Node> lnodes = graph.last_nodes.get(event.value);
-				
-				for (Node last : lnodes) {					
+								
+				for (Node last : graph.last_nodes) {					
 			
 					/*** Case II: This event is compatible with the last event. Add an edge between last and this. ***/
 					if (last.isCompatible(node)) {
@@ -83,9 +79,8 @@ public class Graph {
 						//System.out.println(event.id + " starts a new sequence.");
 					}			
 				}
-				lnodes.removeAll(old_last_nodes);
-				lnodes.addAll(new_last_nodes);
-				graph.last_nodes.put(event.value, lnodes);
+				graph.last_nodes.removeAll(old_last_nodes);
+				graph.last_nodes.addAll(new_last_nodes);
 			}
 			// Add the new node to the graph
 			graph.nodes.add(node);	

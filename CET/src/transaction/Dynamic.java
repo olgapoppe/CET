@@ -68,12 +68,8 @@ public class Dynamic extends Transaction {
 		int memory4results = 0;
 				
 		if (output.isAvailable()) {
-			Set<Integer> keys = graph.last_nodes.keySet();
-			for (Integer key : keys) {
-				ArrayList<Node> last_nodes = graph.last_nodes.get(key);
-				for (Node last : last_nodes) {
-					memory4results += last.printResults(output);
-				}
+			for (Node last : graph.last_nodes) {
+				memory4results += last.printResults(output);
 			}
 			output.setAvailable();
 		}
