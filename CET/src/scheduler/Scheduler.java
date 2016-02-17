@@ -123,8 +123,11 @@ public class Scheduler implements Runnable {
 		if (algorithm == 2) {
 			transaction = new NonDynamic(events,output,transaction_number,processingTime,maxMemoryPerWindow);
 		} else {
+		if (algorithm == 3) {
 			transaction = new Dynamic(events,output,transaction_number,processingTime,maxMemoryPerWindow);
-		}}
+		} else {
+			transaction = new Partitioned(events,output,transaction_number,processingTime,maxMemoryPerWindow);
+		}}}
 		executor.execute(transaction);	
 	}
 	

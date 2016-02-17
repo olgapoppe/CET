@@ -19,9 +19,7 @@ public class Partition extends Graph {
 		last_nodes = ln;
 	}
 	
-	/**
-	 * Merge two input partitions and return the resulting partition
-	 */
+	/*** Merge two input partitions and return the resulting partition ***/
 	public Partition merge (Partition other) {
 		int start = this.start;
 		int end = other.end;
@@ -36,17 +34,21 @@ public class Partition extends Graph {
 		return new Partition(start,end,vertexes,edges,first,last);
 	}
 	
-	/**
-	 * Get CPU cost of this partition
-	 */
+	/*** Get CPU cost of this partition ***/
 	public double getCPUcost () {
 		return edgeNumber + Math.pow(3, Math.floor(vertexNumber/3));
 	}
 	
-	/**
-	 * Get memory cost of this partition
-	 */
+	/*** Get memory cost of this partition ***/
 	public double getMEMcost () {
 		return vertexNumber * Math.pow(3, Math.floor(vertexNumber/3));
+	}
+	
+	public String toString() {
+		return "Partition from " + start + 
+				" to " + end + 
+				" with " + vertexNumber + 
+				" vertexes and " + edgeNumber + 
+				" edges.";
 	}
 }

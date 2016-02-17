@@ -3,7 +3,6 @@ package transaction;
 import iogenerator.OutputFileGenerator;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -15,7 +14,7 @@ public class Dynamic extends Transaction {
 	
 	Graph graph;
 	
-	public Dynamic (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT,AtomicInteger mMPW) {
+	public Dynamic (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW) {
 		super(b,o,tn,pT,mMPW);			
 	}
 	

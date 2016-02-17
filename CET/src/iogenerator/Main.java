@@ -37,7 +37,7 @@ public class Main {
 	    int lastsec = 2;
 		int window_length = 3;
 		int window_slide = 3;	
-		int algorithm = 2;
+		int algorithm = 4;
 				
 		// Read input parameters
 	    for (int i=0; i<args.length; i++){

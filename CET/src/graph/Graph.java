@@ -9,12 +9,14 @@ public class Graph {
 	public int edgeNumber;
 	public ArrayList<Node> first_nodes;
 	public ArrayList<Node> last_nodes;  
+	public ArrayList<Partition> min_partitions;
 	
 	public Graph () {
 		nodes = new ArrayList<Node>();
 		edgeNumber = 0;
 		first_nodes = new ArrayList<Node>();
 		last_nodes = new ArrayList<Node>();
+		min_partitions = new ArrayList<Partition>();
 	}
 	
 	public void connect (Node first, Node second) {
