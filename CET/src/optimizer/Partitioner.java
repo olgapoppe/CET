@@ -4,9 +4,15 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import graph.*;
 
-public class BranchAndBound {
+public class Partitioner {
 	
-	public Partitioning findPartitioning (Partitioning root, int m) {
+	boolean pruning;
+	
+	Partitioner (boolean p) {
+		pruning = p;
+	}
+	
+	public Partitioning getPartitioning (Partitioning root, int m) {
 		
 		Partitioning solution = new Partitioning(new ArrayList<Partition>());
 		
@@ -24,7 +30,7 @@ public class BranchAndBound {
 			}
 			ArrayList<Partitioning> children = temp.getChildren();
 			for (Partitioning child : children) {
-				if (child.getMEMcost() <= m) heap.push(child);
+				if (!pruning || child.getMEMcost() <= m) heap.push(child);
 			}
 		}		
 		return solution;		
