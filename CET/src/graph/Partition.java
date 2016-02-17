@@ -22,17 +22,17 @@ public class Partition extends Graph {
 	/**
 	 * Merge two input partitions and return the resulting partition
 	 */
-	public Partition merge (Partition p1, Partition p2) {
-		int start = p1.start;
-		int end = p2.end;
-		int vertexes = p1.vertexNumber + p2.vertexNumber;
+	public Partition merge (Partition other) {
+		int start = this.start;
+		int end = other.end;
+		int vertexes = this.vertexNumber + other.vertexNumber;
 		int cut_edges = 0;
-		for (Node node : p1.last_nodes) {
+		for (Node node : this.last_nodes) {
 			cut_edges += node.following.size();
 		}		
-		int edges = p1.edgeNumber + p2.edgeNumber + cut_edges;
-		ArrayList<Node> first = p1.first_nodes;
-		ArrayList<Node> last = p2.last_nodes;
+		int edges = this.edgeNumber + other.edgeNumber + cut_edges;
+		ArrayList<Node> first = this.first_nodes;
+		ArrayList<Node> last = other.last_nodes;
 		return new Partition(start,end,vertexes,edges,first,last);
 	}
 	
