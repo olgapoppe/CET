@@ -1,6 +1,5 @@
 package graph;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 
 public class Partition extends Graph {
@@ -37,10 +36,16 @@ public class Partition extends Graph {
 		return new Partition(start,end,vertexes,edges,first,last);
 	}
 	
+	/**
+	 * Get CPU cost of this partition
+	 */
 	public double getCPUcost () {
 		return edgeNumber + Math.pow(3, Math.floor(vertexNumber/3));
 	}
 	
+	/**
+	 * Get memory cost of this partition
+	 */
 	public double getMEMcost () {
 		return vertexNumber * Math.pow(3, Math.floor(vertexNumber/3));
 	}
