@@ -27,14 +27,14 @@ public class Exhaustive implements Partitioner {
 			double temp_mem = temp.getMEMcost();
 			memCosts.add(new Double(temp_mem).intValue());
 			
-			System.out.println("Considered: " + temp.toString());
+			//System.out.println("Considered: " + temp.toString());
 			
 			// Update the best solution seen so far
 			if (minCPU > temp_cpu && temp_mem <= memory_limit) {
 				minCPU = temp_cpu;
 				solution = temp;
 				
-				System.out.println("Best so far: " + solution.toString());
+				//System.out.println("Best so far: " + solution.toString());
 			}
 			// Add children to the heap
 			ArrayList<Partitioning> children = temp.getChildren();
