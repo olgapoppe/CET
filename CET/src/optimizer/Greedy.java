@@ -10,11 +10,11 @@ public class Greedy implements Partitioner {
 		Partitioning solution = temp;
 		double minCPU = temp.getCPUcost();
 		int maxChildrenNumber = 0;
-		System.out.println("Best so far: " + solution.toString());
+		//System.out.println("Best so far: " + solution.toString());
 		
 		while (temp!=null) {
 			
-			System.out.println("Considered: " + temp.toString());
+			//System.out.println("Considered: " + temp.toString());
 			
 			// Consider all children, update their max number and pick the best of them
 			ArrayList<Partitioning> children = temp.getChildren();
@@ -29,7 +29,7 @@ public class Greedy implements Partitioner {
 					minCPU = child_cpu;
 					solution = child;
 					temp = child;
-					System.out.println("Best so far: " + solution.toString());
+					//System.out.println("Best so far: " + solution.toString());
 				}
 			}			
 		}
