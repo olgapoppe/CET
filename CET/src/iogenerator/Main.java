@@ -34,9 +34,9 @@ public class Main {
 		String inputfile = "stream1.txt";
 		String outputfile = "sequences.txt";		
 		
-	    int lastsec = 304;
-		int window_length = lastsec+1;
-		int window_slide = lastsec+1;	
+	    int lastsec = 0;
+		int window_length = 0;
+		int window_slide = 0;	
 		int algorithm = 4;
 		int memory_limit = Integer.MAX_VALUE;
 		int search_algorithm = 1;
@@ -52,6 +52,8 @@ public class Main {
 			if (args[i].equals("-mem")) 		memory_limit = Integer.parseInt(args[++i]);
 			if (args[i].equals("-search")) 		search_algorithm = Integer.parseInt(args[++i]);
 		}
+	    window_length = lastsec+1;
+		window_slide = lastsec+1;
 	    String input = path + inputfile;
 	    OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
 	    

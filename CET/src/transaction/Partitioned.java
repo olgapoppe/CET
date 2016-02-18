@@ -29,13 +29,13 @@ public class Partitioned extends Transaction {
 			partitioner = new Exhaustive();
 			partitioning = partitioner.getPartitioning(rootPartitioning, memory_limit);
 		} else {
-		//if (search_algorithm==2) {
+		if (search_algorithm==2) {
 			partitioner = new BranchAndBound();
 			partitioning = partitioner.getPartitioning(rootPartitioning, memory_limit);
-		//} else {
-			
-		//}
-		}
+		} else {
+			partitioner = new Greedy();
+			partitioning = partitioner.getPartitioning(rootPartitioning, memory_limit);
+		}}
 		//computeResults(graph.first_nodes);		
 		long end =  System.currentTimeMillis();
 		long processingDuration = end - start;

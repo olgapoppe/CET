@@ -1,7 +1,7 @@
 package optimizer;
 
 import java.util.ArrayList;
-//import java.util.Arrays;
+import java.util.Arrays;
 import java.util.LinkedList;
 import graph.*;
 
@@ -13,7 +13,7 @@ public class Exhaustive implements Partitioner {
 		Partitioning solution = new Partitioning(new ArrayList<Partition>());
 		
 		double minCPU = Integer.MAX_VALUE;
-		//ArrayList<Integer> memCosts = new ArrayList<Integer>();
+		ArrayList<Integer> memCosts = new ArrayList<Integer>();
 		int maxHeapSize = 0;
 				
 		LinkedList<Partitioning> heap = new LinkedList<Partitioning>();
@@ -25,7 +25,7 @@ public class Exhaustive implements Partitioner {
 			Partitioning temp = heap.poll();
 			double temp_cpu = temp.getCPUcost();
 			double temp_mem = temp.getMEMcost();
-			//memCosts.add(new Double(temp_mem).intValue());
+			memCosts.add(new Double(temp_mem).intValue());
 			
 			//System.out.println("Considered: " + temp.toString());
 			
@@ -45,14 +45,14 @@ public class Exhaustive implements Partitioner {
 			if (maxHeapSize < heap.size()) maxHeapSize = heap.size();
 		}
 		// Compute median memory cost
-		/*int length = memCosts.size();
+		int length = memCosts.size();
 		Integer[] array = new Integer [length];
 		array = memCosts.toArray(array);
 		Arrays.sort(array);
-		int median = array[length/2];*/
+		int median = array[length/2];
 		
-		System.out.println("Max heap size: " + maxHeapSize);
-				//"\nMedian memory cost: " + median);
+		System.out.println("Max heap size: " + maxHeapSize +
+				"\nMedian memory cost: " + median);
 		
 		return solution;		
 	}
