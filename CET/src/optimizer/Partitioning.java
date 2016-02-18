@@ -2,7 +2,6 @@ package optimizer;
 
 import java.util.ArrayList;
 import event.Event;
-import graph.Node;
 import graph.Partition;
 
 public class Partitioning {
@@ -13,8 +12,24 @@ public class Partitioning {
 		partitions = p;
 	}
 	
+	public boolean equals (Object o) {
+		Partitioning other = (Partitioning) o;
+		if (this.partitions.size() != other.partitions.size()) return false;
+		for (Partition part1 : this.partitions) {
+			boolean pairFound = false;
+			for (Partition part2 : other.partitions) {
+				if (part1.equals(part2)) {
+					pairFound = true;
+					break;
+				}
+			}
+			if (!pairFound) return false;
+		}	
+		return true;
+	}
+	
 	/*** From the given batch of events construct a partitioning with minimal partitions ***/
-	public static Partitioning constructPartitioning (ArrayList<Event> events) {	
+	public static Partitioning constructRootPartitioning (ArrayList<Event> events) {	
 		
 		int curr_sec = events.get(0).sec;
 		ArrayList<Partition> parts = new ArrayList<Partition>();
@@ -27,16 +42,8 @@ public class Partitioning {
 			} else {
 				// Construct a partition from events with the same time stamp
 				if (!batch.isEmpty()) {
-					ArrayList<Node> nodes = new ArrayList<Node>();
-					for (Event e : batch) {
-						Node n = new Node(e);
-						nodes.add(n);
-					}
-					Partition p = new Partition (curr_sec, curr_sec, batch.size(), 0, nodes, nodes);
-					
-					System.out.println(p.toString());
-					
-					parts.add(p);
+					Partition minimalPartitioning = Partition.getMinPartition(curr_sec, batch);					
+					parts.add(minimalPartitioning);
 				}
 				// Reset the current second and the batch for the next iteration
 				curr_sec = event.sec;
@@ -46,28 +53,22 @@ public class Partitioning {
 		}
 		// Last partition
 		if (!batch.isEmpty()) {
-			ArrayList<Node> nodes = new ArrayList<Node>();
-			for (Event e : batch) {
-				Node n = new Node(e);
-				nodes.add(n);
-			}
-			Partition p = new Partition (curr_sec, curr_sec, batch.size(), 0, nodes, nodes);
-			
-			System.out.println(p.toString());
-			
-			parts.add(p);
+			Partition minimalPartitioning = Partition.getMinPartition(curr_sec, batch);		
+			parts.add(minimalPartitioning);
 		}
-		return new Partitioning(parts);		
+		Partitioning rootPartitioning = new Partitioning(parts);
+		//System.out.println("\nRoot partitioning: " + rootPartitioning.toString());
+		return rootPartitioning;		
 	}
 	
 	/*** Get CPU cost of this partitioning ***/
 	public double getCPUcost () {
 		double cost4partitions = 0;
-		double cost4final_result_construction = 1;
+		double cost4final_result_construction = (partitions.size()==1) ? 0 : 1;
 		for (Partition part : partitions) {
 			cost4partitions += part.getCPUcost();
 			cost4final_result_construction *= Math.pow(3, Math.floor(part.vertexNumber/3));
-		}	
+		}			
 		return cost4partitions + cost4final_result_construction;
 	}
 	
@@ -105,5 +106,14 @@ public class Partitioning {
 			children.add(child);
 		}		
 		return children;
+	}
+	
+	public String toString() {
+		String s = "CPU: " + this.getCPUcost() + 
+				" MEM: " + this.getMEMcost() + "\n";
+		for (Partition p : partitions) {
+			s += p.toString() + "\n";
+		}
+		return s;
 	}
 }

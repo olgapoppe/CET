@@ -18,6 +18,7 @@ public class Scheduler implements Runnable {
 	int window_length;
 	int window_slide;
 	int algorithm;
+	int memory_limit;
 		
 	ExecutorService executor;
 	
@@ -29,7 +30,7 @@ public class Scheduler implements Runnable {
 	AtomicInteger maxMemoryPerWindow;
 	OutputFileGenerator output;
 	
-	public Scheduler (EventQueue eq, int last, int wl, int ws, int a, ExecutorService exe, 
+	public Scheduler (EventQueue eq, int last, int wl, int ws, int a, int ml, ExecutorService exe, 
 			AtomicInteger dp, CountDownLatch d, AtomicLong pT, AtomicInteger mMPW, OutputFileGenerator o) {	
 		
 		eventqueue = eq;
@@ -37,6 +38,7 @@ public class Scheduler implements Runnable {
 		window_length = wl;
 		window_slide = ws;
 		algorithm = a;
+		memory_limit = ml;
 		
 		executor = exe;
 		
@@ -64,7 +66,7 @@ public class Scheduler implements Runnable {
 			windows.add(window);
 			start += window_slide;
 			end = (start+window_length > lastsec) ? lastsec : (start+window_length); 
-			System.out.println(window.toString() + " created.");
+			//System.out.println(window.toString() + " is created.");
 		}			
 		
 		/*** Set local variables ***/
@@ -126,7 +128,7 @@ public class Scheduler implements Runnable {
 		if (algorithm == 3) {
 			transaction = new Dynamic(events,output,transaction_number,processingTime,maxMemoryPerWindow);
 		} else {
-			transaction = new Partitioned(events,output,transaction_number,processingTime,maxMemoryPerWindow);
+			transaction = new Partitioned(events,output,transaction_number,processingTime,maxMemoryPerWindow,memory_limit);
 		}}}
 		executor.execute(transaction);	
 	}

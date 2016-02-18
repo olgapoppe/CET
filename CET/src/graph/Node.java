@@ -30,6 +30,21 @@ public class Node {
 		return this.event.equals(other.event);
 	}
 	
+	public void connect (Node other) {
+		this.following.add(other);
+		other.previous.add(this);
+		this.isLastNode = false;
+		other.isLastNode = true;
+	}
+	
+	public int getEventNumber (String sequence) {
+		int number = 1;
+		for (int i=0; i<sequence.length(); i++) {
+			if (sequence.substring(i,i+1).equals(";")) number++;
+		}
+		return number;
+	}
+	
 	public String toString() {
 		return event.id + ""; // + " has " + previous.size() + " previuos and " + following.size() + " following events."; 
 	}
@@ -41,14 +56,6 @@ public class Node {
 			memory4results += getEventNumber(sequence);
 		}	
 		return memory4results;
-	}
-	
-	public int getEventNumber (String sequence) {
-		int number = 1;
-		for (int i=0; i<sequence.length(); i++) {
-			if (sequence.substring(i,i+1).equals(";")) number++;
-		}
-		return number;
 	}
 }
 

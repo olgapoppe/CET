@@ -34,10 +34,11 @@ public class Main {
 		String inputfile = "stream1.txt";
 		String outputfile = "sequences.txt";		
 		
-	    int lastsec = 2;
-		int window_length = 3;
-		int window_slide = 3;	
+	    int lastsec = 3;
+		int window_length = lastsec+1;
+		int window_slide = lastsec+1;	
 		int algorithm = 4;
+		int memory_limit = 10;
 				
 		// Read input parameters
 	    for (int i=0; i<args.length; i++){
@@ -47,6 +48,7 @@ public class Main {
 			if (args[i].equals("-wl")) 			window_length = Integer.parseInt(args[++i]);
 			if (args[i].equals("-ws")) 			window_slide = Integer.parseInt(args[++i]);
 			if (args[i].equals("-algo")) 		algorithm = Integer.parseInt(args[++i]);
+			if (args[i].equals("-mem")) 		memory_limit = Integer.parseInt(args[++i]);
 		}
 	    String input = path + inputfile;
 	    OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
@@ -57,6 +59,7 @@ public class Main {
 	    					"\nWindow length: " + window_length + 
 							"\nWindow slide: " + window_slide +
 							"\nAlgorithm: " + algorithm +
+							"\nMemory limit: " + memory_limit +
 							"\n----------------------------------");
 
 		/*** SHARED DATA STRUCTURES ***/		
@@ -77,7 +80,7 @@ public class Main {
 		 *   Scheduler reads from the event queue and submits event batches to the executor. ***/
 		EventDriver driver = new EventDriver (input, lastsec, eventqueue, startOfSimulation, driverProgress, eventNumber);				
 				
-		Scheduler scheduler = new Scheduler (eventqueue, lastsec, window_length, window_slide, algorithm, executor, 
+		Scheduler scheduler = new Scheduler (eventqueue, lastsec, window_length, window_slide, algorithm, memory_limit, executor, 
 				driverProgress, done, processingTime, maxMemoryPerWindow, output);		
 		
 		Thread prodThread = new Thread(driver);
@@ -93,7 +96,7 @@ public class Main {
 		executor.shutdown();	
 		output.file.close();
 		
-		System.out.println(
+		System.out.println("----------------------------------\n" +
 				"Event number: " + eventNumber.get() +
 				"\nProcessing time: " + processingTime.get() +
 				"\nThroughput: " + eventNumber.get()/processingTime.get() +

@@ -21,10 +21,7 @@ public class Graph {
 	
 	public void connect (Node first, Node second) {
 		if (!first.following.contains(second)) {
-			first.following.add(second);
-			second.previous.add(first);
-			first.isLastNode = false;
-			second.isLastNode = true;
+			first.connect(second);
 			edgeNumber++;
 		}
 	}

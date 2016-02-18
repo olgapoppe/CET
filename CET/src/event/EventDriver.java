@@ -117,7 +117,7 @@ public class EventDriver implements Runnable {
 	 		
 	 		/*** Clean-up ***/		
 			scanner.close();				
-			System.out.println("----------------------------------\nDriver is done.");	
+			System.out.println("Driver is done.");	
  		
 		} catch (FileNotFoundException e) { e.printStackTrace(); }
 	}	
