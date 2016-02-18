@@ -9,11 +9,12 @@ public class Exhaustive implements Partitioner {
 	
 	public Partitioning getPartitioning (Partitioning root, int memory_limit) {
 		
+		// Set local variables
 		Partitioning solution = new Partitioning(new ArrayList<Partition>());
 		
 		double minCPU = Integer.MAX_VALUE;
 		ArrayList<Integer> memCosts = new ArrayList<Integer>();
-		double maxHeapSize = 0;
+		int maxHeapSize = 0;
 				
 		LinkedList<Partitioning> heap = new LinkedList<Partitioning>();
 		heap.add(root);
