@@ -38,7 +38,7 @@ public class Main {
 		int window_length = lastsec+1;
 		int window_slide = lastsec+1;	
 		int algorithm = 4;
-		int memory_limit = 1000000000;
+		int memory_limit = Integer.MAX_VALUE;
 		int search_algorithm = 1;
 				
 		// Read input parameters
