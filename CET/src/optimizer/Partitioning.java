@@ -57,7 +57,7 @@ public class Partitioning {
 			parts.add(minimalPartitioning);
 		}
 		Partitioning rootPartitioning = new Partitioning(parts);
-		//System.out.println("\nRoot partitioning: " + rootPartitioning.toString());
+		System.out.println(rootPartitioning.partitions.size() + " minimal partitions.");
 		return rootPartitioning;		
 	}
 	

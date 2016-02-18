@@ -34,11 +34,12 @@ public class Main {
 		String inputfile = "stream1.txt";
 		String outputfile = "sequences.txt";		
 		
-	    int lastsec = 3;
+	    int lastsec = 304;
 		int window_length = lastsec+1;
 		int window_slide = lastsec+1;	
 		int algorithm = 4;
-		int memory_limit = 10;
+		int memory_limit = 1000000000;
+		int search_algorithm = 1;
 				
 		// Read input parameters
 	    for (int i=0; i<args.length; i++){
@@ -49,6 +50,7 @@ public class Main {
 			if (args[i].equals("-ws")) 			window_slide = Integer.parseInt(args[++i]);
 			if (args[i].equals("-algo")) 		algorithm = Integer.parseInt(args[++i]);
 			if (args[i].equals("-mem")) 		memory_limit = Integer.parseInt(args[++i]);
+			if (args[i].equals("-search")) 		search_algorithm = Integer.parseInt(args[++i]);
 		}
 	    String input = path + inputfile;
 	    OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
@@ -60,6 +62,7 @@ public class Main {
 							"\nWindow slide: " + window_slide +
 							"\nAlgorithm: " + algorithm +
 							"\nMemory limit: " + memory_limit +
+							"\nSearch algorithm: " + search_algorithm +
 							"\n----------------------------------");
 
 		/*** SHARED DATA STRUCTURES ***/		
@@ -80,8 +83,8 @@ public class Main {
 		 *   Scheduler reads from the event queue and submits event batches to the executor. ***/
 		EventDriver driver = new EventDriver (input, lastsec, eventqueue, startOfSimulation, driverProgress, eventNumber);				
 				
-		Scheduler scheduler = new Scheduler (eventqueue, lastsec, window_length, window_slide, algorithm, memory_limit, executor, 
-				driverProgress, done, processingTime, maxMemoryPerWindow, output);		
+		Scheduler scheduler = new Scheduler (eventqueue, lastsec, window_length, window_slide, algorithm, memory_limit, search_algorithm, 
+				executor, driverProgress, done, processingTime, maxMemoryPerWindow, output);		
 		
 		Thread prodThread = new Thread(driver);
 		prodThread.setPriority(10);
@@ -99,7 +102,7 @@ public class Main {
 		System.out.println("----------------------------------\n" +
 				"Event number: " + eventNumber.get() +
 				"\nProcessing time: " + processingTime.get() +
-				"\nThroughput: " + eventNumber.get()/processingTime.get() +
+				//"\nThroughput: " + eventNumber.get()/processingTime.get() +
 				"\nMemory: " + maxMemoryPerWindow.get() +
 				"\nExecutor is done." +
 				"\nMain is done.");

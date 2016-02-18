@@ -1,8 +1,8 @@
 package optimizer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
-
 import graph.*;
 
 public class BranchAndBound implements Partitioner {	
@@ -12,6 +12,10 @@ public class BranchAndBound implements Partitioner {
 		Partitioning solution = new Partitioning(new ArrayList<Partition>());
 		
 		double minCPU = Integer.MAX_VALUE;
+		double maxHeapSize = 0;
+		int search_space_size = new Double(Math.pow(2, root.partitions.size())).intValue();
+		double[] memCosts = new double[search_space_size];
+		int i = 0;
 		
 		LinkedList<Partitioning> heap = new LinkedList<Partitioning>();
 		heap.add(root);
@@ -26,14 +30,21 @@ public class BranchAndBound implements Partitioner {
 				minCPU = temp_cpu;
 				solution = temp;
 				
-				System.out.println("Better: " + solution.toString());
+				System.out.println("Best so far: " + solution.toString());
 			}
 			ArrayList<Partitioning> children = temp.getChildren();
 			for (Partitioning child : children) {
-				if (child.getMEMcost() <= memory_limit && !heap.contains(child)) 
-					heap.add(child);
+				double child_mem = child.getMEMcost();
+				memCosts[i] = child_mem;
+				i++;
+				if (child_mem <= memory_limit && !heap.contains(child)) heap.add(child);
 			}
-		}		
+			if (maxHeapSize < heap.size()) maxHeapSize = heap.size();
+		}
+		Arrays.sort(memCosts);
+		double median = (double)memCosts[memCosts.length/2];
+		System.out.println("Max heap size: " + maxHeapSize +
+				"\nMedian memory cost: " + median);
 		return solution;		
 	}
 }

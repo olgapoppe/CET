@@ -19,6 +19,7 @@ public class Scheduler implements Runnable {
 	int window_slide;
 	int algorithm;
 	int memory_limit;
+	int search_algorithm;
 		
 	ExecutorService executor;
 	
@@ -30,8 +31,8 @@ public class Scheduler implements Runnable {
 	AtomicInteger maxMemoryPerWindow;
 	OutputFileGenerator output;
 	
-	public Scheduler (EventQueue eq, int last, int wl, int ws, int a, int ml, ExecutorService exe, 
-			AtomicInteger dp, CountDownLatch d, AtomicLong pT, AtomicInteger mMPW, OutputFileGenerator o) {	
+	public Scheduler (EventQueue eq, int last, int wl, int ws, int a, int ml, int sa, 
+			ExecutorService exe, AtomicInteger dp, CountDownLatch d, AtomicLong pT, AtomicInteger mMPW, OutputFileGenerator o) {	
 		
 		eventqueue = eq;
 		lastsec = last;
@@ -39,6 +40,7 @@ public class Scheduler implements Runnable {
 		window_slide = ws;
 		algorithm = a;
 		memory_limit = ml;
+		search_algorithm = sa;
 		
 		executor = exe;
 		
@@ -128,7 +130,7 @@ public class Scheduler implements Runnable {
 		if (algorithm == 3) {
 			transaction = new Dynamic(events,output,transaction_number,processingTime,maxMemoryPerWindow);
 		} else {
-			transaction = new Partitioned(events,output,transaction_number,processingTime,maxMemoryPerWindow,memory_limit);
+			transaction = new Partitioned(events,output,transaction_number,processingTime,maxMemoryPerWindow,memory_limit,search_algorithm);
 		}}}
 		executor.execute(transaction);	
 	}
