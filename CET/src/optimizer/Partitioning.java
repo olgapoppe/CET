@@ -61,24 +61,36 @@ public class Partitioning {
 		return rootPartitioning;		
 	}
 	
-	/*** Get CPU cost of this partitioning ***/
+	/*** Get CPU cost of this partitioning 
+	 * ignoring the CPU cost of graph construction and partitioning ***/
 	public double getCPUcost () {
-		double cost4partitions = 0;
-		double cost4final_result_construction = (partitions.size()==1) ? 0 : 1;
+		double cost_within = 0;		
+		int v = 0;
+		// CPU cost within partitions
 		for (Partition part : partitions) {
-			cost4partitions += part.getCPUcost();
-			cost4final_result_construction *= Math.pow(3, Math.floor(part.vertexNumber/3));
-		}			
-		return cost4partitions + cost4final_result_construction;
+			cost_within += part.getCPUcost();
+			v += part.vertexNumber;			
+		}	
+		// CPU cost across partitions
+		int k = partitions.size();
+		double cost_across = (k==1) ? 0 : Math.pow(3, Math.floor(v/3)) * (2*k-2);
+		return cost_within + cost_across;
 	}
 	
-	/*** Get memory cost of this partitioning ***/
+	/*** Get memory cost of this partitioning 
+	 * ignoring the memory cost of graph storage and partitioning ***/
 	public double getMEMcost () {
-		double cost4partitions = 0;
+		double cost_within = 0;
+		int v = 0;
+		// Memory cost within partitions
 		for (Partition part : partitions) {
-			cost4partitions += part.getCPUcost();			
+			cost_within += part.getMEMcost();
+			v += part.vertexNumber;
 		}
-		return cost4partitions;
+		// Memory cost across partitions
+		int k = partitions.size();
+		double cost_across = (k==1) ? 0 : v;
+		return cost_within + cost_across;
 	}
 	
 	/*** Get children of this partitioning by merging a pair of consecutive partitions in each child ***/
