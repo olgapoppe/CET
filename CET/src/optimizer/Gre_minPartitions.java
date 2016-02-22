@@ -2,7 +2,7 @@ package optimizer;
 
 import java.util.ArrayList;
 
-public class Greedy implements Partitioner {	
+public class Gre_minPartitions implements Partitioner {	
 	
 	public Partitioning getPartitioning (Partitioning temp, int memory_limit) {
 		
@@ -17,7 +17,7 @@ public class Greedy implements Partitioner {
 			//System.out.println("Considered: " + temp.toString());
 			
 			// Consider all children, update their max number and pick the best of them
-			ArrayList<Partitioning> children = temp.getChildren();
+			ArrayList<Partitioning> children = temp.getChildrenByMerging();
 			int number = children.size();
 			if (maxChildrenNumber<number) maxChildrenNumber = number;
 			

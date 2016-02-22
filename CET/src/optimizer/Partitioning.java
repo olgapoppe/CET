@@ -2,6 +2,7 @@ package optimizer;
 
 import java.util.ArrayList;
 import event.Event;
+import graph.Graph;
 import graph.Partition;
 
 public class Partitioning {
@@ -28,8 +29,24 @@ public class Partitioning {
 		return true;
 	}
 	
+	/*** From the given batch of events construct a partitioning with one maximal partition ***/
+	public static Partitioning getPartitioningWithMaxPartition (ArrayList<Event> events) {	
+		
+		// Generate a single partition from all events 
+		Graph graph = Graph.constructGraph(events);
+		int first_sec = events.get(0).sec;
+		int last_sec = events.get(events.size()-1).sec;
+		Partition part = new Partition(first_sec,last_sec,events.size(),graph.edgeNumber,graph.first_nodes,graph.last_nodes);
+		
+		// Return an partitioning with this partition
+		ArrayList<Partition> parts = new ArrayList<Partition>();
+		parts.add(part);
+		Partitioning rootPartitioning = new Partitioning(parts);		
+		return rootPartitioning;		
+	}
+	
 	/*** From the given batch of events construct a partitioning with minimal partitions ***/
-	public static Partitioning constructRootPartitioning (ArrayList<Event> events) {	
+	public static Partitioning getPartitioningWithMinPartitions (ArrayList<Event> events) {	
 		
 		int curr_sec = events.get(0).sec;
 		ArrayList<Partition> parts = new ArrayList<Partition>();
@@ -93,11 +110,52 @@ public class Partitioning {
 		return cost_within + cost_across;
 	}
 	
-	/*** Get children of this partitioning by merging a pair of consecutive partitions in each child ***/
-	public ArrayList<Partitioning> getChildren() {
+	/*** Get children of this partitioning by splitting a partition in each child ***/
+	public ArrayList<Partitioning> getChildrenBySplitting() {
+		
 		ArrayList<Partitioning> children = new ArrayList<Partitioning>();
+		
 		for (int i=0; i+1<partitions.size(); i++) {
+			
+			// Split ith partition
+			Partition partition2split = partitions.get(i);
+			ArrayList<Partition> split_partitions = partition2split.split();
+			
+			/*** If ith partition cannot be split, move on to the next one ***/
+			if (split_partitions.isEmpty()) continue;
+			
+			/*** Otherwise create a new child partitioning ***/
 			ArrayList<Partition> new_partitions = new ArrayList<Partition>();
+			
+			// Save all partitions before split partition
+			for (int j=0; j<i; j++) {
+				Partition old_partition = partitions.get(j);
+				new_partitions.add(old_partition);
+			}
+			// Save split partitions
+			new_partitions.addAll(split_partitions);
+			
+			// Save all partitions after split partition
+			for (int j=i+1; j<partitions.size(); j++) {
+				Partition old_partition = partitions.get(j);
+				new_partitions.add(old_partition);
+			}
+			// Save new child
+			Partitioning child = new Partitioning(new_partitions);
+			children.add(child);
+		}		
+		return children;
+	}
+	
+	/*** Get children of this partitioning by merging a pair of consecutive partitions in each child ***/
+	public ArrayList<Partitioning> getChildrenByMerging() {
+		
+		ArrayList<Partitioning> children = new ArrayList<Partitioning>();
+		
+		for (int i=0; i+1<partitions.size(); i++) {
+			
+			ArrayList<Partition> new_partitions = new ArrayList<Partition>();
+			
 			// Save all partitions before merged partition
 			for (int j=0; j<i; j++) {
 				Partition old_partition = partitions.get(j);
@@ -108,6 +166,7 @@ public class Partitioning {
 			Partition second = partitions.get(i+1);
 			Partition new_partition = first.merge(second);
 			new_partitions.add(new_partition);
+			
 			// Save all partitions after merged partition
 			for (int j=i+2; j<partitions.size(); j++) {
 				Partition old_partition = partitions.get(j);

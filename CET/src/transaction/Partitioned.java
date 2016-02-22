@@ -23,19 +23,20 @@ public class Partitioned extends Transaction {
 	public void run() {
 		
 		long start =  System.currentTimeMillis();		
-		Partitioning rootPartitioning = Partitioning.constructRootPartitioning(batch);	
+		Partitioning rootPartitioning = Partitioning.getPartitioningWithMaxPartition(batch);	
 		Partitioner partitioner;
 		if (search_algorithm==1) {
-			partitioner = new Exhaustive();
+			partitioner = new Exh_minPartitions();
 			partitioning = partitioner.getPartitioning(rootPartitioning, memory_limit);
 		} else {
-		if (search_algorithm==2) {
-			partitioner = new BranchAndBound();
+		//if (search_algorithm==2) {
+			partitioner = new BandB_maxPartition();
 			partitioning = partitioner.getPartitioning(rootPartitioning, memory_limit);
-		} else {
-			partitioner = new Greedy();
+		/*} else {
+			partitioner = new Gre_minPartitions();
 			partitioning = partitioner.getPartitioning(rootPartitioning, memory_limit);
-		}}
+		}*/
+		}
 		//computeResults(graph.first_nodes);		
 		long end =  System.currentTimeMillis();
 		long processingDuration = end - start;

@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import graph.*;
 
-public class Exhaustive implements Partitioner {	
+public class Exh_minPartitions implements Partitioner {	
 	
 	public Partitioning getPartitioning (Partitioning root, int memory_limit) {
 		
@@ -37,7 +37,7 @@ public class Exhaustive implements Partitioner {
 				//System.out.println("Best so far: " + solution.toString());
 			}
 			// Add children to the heap
-			ArrayList<Partitioning> children = temp.getChildren();
+			ArrayList<Partitioning> children = temp.getChildrenByMerging();
 			for (Partitioning child : children) {				
 				if (!heap.contains(child)) heap.add(child);
 			}

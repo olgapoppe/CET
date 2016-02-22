@@ -35,6 +35,30 @@ public class Partition extends Graph {
 		return new Partition (sec, sec, batch.size(), 0, nodes, nodes);
 	}
 	
+	/*** Get CPU cost of this partition ***/
+	public double getCPUcost () {
+		return edgeNumber + Math.pow(3, Math.floor(vertexNumber/3));
+	}
+	
+	/*** Get memory cost of this partition ***/
+	public double getMEMcost () {
+		return vertexNumber * Math.pow(3, Math.floor(vertexNumber/3));
+	}
+	
+	/*** Split input partition and return the resulting partitions ***/
+	public ArrayList<Partition> split () {	
+		
+		ArrayList<Partition> results = new ArrayList<Partition>();
+		
+		// Base case: No split is possible
+		if (start==end) return results;
+			
+		// Inductive case: Split is possible
+		
+		
+		return results;
+	}
+	
 	/*** Merge two input partitions and return the resulting partition ***/
 	public Partition merge (Partition other) {		
 		
@@ -53,16 +77,6 @@ public class Partition extends Graph {
 		ArrayList<Node> first = this.first_nodes;
 		ArrayList<Node> last = other.last_nodes;
 		return new Partition(start,end,vertexes,edges,first,last);
-	}
-	
-	/*** Get CPU cost of this partition ***/
-	public double getCPUcost () {
-		return edgeNumber + Math.pow(3, Math.floor(vertexNumber/3));
-	}
-	
-	/*** Get memory cost of this partition ***/
-	public double getMEMcost () {
-		return vertexNumber * Math.pow(3, Math.floor(vertexNumber/3));
 	}
 	
 	public String toString() {
