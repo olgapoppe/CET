@@ -26,7 +26,7 @@ public class Partitioned extends Transaction {
 		Partitioning rootPartitioning = Partitioning.getPartitioningWithMaxPartition(batch);	
 		Partitioner partitioner;
 		if (search_algorithm==1) {
-			partitioner = new Exh_minPartitions();
+			partitioner = new Exh_maxPartition();
 			partitioning = partitioner.getPartitioning(rootPartitioning, memory_limit);
 		} else {
 		//if (search_algorithm==2) {

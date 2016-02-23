@@ -29,7 +29,7 @@ public class BandB_maxPartition implements Partitioner {
 			
 			ArrayList<Partitioning> children = temp.getChildrenBySplitting();
 			
-			System.out.println("Considered: " + temp.toString());
+			// System.out.println("Considered: " + temp.toString());
 			
 			if (temp_mem > memory_limit) {
 				
@@ -57,7 +57,7 @@ public class BandB_maxPartition implements Partitioner {
 		System.out.println("Max heap size: " + maxHeapSize + 
 				"\nConsidered: " + considered_count);		
 		
-		System.out.println("Chosen: " + solution.toString()); 
+		// System.out.println("Chosen: " + solution.toString()); 
 		
 		return solution;		
 	}
