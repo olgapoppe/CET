@@ -38,11 +38,12 @@ public class Graph {
 			Node node = new Node(event);
 			
 			/*** Case I: This event starts a new sequence. It is a first and a last event. ***/
-			if (!graph.last_nodes.isEmpty()) {
+			if (graph.last_nodes.isEmpty()) {
 				graph.first_nodes.add(node);
 				graph.last_nodes.add(node);
 				node.isLastNode = true;
-				//System.out.println(event.id + " starts a new sequence.");
+				
+				System.out.println(event.id + " starts a new sequence.");
 			} else {
 				
 				ArrayList<Node> new_last_nodes = new ArrayList<Node>();
@@ -69,12 +70,15 @@ public class Graph {
 							}
 						}							 
 						/*** Case I: This event is compatible with no previous event. Add this event to the last nodes. ***/
-						if (first) graph.first_nodes.add(node);
+						if (first) {
+							graph.first_nodes.add(node);
+							
+							System.out.println(event.id + " starts a new sequence.");
+						}
 						if (!new_last_nodes.contains(node)) {
 							new_last_nodes.add(node);
 							node.isLastNode = true;
-						}
-						//System.out.println(event.id + " starts a new sequence.");
+						}					
 					}			
 				}
 				graph.last_nodes.removeAll(old_last_nodes);

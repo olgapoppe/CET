@@ -9,7 +9,7 @@ public class Partitioning {
 	
 	ArrayList<Partition> partitions;
 	
-	Partitioning (ArrayList<Partition> p) {
+	public Partitioning (ArrayList<Partition> p) {
 		partitions = p;
 	}
 	
@@ -115,34 +115,33 @@ public class Partitioning {
 		
 		ArrayList<Partitioning> children = new ArrayList<Partitioning>();
 		
-		for (int i=0; i+1<partitions.size(); i++) {
+		for (int i=0; i<partitions.size(); i++) {
 			
 			// Split ith partition
 			Partition partition2split = partitions.get(i);
-			ArrayList<Partition> split_partitions = partition2split.split();
+			ArrayList<Partitioning> split_results = partition2split.split();
 			
-			/*** If ith partition cannot be split, move on to the next one ***/
-			if (split_partitions.isEmpty()) continue;
+			for (Partitioning p : split_results) {
+				
+				ArrayList<Partition> new_partitions = new ArrayList<Partition>();
 			
-			/*** Otherwise create a new child partitioning ***/
-			ArrayList<Partition> new_partitions = new ArrayList<Partition>();
-			
-			// Save all partitions before split partition
-			for (int j=0; j<i; j++) {
-				Partition old_partition = partitions.get(j);
-				new_partitions.add(old_partition);
+				// Save all partitions before split partition
+				for (int j=0; j<i; j++) {
+					Partition old_partition = partitions.get(j);
+					new_partitions.add(old_partition);
+				}
+				// Save split partitions
+				new_partitions.addAll(p.partitions);
+						
+				// Save all partitions after split partition
+				for (int j=i+1; j<partitions.size(); j++) {
+					Partition old_partition = partitions.get(j);
+					new_partitions.add(old_partition);
+				}
+				// Save new child
+				Partitioning child = new Partitioning(new_partitions);
+				children.add(child);
 			}
-			// Save split partitions
-			new_partitions.addAll(split_partitions);
-			
-			// Save all partitions after split partition
-			for (int j=i+1; j<partitions.size(); j++) {
-				Partition old_partition = partitions.get(j);
-				new_partitions.add(old_partition);
-			}
-			// Save new child
-			Partitioning child = new Partitioning(new_partitions);
-			children.add(child);
 		}		
 		return children;
 	}
