@@ -43,7 +43,7 @@ public class Graph {
 				graph.last_nodes.add(node);
 				node.isLastNode = true;
 				
-				System.out.println(event.id + " starts a new sequence.");
+				//System.out.println(event.id + " starts a new sequence.");
 			} else {
 				
 				ArrayList<Node> new_last_nodes = new ArrayList<Node>();

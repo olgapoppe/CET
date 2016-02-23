@@ -24,6 +24,9 @@ public class Partitioned extends Transaction {
 		
 		long start =  System.currentTimeMillis();		
 		Partitioning rootPartitioning = Partitioning.getPartitioningWithMaxPartition(batch);	
+		
+		System.out.println(rootPartitioning.toString());
+		
 		Partitioner partitioner;
 		if (search_algorithm==1) {
 			partitioner = new Exh_maxPartition();
