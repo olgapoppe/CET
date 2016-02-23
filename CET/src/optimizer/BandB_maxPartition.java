@@ -34,7 +34,7 @@ public class BandB_maxPartition implements Partitioner {
 				
 				// Add children to the heap				
 				for (Partitioning child : children) {					
-					if (!heap.contains(child)) heap.add(child); 
+					if (!heap.contains(child) && !child.marked) heap.add(child); 
 				} 
 				// Update max heap size
 				if (maxHeapSize < heap.size()) maxHeapSize = heap.size();
