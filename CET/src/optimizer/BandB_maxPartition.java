@@ -22,7 +22,7 @@ public class BandB_maxPartition implements Partitioner {
 			
 			// Get the next node to process
 			Partitioning temp = heap.poll();			
-			if (temp.marked) continue;
+			if (temp.pruned) continue;
 			double temp_mem = temp.getMEMcost();
 			considered_count++;
 			
@@ -34,7 +34,7 @@ public class BandB_maxPartition implements Partitioner {
 				
 				// Add children to the heap				
 				for (Partitioning child : children) {					
-					if (!heap.contains(child) && !child.marked) heap.add(child); 
+					if (!heap.contains(child) && !child.pruned) heap.add(child); 
 				} 
 				// Update max heap size
 				if (maxHeapSize < heap.size()) maxHeapSize = heap.size();
@@ -42,7 +42,7 @@ public class BandB_maxPartition implements Partitioner {
 				// Add this node to solutions and remember its children
 				solutions.add(temp);
 				for (Partitioning child : children) {					
-					child.marked = true; 
+					child.pruned = true; 
 				} 
 			}
 		}

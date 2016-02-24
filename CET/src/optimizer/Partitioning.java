@@ -8,11 +8,11 @@ import graph.Partition;
 public class Partitioning {
 	
 	ArrayList<Partition> partitions;
-	boolean marked;
+	boolean pruned;
 	
 	public Partitioning (ArrayList<Partition> p) {
 		partitions = p;
-		marked = false;
+		pruned = false;
 	}
 	
 	public boolean equals (Object o) {
