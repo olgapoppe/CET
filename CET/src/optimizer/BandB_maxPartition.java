@@ -10,6 +10,7 @@ public class BandB_maxPartition implements Partitioner {
 		
 		// Set local variables
 		ArrayList<Partitioning> solutions = new ArrayList<Partitioning>();
+		ArrayList<Partitioning> ignored = new ArrayList<Partitioning>();
 		Partitioning solution = new Partitioning(new ArrayList<Partition>());
 		
 		int maxHeapSize = 0;
@@ -22,7 +23,7 @@ public class BandB_maxPartition implements Partitioner {
 			
 			// Get the next node to process
 			Partitioning temp = heap.poll();			
-			if (temp.pruned) continue;
+			if (ignored.contains(temp)) continue;
 			double temp_mem = temp.getMEMcost();
 			considered_count++;
 			
@@ -34,16 +35,14 @@ public class BandB_maxPartition implements Partitioner {
 				
 				// Add children to the heap				
 				for (Partitioning child : children) {					
-					if (!heap.contains(child) && !child.pruned) heap.add(child); 
+					if (!heap.contains(child) && !ignored.contains(child)) heap.add(child); 
 				} 
 				// Update max heap size
 				if (maxHeapSize < heap.size()) maxHeapSize = heap.size();
 			} else {
 				// Add this node to solutions and remember its children
 				solutions.add(temp);
-				for (Partitioning child : children) {					
-					child.pruned = true; 
-				} 
+				ignored.addAll(children);
 			}
 		}
 		// Get solution with minimal CPU
