@@ -7,10 +7,14 @@ import graph.Partition;
 
 public class Partitioning {
 	
+	String id;
 	ArrayList<Partition> partitions;
 		
 	public Partitioning (ArrayList<Partition> p) {
 		partitions = p;
+		for (Partition part : p) {
+			id += part.id + ";";
+		}
 	}
 	
 	public boolean equals (Object o) {
