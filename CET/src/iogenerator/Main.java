@@ -52,8 +52,8 @@ public class Main {
 			if (args[i].equals("-mem")) 		memory_limit = Integer.parseInt(args[++i]);
 			if (args[i].equals("-search")) 		search_algorithm = Integer.parseInt(args[++i]);
 		}
-	    window_length = lastsec+1;
-		window_slide = lastsec+1;
+	    //window_length = lastsec+1;
+		//window_slide = lastsec+1;
 	    String input = path + inputfile;
 	    OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
 	    
