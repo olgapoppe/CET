@@ -25,21 +25,22 @@ public class NonDynamic extends Transaction {
 	public void run() {
 		
 		long start =  System.currentTimeMillis();
-		graph = Graph.constructGraph(batch);		
+		graph = Graph.constructGraph(batch);	
+		int maxSeqLength = 0;
 		for (Node first : graph.first_nodes) {
 			Stack<Node> current_sequence = new Stack<Node>();
-			computeResults(first,current_sequence);
+			maxSeqLength = computeResults(first,current_sequence,maxSeqLength);
 		}
 		long end =  System.currentTimeMillis();
 		long processingDuration = end - start;
 		processingTime.set(processingTime.get() + processingDuration);
 		
-		writeOutput2File();		
+		writeOutput2File(maxSeqLength);		
 		transaction_number.countDown();
 	}
 	
 	// DFS recomputing intermediate results
-	public void computeResults (Node node, Stack<Node> current_sequence) {       
+	public int computeResults (Node node, Stack<Node> current_sequence, int maxSeqLength) {       
 		
 		current_sequence.push(node);
 		//System.out.println("pushed " + node.event.id);
@@ -52,22 +53,26 @@ public class NonDynamic extends Transaction {
         		Node n = iter.next();
         		result += n.toString() + ";";
         	}
-        	results.add(result);  
+        	int eventNumber = getEventNumber(result);
+			if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;	
+        	//results.add(result);  
         	//System.out.println("result " + result);
         } else {
         /*** Recursive case: Traverse the following nodes. ***/        	
         	for(Node following : node.following) {        		
         		//System.out.println("following of " + node.event.id + " is " + following.event.id);
-        		computeResults(following,current_sequence);        		
+        		computeResults(following,current_sequence,maxSeqLength);        		
         	}        	
         }
         Node top = current_sequence.pop();
         //System.out.println("popped " + top.event.id);
+        
+        return maxSeqLength;
     }
 	
-	public void writeOutput2File() {
+	public void writeOutput2File(int maxSeqLength) {
 		
-		int maxSeqLength = 0;
+		/*int maxSeqLength = 0;
 				
 		if (output.isAvailable()) {			
 			for(String sequence : results) {							 				
@@ -76,7 +81,7 @@ public class NonDynamic extends Transaction {
 				if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;			
 			}
 			output.setAvailable();
-		}		
+		}*/		
 		// Output of statistics
 		int memory = graph.nodes.size() + graph.edgeNumber + maxSeqLength;
 		if (maxMemoryPerWindow.get() < memory) maxMemoryPerWindow.getAndAdd(memory);	
