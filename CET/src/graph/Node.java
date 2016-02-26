@@ -14,15 +14,15 @@ public class Node {
 	public ArrayList<Node> previous;
 	public ArrayList<Node> following;
 	public boolean isLastNode;
-	// Mapping of a first node to all CETs that start with the first node and end with this node
-	public HashMap<Node,ArrayList<String>> results; 
+	// Mapping of a first node to all CETs that start with the first node
+	public HashMap<Node,ArrayList<EventTrend>> results; 
 	
 	public Node (Event e) {
 		event = e;
 		previous = new ArrayList<Node>();
 		following = new ArrayList<Node>();
 		isLastNode = false;
-		results = new HashMap<Node,ArrayList<String>>();
+		results = new HashMap<Node,ArrayList<EventTrend>>();
 	}
 	
 	public boolean isCompatible(Node other) {
@@ -40,22 +40,14 @@ public class Node {
 		other.isLastNode = true;
 	}	
 	
-	public int getEventNumber (String sequence) {
-		int number = 1;
-		for (int i=0; i<sequence.length(); i++) {
-			if (sequence.substring(i,i+1).equals(";")) number++;
-		}
-		return number;
-	}	
-	
 	public int printResults(OutputFileGenerator output) {
 		int memory4results = 0;
 		Set<Node> first_nodes = results.keySet();
 		for (Node first_node : first_nodes) {
-			ArrayList<String> sequences = results.get(first_node);
-			for(String sequence : sequences) { 				
-				try { output.file.append(sequence + "\n"); } catch (IOException e) { e.printStackTrace(); }
-				memory4results += getEventNumber(sequence);
+			ArrayList<EventTrend> trends = results.get(first_node);
+			for(EventTrend trend : trends) { 				
+				try { output.file.append(trend.sequence + "\n"); } catch (IOException e) { e.printStackTrace(); }
+				memory4results += trend.getEventNumber();
 		}}	
 		return memory4results;
 	}
@@ -64,15 +56,15 @@ public class Node {
 		String result = "";
 		Set<Node> first_nodes = results.keySet();
 		for (Node first_node : first_nodes) {
-			ArrayList<String> sequences = results.get(first_node);
-			for(String sequence : sequences) { 				
-				result += sequence + " "; 				
+			ArrayList<EventTrend> trends = results.get(first_node);
+			for(EventTrend trend : trends) { 				
+				result += trend.sequence + " "; 				
 		}}	
 		return result;
 	}
 	
 	public String toString() {
-		return event.id + ""; // + " has " + previous.size() + " previuos and " + following.size() + " following events."; 
+		return event.id + ""; // + " has " + previous.size() + " previous and " + following.size() + " following events."; 
 	}
 }
 

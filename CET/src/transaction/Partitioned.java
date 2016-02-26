@@ -48,11 +48,8 @@ public class Partitioned extends Transaction {
 		System.out.println(optimal_partitioning.toString());
 		
 		/*** Compute CETs per partition and copy CETs from last nodes to first nodes ***/
-		for (Partition partition : optimal_partitioning.partitions) {
-			
-			for (Node last_node : partition.last_nodes) {
-				last_node.isLastNode = true;
-			}
+		for (Partition partition : optimal_partitioning.partitions) {			
+			for (Node last_node : partition.last_nodes) { last_node.isLastNode = true; }
 			Dynamic.computeResults(partition.first_nodes);
 			partition.copyResultsFromLast2First();			
 		}

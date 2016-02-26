@@ -44,9 +44,10 @@ public class Dynamic extends Transaction {
 			
 			/*** Base case: Create the results for the first nodes ***/
 			if (this_node.results.isEmpty()) {
-				ArrayList<String> new_sequences = new ArrayList<String>();
-				new_sequences.add(this_node.toString());
-				this_node.results.put(this_node, new_sequences); 
+				ArrayList<EventTrend> new_trends = new ArrayList<EventTrend>();
+				EventTrend new_trend = new EventTrend(this_node, this_node, this_node.toString());
+				new_trends.add(new_trend);
+				this_node.results.put(this_node, new_trends); 
 			}
 			
 			/*** Recursive case: Copy results from the current node to its following node and  
@@ -57,17 +58,18 @@ public class Dynamic extends Transaction {
 					Set<Node> first_nodes = this_node.results.keySet();
 					for (Node first_node : first_nodes) {
 					
-						ArrayList<String> old_sequences = this_node.results.get(first_node);
-						ArrayList<String> new_sequences = new ArrayList<String>();
-						ArrayList<String> all_sequences = new ArrayList<String>();
+						ArrayList<EventTrend> old_trends = this_node.results.get(first_node);
+						ArrayList<EventTrend> new_trends = new ArrayList<EventTrend>();
+						ArrayList<EventTrend> all_trends = new ArrayList<EventTrend>();
 					
-						for (String seq : old_sequences) {
-							String new_seq = seq + ";" + next_node.toString();
-							new_sequences.add(new_seq); 
+						for (EventTrend trend : old_trends) {
+							String new_seq = trend.sequence + ";" + next_node.toString();
+							EventTrend new_trend = new EventTrend(first_node, next_node, new_seq);
+							new_trends.add(new_trend); 
 						}
-						if (next_node.results.containsKey(first_node)) all_sequences.addAll(next_node.results.get(first_node));
-						all_sequences.addAll(new_sequences);
-						next_node.results.put(first_node, all_sequences);
+						if (next_node.results.containsKey(first_node)) all_trends.addAll(next_node.results.get(first_node));
+						all_trends.addAll(new_trends);
+						next_node.results.put(first_node, all_trends);
 					}					
 				
 					// Check that following is not in next_level

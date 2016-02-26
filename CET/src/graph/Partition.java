@@ -2,9 +2,8 @@ package graph;
 
 import java.util.ArrayList;
 import java.util.Set;
-
-import event.Event;
-import optimizer.Partitioning;
+import event.*;
+import optimizer.*;
 
 public class Partition extends Graph {
 	
@@ -138,13 +137,13 @@ public class Partition extends Graph {
 				
 				if (!first_node.isLastNode) {
 					
-					ArrayList<String> old_sequences = new ArrayList<String>(); 
-					if (first_node.results.containsKey(first_node)) old_sequences = first_node.results.get(first_node);
-					ArrayList<String> sequences2copy = last_node.results.get(first_node);
-					ArrayList<String> all_sequences = new ArrayList<String>();
-					all_sequences.addAll(old_sequences);
-					all_sequences.addAll(sequences2copy);
-					first_node.results.put(first_node, all_sequences);
+					ArrayList<EventTrend> old_trends = new ArrayList<EventTrend>(); 
+					if (first_node.results.containsKey(first_node)) old_trends = first_node.results.get(first_node);
+					ArrayList<EventTrend> trends2copy = last_node.results.get(first_node);
+					ArrayList<EventTrend> all_trends = new ArrayList<EventTrend>();
+					all_trends.addAll(old_trends);
+					all_trends.addAll(trends2copy);
+					first_node.results.put(first_node, all_trends);
 				
 					System.out.println("FIRST: " + first_node.toString() + ": " + first_node.resultsToString());
 				}
