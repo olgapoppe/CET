@@ -2,6 +2,7 @@ package graph;
 
 import java.util.ArrayList;
 import java.util.Set;
+
 import event.*;
 import optimizer.*;
 
@@ -27,6 +28,14 @@ public class Partition extends Graph {
 		return this.id.equals(other.id);
 	}
 	
+	public int getEventNumber (String sequence) {
+		int number = 1;
+		for (int i=0; i<sequence.length(); i++) {
+			if (sequence.substring(i,i+1).equals(";")) number++;
+		}
+		return number;
+	}
+	
 	/*** Returns a minimal partition for events with the same time stamp ***/
 	public static Partition getMinPartition (int sec, ArrayList<Event> batch) {
 		ArrayList<Node> nodes = new ArrayList<Node>();
@@ -45,6 +54,15 @@ public class Partition extends Graph {
 	/*** Get memory cost of this partition ***/
 	public double getMEMcost () {
 		return vertexNumber * Math.pow(3, Math.floor(vertexNumber/3));
+	}
+	
+	/*** Get actual memory requirement of this partition ***/
+	public int getCETlength () {
+		int result = 0;
+		for (Node last_node : last_nodes) {
+			result += getEventNumber(last_node.resultsToString());
+		}
+		return result;
 	}
 	
 	/*** Split input partition and return the resulting partitions ***/
@@ -146,9 +164,7 @@ public class Partition extends Graph {
 					first_node.results.put(first_node, all_trends);
 				
 					System.out.println("FIRST: " + first_node.toString() + ": " + first_node.resultsToString());
-				}
-			}
-		}
+		}}}
 	}	
 	
 	public String toString() {

@@ -1,12 +1,14 @@
 package transaction;
 
 import iogenerator.OutputFileGenerator;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
 import event.*;
 import graph.*;
 import optimizer.*;
@@ -28,7 +30,8 @@ public class Partitioned extends Transaction {
 		long start =  System.currentTimeMillis();	
 		
 		/*** Get an optimal CET graph partitioning ***/
-		Partitioning rootPartitioning = Partitioning.getPartitioningWithMaxPartition(batch);		
+		Partitioning rootPartitioning = Partitioning.getPartitioningWithMaxPartition(batch);	
+		int size_of_the_graph = rootPartitioning.partitions.get(0).vertexNumber + rootPartitioning.partitions.get(0).edgeNumber; 
 		System.out.println(rootPartitioning.toString());
 		
 		Partitioner partitioner;
@@ -47,53 +50,80 @@ public class Partitioned extends Transaction {
 		System.out.println(optimal_partitioning.toString());
 		
 		/*** Compute CETs per partition and copy CETs from last nodes to first nodes ***/
+		int cets_within_partitions = 0;
 		for (Partition partition : optimal_partitioning.partitions) {			
 			for (Node last_node : partition.last_nodes) { last_node.isLastNode = true; }
 			Dynamic.computeResults(partition.first_nodes);
-			partition.copyResultsFromLast2First();			
+			partition.copyResultsFromLast2First();		
+			cets_within_partitions += partition.getCETlength();
 		}
 		
-		/*** Construct complete CETs across partitions ***/
-		/*for (Node first : graph.first_nodes) {
-			Stack<Node> current_sequence = new Stack<Node>();
-			maxSeqLength = computeResults(first,current_sequence,maxSeqLength);
-		}*/		
+		/*** Construct CETs across partitions ***/
+		int max_cet_across_partitions = 0;
+		ArrayList<Node> first_nodes = optimal_partitioning.partitions.get(0).first_nodes;
+		for (Node first_node : first_nodes) {
+			for (EventTrend event_trend : first_node.results.get(first_node)) {
+				Stack<EventTrend> current_cet = new Stack<EventTrend>();
+				int length = computeResults(event_trend, current_cet, max_cet_across_partitions);
+				if (max_cet_across_partitions < length) max_cet_across_partitions = length;
+			}			
+		}
+		
 		long end =  System.currentTimeMillis();
 		long processingDuration = end - start;
 		processingTime.set(processingTime.get() + processingDuration);
 		
-		//writeOutput2File();
+		writeOutput2File(size_of_the_graph + cets_within_partitions + max_cet_across_partitions);
 		transaction_number.countDown();
 	}
 	
 	// DFS recomputing intermediate results
-	public int computeResults (Node node, Stack<Node> current_sequence, int maxSeqLength) {       
+	public int computeResults (EventTrend event_trend, Stack<EventTrend> current_cet, int maxSeqLength) {       
 			
-		current_sequence.push(node);
-		//System.out.println("pushed " + node.event.id);
+		current_cet.push(event_trend);
+		//System.out.println("pushed " + event_trend.sequence);
 	        
 		/*** Base case: We hit the end of the graph. Output the current CET. ***/
-	    if (node.following.isEmpty()) {   
+	    if (event_trend.last_node.following.isEmpty()) {   
 	       	String result = "";        	
-	       	Iterator<Node> iter = current_sequence.iterator();
+	       	Iterator<EventTrend> iter = current_cet.iterator();
+	       	int eventNumber = 0;
 	       	while(iter.hasNext()) {
-	       		Node n = iter.next();
-	       		result += n.toString() + ";";
+	       		EventTrend n = iter.next();
+	       		result += n.sequence.toString() + ";";
+	       		eventNumber += n.getEventNumber();
 	       	}
-	       	int eventNumber = getEventNumber(result);
-			if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;	
+	       	if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;	
 	       	//results.add(result);  
 	       	//System.out.println("result " + result);
 	   } else {
 	   /*** Recursive case: Traverse the following nodes. ***/        	
-	       	for(Node following : node.following) {        		
+	       	for(Node first_in_next_partition : event_trend.last_node.following) {        		
 	       		//System.out.println("following of " + node.event.id + " is " + following.event.id);
-	       		computeResults(following,current_sequence,maxSeqLength);        		
+	       		for (EventTrend new_event_trend : first_in_next_partition.results.get(first_in_next_partition)) {
+	       			computeResults(new_event_trend, current_cet, maxSeqLength); 
+	       		}	       		       		
 	       	}        	
 	   }
-	   Node top = current_sequence.pop();
-	   //System.out.println("popped " + top.event.id);
+	   EventTrend top = current_cet.pop();
+	   //System.out.println("popped " + top.sequence);
 	        
 	   return maxSeqLength;
    }
+	
+	public void writeOutput2File(int memory) {
+		
+		/*int maxSeqLength = 0;
+				
+		if (output.isAvailable()) {			
+			for(String sequence : results) {							 				
+				try { output.file.append(sequence + "\n"); } catch (IOException e) { e.printStackTrace(); }
+				int eventNumber = getEventNumber(sequence);
+				if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;			
+			}
+			output.setAvailable();
+		}*/		
+		// Output of statistics
+		if (maxMemoryPerWindow.get() < memory) maxMemoryPerWindow.getAndAdd(memory);	
+	}
 }
