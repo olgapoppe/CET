@@ -2,15 +2,19 @@ package transaction;
 
 import iogenerator.OutputFileGenerator;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import event.*;
+import graph.*;
 import optimizer.*;
 
 public class Partitioned extends Transaction {
 	
-	Partitioning partitioning;
+	Partitioning optimal_partitioning;
 	int memory_limit;
 	int search_algorithm;
 	
@@ -22,25 +26,66 @@ public class Partitioned extends Transaction {
 
 	public void run() {
 		
-		long start =  System.currentTimeMillis();		
+		long start =  System.currentTimeMillis();	
+		
+		/*** Get an optimal CET graph partitioning ***/
 		Partitioning rootPartitioning = Partitioning.getPartitioningWithMaxPartition(batch);	
 		
-		System.out.println(rootPartitioning.toString());
+		// System.out.println(rootPartitioning.toString());
 		
 		Partitioner partitioner;
 		if (search_algorithm==1) {
 			partitioner = new Exh_maxPartition();
-			partitioning = partitioner.getPartitioning(rootPartitioning, memory_limit);
+			optimal_partitioning = partitioner.getPartitioning(rootPartitioning, memory_limit);
 		} else {
 		//if (search_algorithm==2) {
 			partitioner = new BandB_maxPartition();
-			partitioning = partitioner.getPartitioning(rootPartitioning, memory_limit);
+			optimal_partitioning = partitioner.getPartitioning(rootPartitioning, memory_limit);
 		/*} else {
 			partitioner = new Gre_minPartitions();
 			partitioning = partitioner.getPartitioning(rootPartitioning, memory_limit);
 		}*/
 		}
-		//computeResults(graph.first_nodes);		
+		
+		System.out.println(optimal_partitioning.toString());
+		
+		/*** Compute CETs per partition and hash the results by first and last nodes in a CET ***/
+		HashMap<Integer,ArrayList<EventTrend>> hash_by_first = new HashMap<Integer,ArrayList<EventTrend>>();
+		HashMap<Integer,ArrayList<EventTrend>> hash_by_last = new HashMap<Integer,ArrayList<EventTrend>>();
+		
+		for (Partition partition : optimal_partitioning.partitions) {
+			
+			for (Node last_node : partition.last_nodes) {
+				last_node.isLastNode = true;
+			}
+			Dynamic.computeResults(partition.first_nodes);
+			
+			for (Node last_node : partition.last_nodes) {
+				
+				/*for (EventTrend et : last_node.results) {
+					
+					if (!hash_by_first.containsKey(et.first_node)) {
+						hash_by_first.put(et.first_node.event.id, last_node.results);
+					} else {
+						
+					}
+					
+					hash_by_last.put(last_node.event.id, last_node.results);			
+				}*/
+			
+				System.out.print(last_node.toString() + ": ");
+				for (EventTrend et : last_node.results) {
+					System.out.print(et.sequence + " ");
+				}
+				System.out.println();
+			}
+		}
+		
+		// Construct complete CETs across partitions
+		/*for (Node first : graph.first_nodes) {
+			Stack<Node> current_sequence = new Stack<Node>();
+			maxSeqLength = computeResults(first,current_sequence,maxSeqLength);
+		}*/		
 		long end =  System.currentTimeMillis();
 		long processingDuration = end - start;
 		processingTime.set(processingTime.get() + processingDuration);
@@ -48,4 +93,35 @@ public class Partitioned extends Transaction {
 		//writeOutput2File();
 		transaction_number.countDown();
 	}
+	
+	// DFS recomputing intermediate results
+	public int computeResults (Node node, Stack<Node> current_sequence, int maxSeqLength) {       
+			
+		current_sequence.push(node);
+		//System.out.println("pushed " + node.event.id);
+	        
+		/*** Base case: We hit the end of the graph. Output the current CET. ***/
+	    if (node.following.isEmpty()) {   
+	       	String result = "";        	
+	       	Iterator<Node> iter = current_sequence.iterator();
+	       	while(iter.hasNext()) {
+	       		Node n = iter.next();
+	       		result += n.toString() + ";";
+	       	}
+	       	int eventNumber = getEventNumber(result);
+			if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;	
+	       	//results.add(result);  
+	       	//System.out.println("result " + result);
+	   } else {
+	   /*** Recursive case: Traverse the following nodes. ***/        	
+	       	for(Node following : node.following) {        		
+	       		//System.out.println("following of " + node.event.id + " is " + following.event.id);
+	       		computeResults(following,current_sequence,maxSeqLength);        		
+	       	}        	
+	   }
+	   Node top = current_sequence.pop();
+	   //System.out.println("popped " + top.event.id);
+	        
+	   return maxSeqLength;
+   }
 }

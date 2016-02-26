@@ -17,7 +17,7 @@ public class InputFileGenerator {
 		
 		// Parameters to vary
 		int event_number_per_window = 20;
-		int max_comp = 15;
+		int max_comp = 7;
 		int window_length = 310;
 		int window_slide = 311;
 		
@@ -42,7 +42,7 @@ public class InputFileGenerator {
 	public static void generate_windows (BufferedWriter output, int event_number_per_window, int max_comp, int window_length, int window_slide) {
 		
 		// Local variables
-		int last_sec = 310;
+		int last_sec = 1800;
 		double window_number = Math.ceil((double)last_sec / (double)window_slide);
 				
 		// Output the parameters

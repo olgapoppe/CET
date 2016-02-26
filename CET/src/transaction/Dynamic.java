@@ -6,9 +6,8 @@ import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import event.Event;
-import graph.Graph;
-import graph.Node;
+import event.*;
+import graph.*;
 
 public class Dynamic extends Transaction {
 	
@@ -32,22 +31,29 @@ public class Dynamic extends Transaction {
 	}
 	
 	// BFS storing intermediate results in all nodes at the current level
-	public void computeResults (ArrayList<Node> current_level) { 
+	public static void computeResults (ArrayList<Node> current_level) { 
 		
 		// Array for recursive call of this method
 		ArrayList<Node> next_level_array = new ArrayList<Node>();
+		
 		// Hash for quick lookup of saved nodes
 		HashMap<Integer,Integer> next_level_hash = new HashMap<Integer,Integer>();
 		
 		for (Node this_node : current_level) {
-			// Base case: Create the results for the first nodes
-			if (this_node.results.isEmpty()) this_node.results.add(this_node.toString()); 
 			
-			// Recursive case: Copy results from the current node to its following node and 
-			// append this following node to each copied result 
+			/*** Base case: Create the results for the first nodes ***/
+			if (this_node.results.isEmpty()) {
+				EventTrend et = new EventTrend(this_node, this_node.toString());
+				this_node.results.add(et); 
+			}
+			
+			/*** Recursive case: Copy results from the current node to its following node and  
+			* append this following node to each copied result ***/
 			for (Node next_node : this_node.following) {
-				for (String sequence : this_node.results) {					
-					next_node.results.add(sequence + ";" + next_node.toString()); 
+				for (EventTrend et : this_node.results) {	
+					String new_seq = et.sequence + ";" + next_node.toString();
+					EventTrend new_et = new EventTrend(et.first_node, new_seq);
+					next_node.results.add(new_et); 
 				}	
 				// Check that following is not in next_level
 				if (!next_level_hash.containsKey(next_node.event.id)) {

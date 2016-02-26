@@ -56,7 +56,9 @@ public class NonDynamic extends Transaction {
         	int eventNumber = getEventNumber(result);
 			if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;	
         	//results.add(result);  
-        	//System.out.println("result " + result);
+        	
+			// System.out.println("result " + result);
+			
         } else {
         /*** Recursive case: Traverse the following nodes. ***/        	
         	for(Node following : node.following) {        		

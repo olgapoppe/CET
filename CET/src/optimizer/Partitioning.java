@@ -8,7 +8,7 @@ import graph.Partition;
 public class Partitioning {
 	
 	String id;
-	ArrayList<Partition> partitions;
+	public ArrayList<Partition> partitions;
 		
 	public Partitioning (ArrayList<Partition> p) {
 		partitions = p;

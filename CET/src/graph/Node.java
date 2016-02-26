@@ -11,15 +11,14 @@ public class Node {
 	public ArrayList<Node> previous;
 	public ArrayList<Node> following;
 	public boolean isLastNode;
-	// A result is a string of comma separated event ids
-	public ArrayList<String> results; 
+	public ArrayList<EventTrend> results; 
 	
 	public Node (Event e) {
 		event = e;
 		previous = new ArrayList<Node>();
 		following = new ArrayList<Node>();
 		isLastNode = false;
-		results = new ArrayList<String>();
+		results = new ArrayList<EventTrend>();
 	}
 	
 	public boolean isCompatible(Node other) {
@@ -35,27 +34,19 @@ public class Node {
 		other.previous.add(this);
 		this.isLastNode = false;
 		other.isLastNode = true;
-	}
+	}	
 	
-	public int getEventNumber (String sequence) {
-		int number = 1;
-		for (int i=0; i<sequence.length(); i++) {
-			if (sequence.substring(i,i+1).equals(";")) number++;
-		}
-		return number;
+	public int printResults(OutputFileGenerator output) {
+		int memory4results = 0;
+		for(EventTrend et : results) { 				
+			try { output.file.append(et.sequence + "\n"); } catch (IOException e) { e.printStackTrace(); }
+			memory4results += et.getEventNumber();
+		}	
+		return memory4results;
 	}
 	
 	public String toString() {
 		return event.id + ""; // + " has " + previous.size() + " previuos and " + following.size() + " following events."; 
-	}
-	
-	public int printResults(OutputFileGenerator output) {
-		int memory4results = 0;
-		for(String sequence : results) { 				
-			try { output.file.append(sequence + "\n"); } catch (IOException e) { e.printStackTrace(); }
-			memory4results += getEventNumber(sequence);
-		}	
-		return memory4results;
 	}
 }
 
