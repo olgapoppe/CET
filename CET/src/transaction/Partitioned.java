@@ -29,8 +29,7 @@ public class Partitioned extends Transaction {
 		long start =  System.currentTimeMillis();	
 		
 		/*** Get an optimal CET graph partitioning ***/
-		Partitioning rootPartitioning = Partitioning.getPartitioningWithMaxPartition(batch);	
-		
+		Partitioning rootPartitioning = Partitioning.getPartitioningWithMaxPartition(batch);		
 		// System.out.println(rootPartitioning.toString());
 		
 		Partitioner partitioner;
@@ -45,14 +44,10 @@ public class Partitioned extends Transaction {
 			partitioner = new Gre_minPartitions();
 			partitioning = partitioner.getPartitioning(rootPartitioning, memory_limit);
 		}*/
-		}
-		
+		}		
 		System.out.println(optimal_partitioning.toString());
 		
-		/*** Compute CETs per partition and hash the results by first and last nodes in a CET ***/
-		HashMap<Integer,ArrayList<EventTrend>> hash_by_first = new HashMap<Integer,ArrayList<EventTrend>>();
-		HashMap<Integer,ArrayList<EventTrend>> hash_by_last = new HashMap<Integer,ArrayList<EventTrend>>();
-		
+		/*** Compute CETs per partition ***/
 		for (Partition partition : optimal_partitioning.partitions) {
 			
 			for (Node last_node : partition.last_nodes) {
@@ -60,24 +55,8 @@ public class Partitioned extends Transaction {
 			}
 			Dynamic.computeResults(partition.first_nodes);
 			
-			for (Node last_node : partition.last_nodes) {
-				
-				/*for (EventTrend et : last_node.results) {
-					
-					if (!hash_by_first.containsKey(et.first_node)) {
-						hash_by_first.put(et.first_node.event.id, last_node.results);
-					} else {
-						
-					}
-					
-					hash_by_last.put(last_node.event.id, last_node.results);			
-				}*/
-			
-				System.out.print(last_node.toString() + ": ");
-				for (EventTrend et : last_node.results) {
-					System.out.print(et.sequence + " ");
-				}
-				System.out.println();
+			for (Node last_node : partition.last_nodes) {				
+				System.out.println(last_node.toString() + ": " + last_node.resultsToString());				
 			}
 		}
 		

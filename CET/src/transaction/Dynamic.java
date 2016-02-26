@@ -3,6 +3,7 @@ package transaction;
 import iogenerator.OutputFileGenerator;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -43,18 +44,31 @@ public class Dynamic extends Transaction {
 			
 			/*** Base case: Create the results for the first nodes ***/
 			if (this_node.results.isEmpty()) {
-				EventTrend et = new EventTrend(this_node, this_node.toString());
-				this_node.results.add(et); 
+				ArrayList<String> new_sequences = new ArrayList<String>();
+				new_sequences.add(this_node.toString());
+				this_node.results.put(this_node, new_sequences); 
 			}
 			
 			/*** Recursive case: Copy results from the current node to its following node and  
 			* append this following node to each copied result ***/
 			for (Node next_node : this_node.following) {
-				for (EventTrend et : this_node.results) {	
-					String new_seq = et.sequence + ";" + next_node.toString();
-					EventTrend new_et = new EventTrend(et.first_node, new_seq);
-					next_node.results.add(new_et); 
-				}	
+				
+				Set<Node> first_nodes = this_node.results.keySet();
+				for (Node first_node : first_nodes) {
+					
+					ArrayList<String> old_sequences = this_node.results.get(first_node);
+					ArrayList<String> new_sequences = new ArrayList<String>();
+					ArrayList<String> all_sequences = new ArrayList<String>();
+					
+					for (String seq : old_sequences) {
+						String new_seq = seq + ";" + next_node.toString();
+						new_sequences.add(new_seq); 
+					}
+					if (next_node.results.containsKey(first_node)) all_sequences.addAll(next_node.results.get(first_node));
+					all_sequences.addAll(new_sequences);
+					next_node.results.put(first_node, all_sequences);
+				}					
+				
 				// Check that following is not in next_level
 				if (!next_level_hash.containsKey(next_node.event.id)) {
 					next_level_array.add(next_node); 
