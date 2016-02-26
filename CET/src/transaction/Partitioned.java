@@ -2,8 +2,8 @@ package transaction;
 
 import iogenerator.OutputFileGenerator;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,7 +30,7 @@ public class Partitioned extends Transaction {
 		
 		/*** Get an optimal CET graph partitioning ***/
 		Partitioning rootPartitioning = Partitioning.getPartitioningWithMaxPartition(batch);		
-		// System.out.println(rootPartitioning.toString());
+		System.out.println(rootPartitioning.toString());
 		
 		Partitioner partitioner;
 		if (search_algorithm==1) {
@@ -47,20 +47,17 @@ public class Partitioned extends Transaction {
 		}		
 		System.out.println(optimal_partitioning.toString());
 		
-		/*** Compute CETs per partition ***/
+		/*** Compute CETs per partition and copy CETs from last nodes to first nodes ***/
 		for (Partition partition : optimal_partitioning.partitions) {
 			
 			for (Node last_node : partition.last_nodes) {
 				last_node.isLastNode = true;
 			}
 			Dynamic.computeResults(partition.first_nodes);
-			
-			for (Node last_node : partition.last_nodes) {				
-				System.out.println(last_node.toString() + ": " + last_node.resultsToString());				
-			}
+			partition.copyResultsFromLast2First();			
 		}
 		
-		// Construct complete CETs across partitions
+		/*** Construct complete CETs across partitions ***/
 		/*for (Node first : graph.first_nodes) {
 			Stack<Node> current_sequence = new Stack<Node>();
 			maxSeqLength = computeResults(first,current_sequence,maxSeqLength);

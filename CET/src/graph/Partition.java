@@ -1,6 +1,8 @@
 package graph;
 
 import java.util.ArrayList;
+import java.util.Set;
+
 import event.Event;
 import optimizer.Partitioning;
 
@@ -125,7 +127,30 @@ public class Partition extends Graph {
 		return new Partition(start,end,vertexes,edges,first,last);
 	}
 	
-	
+	public void copyResultsFromLast2First () {
+		
+		for (Node last_node : last_nodes) {		
+			
+			System.out.println("LAST: " + last_node.toString() + ": " + last_node.resultsToString());		
+			
+			Set<Node> first_nodes = last_node.results.keySet();
+			for (Node first_node : first_nodes) {
+				
+				if (!first_node.isLastNode) {
+					
+					ArrayList<String> old_sequences = new ArrayList<String>(); 
+					if (first_node.results.containsKey(first_node)) old_sequences = first_node.results.get(first_node);
+					ArrayList<String> sequences2copy = last_node.results.get(first_node);
+					ArrayList<String> all_sequences = new ArrayList<String>();
+					all_sequences.addAll(old_sequences);
+					all_sequences.addAll(sequences2copy);
+					first_node.results.put(first_node, all_sequences);
+				
+					System.out.println("FIRST: " + first_node.toString() + ": " + first_node.resultsToString());
+				}
+			}
+		}
+	}	
 	
 	public String toString() {
 		return start + "-" + end + ": " + vertexNumber + "; " + edgeNumber;

@@ -51,32 +51,34 @@ public class Dynamic extends Transaction {
 			
 			/*** Recursive case: Copy results from the current node to its following node and  
 			* append this following node to each copied result ***/
-			for (Node next_node : this_node.following) {
+			if (!this_node.isLastNode) {
+				for (Node next_node : this_node.following) {
 				
-				Set<Node> first_nodes = this_node.results.keySet();
-				for (Node first_node : first_nodes) {
+					Set<Node> first_nodes = this_node.results.keySet();
+					for (Node first_node : first_nodes) {
 					
-					ArrayList<String> old_sequences = this_node.results.get(first_node);
-					ArrayList<String> new_sequences = new ArrayList<String>();
-					ArrayList<String> all_sequences = new ArrayList<String>();
+						ArrayList<String> old_sequences = this_node.results.get(first_node);
+						ArrayList<String> new_sequences = new ArrayList<String>();
+						ArrayList<String> all_sequences = new ArrayList<String>();
 					
-					for (String seq : old_sequences) {
-						String new_seq = seq + ";" + next_node.toString();
-						new_sequences.add(new_seq); 
+						for (String seq : old_sequences) {
+							String new_seq = seq + ";" + next_node.toString();
+							new_sequences.add(new_seq); 
+						}
+						if (next_node.results.containsKey(first_node)) all_sequences.addAll(next_node.results.get(first_node));
+						all_sequences.addAll(new_sequences);
+						next_node.results.put(first_node, all_sequences);
+					}					
+				
+					// Check that following is not in next_level
+					if (!next_level_hash.containsKey(next_node.event.id)) {
+						next_level_array.add(next_node); 
+						next_level_hash.put(next_node.event.id,1);
 					}
-					if (next_node.results.containsKey(first_node)) all_sequences.addAll(next_node.results.get(first_node));
-					all_sequences.addAll(new_sequences);
-					next_node.results.put(first_node, all_sequences);
-				}					
-				
-				// Check that following is not in next_level
-				if (!next_level_hash.containsKey(next_node.event.id)) {
-					next_level_array.add(next_node); 
-					next_level_hash.put(next_node.event.id,1);
 				}
+				// Delete intermediate results
+				this_node.results.clear();
 			}
-			// Delete intermediate results
-			if (!this_node.isLastNode) this_node.results.clear();
 		}		
 		// Call this method recursively
 		if (!next_level_array.isEmpty()) computeResults(next_level_array);
