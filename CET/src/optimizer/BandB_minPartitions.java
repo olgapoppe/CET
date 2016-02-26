@@ -1,10 +1,17 @@
 package optimizer;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.LinkedList;
+
+import event.Window;
 import graph.*;
 
-public class BandB_minPartitions implements Partitioner {	
+public class BandB_minPartitions extends Partitioner {	
+	
+	public BandB_minPartitions (ArrayDeque<Window> w) {
+		super(w);
+	}
 	
 	public Partitioning getPartitioning (Partitioning root, int memory_limit) {
 		
@@ -26,7 +33,7 @@ public class BandB_minPartitions implements Partitioner {
 			
 			// Get current node and compute its costs 
 			Partitioning temp = heap.poll();			
-			double temp_cpu = temp.getCPUcost();
+			double temp_cpu = temp.getCPUcost(windows);
 			considered_count++;
 			
 			//System.out.println("Considered: " + temp.toString());
@@ -42,8 +49,8 @@ public class BandB_minPartitions implements Partitioner {
 			// Add children to the heap and store their memory cost
 			ArrayList<Partitioning> children = temp.getChildrenByMerging();
 			for (Partitioning child : children) {
-				double child_mem = child.getMEMcost();
-				double child_cpu = child.getCPUcost();
+				double child_mem = child.getMEMcost(windows);
+				double child_cpu = child.getCPUcost(windows);
 				
 				if  (child_mem > memory_limit) pruning_1_count++;
 				if  (child_cpu > minCPU) pruning_2_count++;

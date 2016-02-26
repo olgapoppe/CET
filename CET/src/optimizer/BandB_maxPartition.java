@@ -1,11 +1,18 @@
 package optimizer;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+
+import event.Window;
 import graph.*;
 
-public class BandB_maxPartition implements Partitioner {	
+public class BandB_maxPartition extends Partitioner {	
+	
+	public BandB_maxPartition (ArrayDeque<Window> w) {
+		super(w);
+	}
 	
 	public Partitioning getPartitioning (Partitioning root, int memory_limit) {
 		
@@ -25,8 +32,8 @@ public class BandB_maxPartition implements Partitioner {
 			// Get the next node to process, its costs and children 
 			Partitioning temp = heap.poll();			
 			if (pruned.containsKey(temp.id)) continue;
-			double temp_cpu = temp.getCPUcost();
-			double temp_mem = temp.getMEMcost();
+			double temp_cpu = temp.getCPUcost(windows);
+			double temp_mem = temp.getMEMcost(windows);
 			ArrayList<Partitioning> children = temp.getChildrenBySplitting();
 			
 			//System.out.println("Considered: " + temp.toString());

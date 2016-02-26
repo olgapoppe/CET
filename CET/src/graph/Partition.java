@@ -1,5 +1,6 @@
 package graph;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -18,6 +19,7 @@ public class Partition extends Graph {
 		start = s;
 		end = e;
 		vertexNumber = vn;
+		
 		edgeNumber = en;
 		first_nodes = fn;
 		last_nodes = ln;
@@ -46,14 +48,32 @@ public class Partition extends Graph {
 		return new Partition (sec, sec, batch.size(), 0, nodes, nodes);
 	}
 	
+	public int getSharingWindowNumber (ArrayDeque<Window> windows) {
+		int count = 0;
+		for (Window window : windows) {
+			if (window.contains(this)) count++;  
+		}
+		return count;
+	}
+	
+	public boolean isShared (ArrayDeque<Window> windows) {
+		return getSharingWindowNumber(windows)>1;
+	}
+	 
 	/*** Get CPU cost of this partition ***/
-	public double getCPUcost () {
-		return edgeNumber + Math.pow(3, Math.floor(vertexNumber/3));
+	public double getCPUcost (ArrayDeque<Window> windows) {
+		double cost = edgeNumber + Math.pow(3, Math.floor(vertexNumber/3));		
+		int windowNumber = getSharingWindowNumber(windows);
+		double final_cost = (windowNumber>1) ? cost/windowNumber : cost;
+		return final_cost;
 	}
 	
 	/*** Get memory cost of this partition ***/
-	public double getMEMcost () {
-		return vertexNumber * Math.pow(3, Math.floor(vertexNumber/3));
+	public double getMEMcost (ArrayDeque<Window> windows) {
+		double cost = vertexNumber * Math.pow(3, Math.floor(vertexNumber/3)); 		
+		int windowNumber = getSharingWindowNumber(windows);
+		double final_cost = (windowNumber>1) ? cost/windowNumber : cost;
+		return final_cost;
 	}
 	
 	/*** Get actual memory requirement of this partition ***/

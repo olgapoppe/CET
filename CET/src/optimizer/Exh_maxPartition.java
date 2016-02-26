@@ -1,12 +1,18 @@
 package optimizer;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 
+import event.Window;
 import graph.*;
 
-public class Exh_maxPartition implements Partitioner {	
+public class Exh_maxPartition extends Partitioner {	
+	
+	public Exh_maxPartition (ArrayDeque<Window> w) {
+		super(w);
+	}
 	
 	public Partitioning getPartitioning (Partitioning root, int memory_limit) {
 		
@@ -25,8 +31,8 @@ public class Exh_maxPartition implements Partitioner {
 			
 			// Get the next node to process
 			Partitioning temp = heap.poll();			
-			double temp_cpu = temp.getCPUcost();
-			double temp_mem = temp.getMEMcost();
+			double temp_cpu = temp.getCPUcost(windows);
+			double temp_mem = temp.getMEMcost(windows);
 			memCosts.add(new Double(temp_mem).intValue());
 			considered_count++;
 			

@@ -1,11 +1,18 @@
 package optimizer;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+
+import event.Window;
 import graph.*;
 
-public class Exh_minPartitions implements Partitioner {	
+public class Exh_minPartitions extends Partitioner {
+	
+	public Exh_minPartitions (ArrayDeque<Window> w) {
+		super(w);
+	}
 	
 	public Partitioning getPartitioning (Partitioning root, int memory_limit) {
 		
@@ -23,8 +30,8 @@ public class Exh_minPartitions implements Partitioner {
 			
 			// Get current node, compute its costs and store its memory cost
 			Partitioning temp = heap.poll();
-			double temp_cpu = temp.getCPUcost();
-			double temp_mem = temp.getMEMcost();
+			double temp_cpu = temp.getCPUcost(windows);
+			double temp_mem = temp.getMEMcost(windows);
 			memCosts.add(new Double(temp_mem).intValue());
 			
 			//System.out.println("Considered: " + temp.toString());

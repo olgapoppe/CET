@@ -1,5 +1,6 @@
 package event;
 
+import graph.Partition;
 import java.util.ArrayList;
 
 public class Window {
@@ -24,6 +25,10 @@ public class Window {
 		return end < e.sec;
 	}
 	
+	public boolean contains (Partition p) {
+		return start <= p.start && p.end <= end;
+	}
+		
 	public String toString() {
 		return "[" + start + "," + end + "] with " + events.size() + " events.";
 	}

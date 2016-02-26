@@ -17,6 +17,7 @@ public class Scheduler implements Runnable {
 	int lastsec;
 	int window_length;
 	int window_slide;
+	ArrayDeque<Window> windows;
 	int algorithm;
 	int memory_limit;
 	int search_algorithm;
@@ -38,6 +39,7 @@ public class Scheduler implements Runnable {
 		lastsec = last;
 		window_length = wl;
 		window_slide = ws;
+		windows = new ArrayDeque<Window>();
 		algorithm = a;
 		memory_limit = ml;
 		search_algorithm = sa;
@@ -59,16 +61,17 @@ public class Scheduler implements Runnable {
 	 */	
 	public void run() {	
 		
-		/*** Create windows ***/		
-		ArrayDeque<Window> windows = new ArrayDeque<Window>();
+		/*** Create windows ***/	
+		ArrayDeque<Window> windows2iterate = new ArrayDeque<Window>();
 		int start = 0;
 		int end = window_length;
 		while (start <= lastsec) {
-			Window window = new Window(start, end);					
+			Window window = new Window(start, end);		
 			windows.add(window);
+			windows2iterate.add(window);
 			start += window_slide;
 			end = (start+window_length > lastsec) ? lastsec : (start+window_length); 
-			//System.out.println(window.toString() + " is created.");
+			System.out.println(window.toString() + " is created.");
 		}			
 		
 		/*** Set local variables ***/
@@ -85,12 +88,12 @@ public class Scheduler implements Runnable {
 				Event e = eventqueue.contents.poll();
 				
 				/*** Fill windows with events ***/
-				for (Window window : windows) {
+				for (Window window : windows2iterate) {
 					if (window.relevant(e)) window.events.add(e); 
 				}
 				/*** Poll an expired window and submit it for execution ***/
-				if (!windows.isEmpty() && windows.getFirst().expired(e)) {					
-					Window window = windows.poll();
+				if (!windows2iterate.isEmpty() && windows2iterate.getFirst().expired(e)) {					
+					Window window = windows2iterate.poll();
 					System.out.println(window.toString());
 					execute(window.events);					
 				}
@@ -109,7 +112,7 @@ public class Scheduler implements Runnable {
 			}									
 		}
 		/*** Poll the last windows and submit them for execution ***/
-		for (Window window : windows) {
+		for (Window window : windows2iterate) {
 			System.out.println(window.toString());
 			execute(window.events);			
 		}		
@@ -130,7 +133,7 @@ public class Scheduler implements Runnable {
 		if (algorithm == 3) {
 			transaction = new Dynamic(events,output,transaction_number,processingTime,maxMemoryPerWindow);
 		} else {
-			transaction = new Partitioned(events,output,transaction_number,processingTime,maxMemoryPerWindow,memory_limit,search_algorithm);
+			transaction = new Partitioned(events,output,transaction_number,processingTime,maxMemoryPerWindow,memory_limit,search_algorithm,windows);
 		}}}
 		executor.execute(transaction);	
 	}

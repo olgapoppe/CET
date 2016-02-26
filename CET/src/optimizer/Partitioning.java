@@ -1,14 +1,15 @@
 package optimizer;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import event.Event;
-import graph.Graph;
-import graph.Partition;
+
+import event.*;
+import graph.*;
 
 public class Partitioning {
 	
 	String id;
-	public ArrayList<Partition> partitions;
+	public ArrayList<Partition> partitions;	
 		
 	public Partitioning (ArrayList<Partition> p) {
 		partitions = p;
@@ -84,12 +85,12 @@ public class Partitioning {
 	
 	/*** Get CPU cost of this partitioning 
 	 * ignoring the CPU cost of graph construction and partitioning ***/
-	public double getCPUcost () {
+	public double getCPUcost (ArrayDeque<Window> windows) {
 		double cost_within = 0;		
 		int v = 0;
 		// CPU cost within partitions
 		for (Partition part : partitions) {
-			cost_within += part.getCPUcost();
+			cost_within += part.getCPUcost(windows);
 			v += part.vertexNumber;			
 		}	
 		// CPU cost across partitions
@@ -100,12 +101,12 @@ public class Partitioning {
 	
 	/*** Get memory cost of this partitioning 
 	 * ignoring the memory cost of graph storage and partitioning ***/
-	public double getMEMcost () {
+	public double getMEMcost (ArrayDeque<Window> windows) {
 		double cost_within = 0;
 		int v = 0;
 		// Memory cost within partitions
 		for (Partition part : partitions) {
-			cost_within += part.getMEMcost();
+			cost_within += part.getMEMcost(windows);
 			v += part.vertexNumber;
 		}
 		// Memory cost across partitions
@@ -182,9 +183,9 @@ public class Partitioning {
 		return children;
 	}
 	
-	public String toString() {
-		String s = "CPU: " + this.getCPUcost() + 
-				" MEM: " + this.getMEMcost() + "\n";
+	public String toString(ArrayDeque<Window> windows) {
+		String s = "CPU: " + getCPUcost(windows) + 
+				" MEM: " + getMEMcost(windows) + "\n";
 		for (Partition p : partitions) {
 			s += p.toString() + "\n";
 		}

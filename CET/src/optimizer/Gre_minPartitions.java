@@ -1,14 +1,20 @@
 package optimizer;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import event.Window;
 
-public class Gre_minPartitions implements Partitioner {	
+public class Gre_minPartitions extends Partitioner {	
+	
+	public Gre_minPartitions (ArrayDeque<Window> w) {
+		super(w);
+	}
 	
 	public Partitioning getPartitioning (Partitioning temp, int memory_limit) {
 		
 		// Set local variables
 		Partitioning solution = temp;
-		double minCPU = temp.getCPUcost();
+		double minCPU = temp.getCPUcost(windows);
 		int maxChildrenNumber = 0;
 		//System.out.println("Best so far: " + solution.toString());
 		
@@ -23,8 +29,8 @@ public class Gre_minPartitions implements Partitioner {
 			
 			temp = null;
 			for (Partitioning child : children) {
-				double child_cpu = child.getCPUcost();
-				double child_mem = child.getMEMcost();
+				double child_cpu = child.getCPUcost(windows);
+				double child_mem = child.getMEMcost(windows);
 				if (minCPU > child_cpu && child_mem <= memory_limit) {
 					minCPU = child_cpu;
 					solution = child;

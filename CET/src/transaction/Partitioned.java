@@ -2,6 +2,7 @@ package transaction;
 
 import iogenerator.OutputFileGenerator;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Stack;
@@ -18,11 +19,13 @@ public class Partitioned extends Transaction {
 	Partitioning optimal_partitioning;
 	int memory_limit;
 	int search_algorithm;
+	ArrayDeque<Window> windows;
 	
-	public Partitioned (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW, int ml, int sa) {
+	public Partitioned (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW, int ml, int sa, ArrayDeque<Window> w) {
 		super(b,o,tn,pT,mMPW);	
 		memory_limit = ml;
 		search_algorithm = sa;
+		windows = w;
 	}
 
 	public void run() {
@@ -32,31 +35,38 @@ public class Partitioned extends Transaction {
 		/*** Get an optimal CET graph partitioning ***/
 		Partitioning rootPartitioning = Partitioning.getPartitioningWithMaxPartition(batch);	
 		int size_of_the_graph = rootPartitioning.partitions.get(0).vertexNumber + rootPartitioning.partitions.get(0).edgeNumber; 
-		System.out.println(rootPartitioning.toString());
+		System.out.println(rootPartitioning.toString(windows));
 		
 		Partitioner partitioner;
 		if (search_algorithm==1) {
-			partitioner = new Exh_maxPartition();
+			partitioner = new Exh_maxPartition(windows);
 			optimal_partitioning = partitioner.getPartitioning(rootPartitioning, memory_limit);
 		} else {
 		//if (search_algorithm==2) {
-			partitioner = new BandB_maxPartition();
+			partitioner = new BandB_maxPartition(windows);
 			optimal_partitioning = partitioner.getPartitioning(rootPartitioning, memory_limit);
 		/*} else {
 			partitioner = new Gre_minPartitions();
 			partitioning = partitioner.getPartitioning(rootPartitioning, memory_limit);
 		}*/
 		}		
-		System.out.println(optimal_partitioning.toString());
+		System.out.println(optimal_partitioning.toString(windows));
 		
 		/*** Compute CETs per partition and copy CETs from last nodes to first nodes ***/
 		int cets_within_partitions = 0;
-		for (Partition partition : optimal_partitioning.partitions) {			
+		for (Partition partition : optimal_partitioning.partitions) {	
+			
+			// if partition is to write, compute it
+			
 			for (Node last_node : partition.last_nodes) { last_node.isLastNode = true; }
 			Dynamic.computeResults(partition.first_nodes);
 			partition.copyResultsFromLast2First();		
 			cets_within_partitions += partition.getCETlength();
+			
+			// if partition is shared, store it in the shared data structure
 		}
+		
+		// wait till partition results to read are computed
 		
 		/*** Construct CETs across partitions ***/
 		int max_cet_across_partitions = 0;
@@ -73,7 +83,8 @@ public class Partitioned extends Transaction {
 		long processingDuration = end - start;
 		processingTime.set(processingTime.get() + processingDuration);
 		
-		writeOutput2File(size_of_the_graph + cets_within_partitions + max_cet_across_partitions);
+		int memory = size_of_the_graph + cets_within_partitions + max_cet_across_partitions;
+		writeOutput2File(memory);
 		transaction_number.countDown();
 	}
 	

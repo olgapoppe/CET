@@ -1,7 +1,15 @@
 package optimizer;
 
-public interface Partitioner {
+import java.util.ArrayDeque;
+import event.Window;
+
+public abstract class Partitioner {
 	
-	public Partitioning getPartitioning (Partitioning root, int m);
+	 ArrayDeque<Window> windows;
+	 
+	 public Partitioner (ArrayDeque<Window> w) {
+		 windows = w;
+	 }
 	
+	 abstract public Partitioning getPartitioning (Partitioning root, int m);	
 }
