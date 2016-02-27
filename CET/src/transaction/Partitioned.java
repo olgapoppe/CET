@@ -61,22 +61,21 @@ public class Partitioned extends Transaction {
 		}
 		
 		/*** Compute results across partition ***/
-		int max_cet_across_partitions = 0;
+		int max_cet_across_partitions = -1;
 		for (Node first_node : optimal_partitioning.partitions.get(0).first_nodes) {
 				
-			for (EventTrend event_trend : first_node.results) {
-				Stack<EventTrend> current_cet = new Stack<EventTrend>();
-				int length = computeResults(event_trend, current_cet, max_cet_across_partitions);
-				if (max_cet_across_partitions < length) max_cet_across_partitions = length;
+			for (EventTrend event_trend : first_node.results) {				
+				int length = computeResults(event_trend, new Stack<EventTrend>(), max_cet_across_partitions);				
+				if (max_cet_across_partitions < length) max_cet_across_partitions = length;		
 			}					
-		}
+		}	
 				
 		long end =  System.currentTimeMillis();
 		long processingDuration = end - start;
 		processingTime.set(processingTime.get() + processingDuration);
 		
-		//int memory = size_of_the_graph + cets_within_partitions + max_cet_across_partitions;
-		//writeOutput2File();
+		int memory = size_of_the_graph + cets_within_partitions + max_cet_across_partitions;
+		writeOutput2File(memory);
 		transaction_number.countDown();
 	}
 	
@@ -98,29 +97,28 @@ public class Partitioned extends Transaction {
 	       	}
 	       	if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;	
 	       	//results.add(result);  
-	       	System.out.println("result " + result);
+	       	System.out.println("result " + result + " " + maxSeqLength);
 	   } else {
 	   /*** Recursive case: Traverse the following nodes. ***/        	
 	       	for(Node first_in_next_partition : event_trend.last_node.following) {        		
 	       		//System.out.println("following of " + node.event.id + " is " + following.event.id);
 	       		
-	       		for (EventTrend next_event_trend : first_in_next_partition.results) {
-	       			computeResults(next_event_trend, current_cet, maxSeqLength); 
+	       		for (EventTrend next_event_trend : first_in_next_partition.results) {	       			
+	       			maxSeqLength = computeResults(next_event_trend, current_cet, maxSeqLength);       			
 	       		}	       		       		
 	       	}        	
 	   }
 	   EventTrend top = current_cet.pop();
 	   //System.out.println("popped " + top.sequence);
-	        
+	   
 	   return maxSeqLength;
    }
 	
-	public void writeOutput2File() {
+	public void writeOutput2File(int memory) {
 		
-		int maxSeqLength = 0;
+		/*int maxSeqLength = 0;
 				
-		/*if (output.isAvailable()) {	
-				
+		if (output.isAvailable()) {					
 				
 			for(String sequence : results) {							 				
 				try { output.file.append(sequence + "\n"); } catch (IOException e) { e.printStackTrace(); }
@@ -130,6 +128,6 @@ public class Partitioned extends Transaction {
 			output.setAvailable();
 		}*/	
 		// Output of statistics
-		//if (maxMemoryPerWindow.get() < memory) maxMemoryPerWindow.getAndAdd(memory);	
+		if (maxMemoryPerWindow.get() < memory) maxMemoryPerWindow.getAndAdd(memory);			
 	}
 }

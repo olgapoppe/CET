@@ -28,14 +28,6 @@ public class Partition extends Graph {
 		return this.id.equals(other.id);
 	}
 	
-	public int getEventNumber (String sequence) {
-		int number = 1;
-		for (int i=0; i<sequence.length(); i++) {
-			if (sequence.substring(i,i+1).equals(";")) number++;
-		}
-		return number;
-	}
-	
 	/*** Returns a minimal partition for events with the same time stamp ***/
 	public static Partition getMinPartition (int sec, ArrayList<Event> batch) {
 		ArrayList<Node> nodes = new ArrayList<Node>();
@@ -85,11 +77,13 @@ public class Partition extends Graph {
 	
 	/*** Get actual memory requirement of this partition ***/
 	public int getCETlength () {
-		int result = 0;
-		for (Node last_node : last_nodes) {
-			result += getEventNumber(last_node.resultsToString());
+		int count = 0;
+		for (Node first_node : first_nodes) {
+			for (EventTrend result : first_node.results) {
+				count += result.getEventNumber();
+			}
 		}
-		return result;
+		return count;
 	}
 	
 	/*** Split input partition and return the resulting partitions ***/
