@@ -2,6 +2,7 @@ package transaction;
 
 import iogenerator.OutputFileGenerator;
 
+import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -18,23 +19,25 @@ public class Partitioned extends Transaction {
 	
 	Partitioning optimal_partitioning;
 	int memory_limit;
+	int part_num;
 	int search_algorithm;
 	ArrayDeque<Window> windows;
 	Window window; 
-	SharedEventTrends shared_trends;
+	SharedPartitions shared_trends;
+	ArrayList<String> results;
 	
-	public Partitioned (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW, int ml, int sa, ArrayDeque<Window> ws, Window w, SharedEventTrends sp) {
+	public Partitioned (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW, int ml, int pn, int sa, ArrayDeque<Window> ws, Window w, SharedPartitions sp) {
 		super(b,o,tn,pT,mMPW);	
 		memory_limit = ml;
+		part_num = pn;
 		search_algorithm = sa;
 		windows = ws;
 		window = w;
 		shared_trends = sp;
+		results = new ArrayList<String>();
 	}
 
-	public void run() {
-		
-		long start =  System.currentTimeMillis();	
+	public void run() {			
 		
 		/*** Get an optimal CET graph partitioning ***/
 		Partitioning root_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);	
@@ -44,12 +47,14 @@ public class Partitioned extends Transaction {
 		Partitioner partitioner;
 		if (search_algorithm==1) {
 			partitioner = new Exh_maxPartition(windows);
-			optimal_partitioning = partitioner.getPartitioning(root_partitioning, memory_limit);
+			optimal_partitioning = partitioner.getPartitioning(root_partitioning, part_num);
 		} else {
 			partitioner = new BandB_maxPartition(windows);
 			optimal_partitioning = partitioner.getPartitioning(root_partitioning, memory_limit);
 		}		
-		//System.out.println("Optimal: " + optimal_partitioning.toString(windows));
+		System.out.println("Optimal: " + optimal_partitioning.toString(windows));
+		
+		long start =  System.currentTimeMillis();
 		
 		/*** Compute results per partition ***/
 		int cets_within_partitions = 0;
@@ -60,17 +65,16 @@ public class Partitioned extends Transaction {
 			for (Node first_node : partition.first_nodes) { first_node.isFirst = true; }
 			Dynamic.computeResults(partition.last_nodes);
 			cets_within_partitions += partition.getCETlength();			
-		}
+		}		
 		
 		/*** Compute results across partition ***/
 		int max_cet_across_partitions = 0;
-		if (optimal_partitioning.partitions.size() > 1) {
-			for (Node first_node : optimal_partitioning.partitions.get(0).first_nodes) {
+		for (Node first_node : optimal_partitioning.partitions.get(0).first_nodes) {
 				
-				for (EventTrend event_trend : first_node.results) {				
-					int length = computeResults(event_trend, new Stack<EventTrend>(), max_cet_across_partitions);				
-					if (max_cet_across_partitions < length) max_cet_across_partitions = length;		
-		}}}	
+			for (EventTrend event_trend : first_node.results) {				
+				int length = computeResults(event_trend, new Stack<EventTrend>(), max_cet_across_partitions);				
+				if (max_cet_across_partitions < length) max_cet_across_partitions = length;		
+		}}	
 				
 		long end =  System.currentTimeMillis();
 		long processingDuration = end - start;
@@ -98,7 +102,8 @@ public class Partitioned extends Transaction {
 	       		eventNumber += n.getEventNumber();
 	       	}
 	       	if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;	
-	       	//results.add(result);  
+	       	String s = (!result.isEmpty()) ? result : event_trend.sequence;
+	       	//results.add(s);  
 	       	//System.out.println("result " + result);
 	   } else {
 	   /*** Recursive case: Traverse the following nodes. ***/        	
@@ -118,7 +123,7 @@ public class Partitioned extends Transaction {
 	
 	public void writeOutput2File(int memory) {
 		
-		/*int maxSeqLength = 0;
+		int maxSeqLength = 0;
 				
 		if (output.isAvailable()) {					
 				
@@ -128,7 +133,7 @@ public class Partitioned extends Transaction {
 				if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;			
 			}
 			output.setAvailable();
-		}*/	
+		}	
 		// Output of statistics
 		if (maxMemoryPerWindow.get() < memory) maxMemoryPerWindow.getAndAdd(memory);			
 	}

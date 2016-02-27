@@ -39,6 +39,7 @@ public class Main {
 		int window_slide = 0;	
 		int algorithm = 4;
 		int memory_limit = Integer.MAX_VALUE;
+		int part_num = 1;
 		int search_algorithm = 1;
 				
 		// Read input parameters
@@ -50,6 +51,7 @@ public class Main {
 			if (args[i].equals("-ws")) 			window_slide = Integer.parseInt(args[++i]);
 			if (args[i].equals("-algo")) 		algorithm = Integer.parseInt(args[++i]);
 			if (args[i].equals("-mem")) 		memory_limit = Integer.parseInt(args[++i]);
+			if (args[i].equals("-part")) 		part_num = Integer.parseInt(args[++i]);
 			if (args[i].equals("-search")) 		search_algorithm = Integer.parseInt(args[++i]);
 		}
 	    //window_length = lastsec+1;
@@ -64,6 +66,7 @@ public class Main {
 							"\nWindow slide: " + window_slide +
 							"\nAlgorithm: " + algorithm +
 							"\nMemory limit: " + memory_limit +
+							"\nPartition number: " + part_num +
 							"\nSearch algorithm: " + search_algorithm +
 							"\n----------------------------------");
 
@@ -85,7 +88,7 @@ public class Main {
 		 *   Scheduler reads from the event queue and submits event batches to the executor. ***/
 		EventDriver driver = new EventDriver (input, lastsec, eventqueue, startOfSimulation, driverProgress, eventNumber);				
 				
-		Scheduler scheduler = new Scheduler (eventqueue, lastsec, window_length, window_slide, algorithm, memory_limit, search_algorithm, 
+		Scheduler scheduler = new Scheduler (eventqueue, lastsec, window_length, window_slide, algorithm, memory_limit, part_num, search_algorithm, 
 				executor, driverProgress, done, processingTime, maxMemoryPerWindow, output);		
 		
 		Thread prodThread = new Thread(driver);

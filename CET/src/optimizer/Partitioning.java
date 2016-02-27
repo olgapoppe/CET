@@ -186,10 +186,10 @@ public class Partitioning {
 		String s = 
 				"Partition number: " + partitions.size() +
 				" CPU: " + getCPUcost(windows) + 
-				" MEM: " + getMEMcost(windows);
-		/*for (Partition p : partitions) {
+				" MEM: " + getMEMcost(windows) + "\n";
+		for (Partition p : partitions) {
 			s += p.toString() + "\n";
-		}*/
+		}
 		return s;
 	}
 }

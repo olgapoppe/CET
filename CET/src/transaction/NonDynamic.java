@@ -74,8 +74,6 @@ public class NonDynamic extends Transaction {
 	
 	public void writeOutput2File(int maxSeqLength) {
 		
-		/*int maxSeqLength = 0;
-				
 		if (output.isAvailable()) {			
 			for(String sequence : results) {							 				
 				try { output.file.append(sequence + "\n"); } catch (IOException e) { e.printStackTrace(); }
@@ -83,7 +81,7 @@ public class NonDynamic extends Transaction {
 				if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;			
 			}
 			output.setAvailable();
-		}*/		
+		}		
 		// Output of statistics
 		int memory = graph.nodes.size() + graph.edgeNumber + maxSeqLength;
 		if (maxMemoryPerWindow.get() < memory) maxMemoryPerWindow.getAndAdd(memory);	

@@ -14,7 +14,7 @@ public class Exh_maxPartition extends Partitioner {
 		super(w);
 	}
 	
-	public Partitioning getPartitioning (Partitioning root, int memory_limit) {
+	public Partitioning getPartitioning (Partitioning root, int part_num) {
 		
 		// Set local variables
 		Partitioning solution = new Partitioning(new ArrayList<Partition>());
@@ -36,26 +36,22 @@ public class Exh_maxPartition extends Partitioner {
 			memCosts.add(new Double(temp_mem).intValue());
 			considered_count++;
 			
-			if (temp.partitions.size() == 1 ||
-				temp.partitions.size() == 5 ||
-				temp.partitions.size() == 10 ||
-				temp.partitions.size() == 15 ||
-				temp.partitions.size() == 20)
-				System.out.println("Considered: " + temp.toString(windows));
+			// System.out.println("Considered: " + temp.toString(windows));
 			
 			// Update solution			
-			if (minCPU > temp_cpu && temp_mem <= memory_limit) {
+			if (minCPU > temp_cpu && temp.partitions.size() == part_num) { // && temp_mem <= memory_limit
 				solution = temp;
 				minCPU = temp_cpu;
 			}			
+			if (temp.partitions.size() > part_num) break;			
+			
 			// Add children to the heap			
 			ArrayList<Partitioning> children = temp.getChildrenBySplitting();
 			for (Partitioning child : children) {					
 				if (!heap.contains(child)) heap.add(child); 
 			} 
 			// Update max heap size
-			if (maxHeapSize < heap.size()) maxHeapSize = heap.size();
-			
+			if (maxHeapSize < heap.size()) maxHeapSize = heap.size();			
 		}
 		// Compute median memory cost
 		int length = memCosts.size();
@@ -68,7 +64,7 @@ public class Exh_maxPartition extends Partitioner {
 				"\nConsidered: " + considered_count +
 				"\nMedian memory cost: " + median);		
 		
-		System.out.println("Chosen: " + solution.toString()); 
+		//System.out.println("Chosen: " + solution.toString(windows)); 
 		
 		return solution;		
 	}

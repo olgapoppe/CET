@@ -18,6 +18,7 @@ public class Scheduler implements Runnable {
 	ArrayDeque<Window> windows;
 	int algorithm;
 	int memory_limit;
+	int part_num;
 	int search_algorithm;
 		
 	ExecutorService executor;
@@ -30,9 +31,9 @@ public class Scheduler implements Runnable {
 	AtomicInteger maxMemoryPerWindow;
 	OutputFileGenerator output;
 	
-	SharedEventTrends shared_partitions;
+	SharedPartitions shared_partitions;
 	
-	public Scheduler (EventQueue eq, int last, int wl, int ws, int a, int ml, int sa, 
+	public Scheduler (EventQueue eq, int last, int wl, int ws, int a, int ml, int pn, int sa, 
 			ExecutorService exe, AtomicInteger dp, CountDownLatch d, AtomicLong pT, AtomicInteger mMPW, OutputFileGenerator o) {	
 		
 		eventqueue = eq;
@@ -42,6 +43,7 @@ public class Scheduler implements Runnable {
 		windows = new ArrayDeque<Window>();
 		algorithm = a;
 		memory_limit = ml;
+		part_num = pn;
 		search_algorithm = sa;
 		
 		executor = exe;
@@ -55,7 +57,7 @@ public class Scheduler implements Runnable {
 		processingTime = pT;	
 		output = o;
 		
-		shared_partitions = new SharedEventTrends(new AtomicInteger(0));
+		shared_partitions = new SharedPartitions();
 	}
 	
 	/**
@@ -135,7 +137,7 @@ public class Scheduler implements Runnable {
 		if (algorithm == 3) {
 			transaction = new Dynamic(window.events,output,transaction_number,processingTime,maxMemoryPerWindow);
 		} else {
-			transaction = new Partitioned(window.events,output,transaction_number,processingTime,maxMemoryPerWindow,memory_limit,search_algorithm,windows,window,shared_partitions);
+			transaction = new Partitioned(window.events,output,transaction_number,processingTime,maxMemoryPerWindow,memory_limit,part_num,search_algorithm,windows,window,shared_partitions);
 		}}}
 		executor.execute(transaction);	
 	}	
