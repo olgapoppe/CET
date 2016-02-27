@@ -37,23 +37,25 @@ public class Partitioned extends Transaction {
 		long start =  System.currentTimeMillis();	
 		
 		/*** Get an optimal CET graph partitioning ***/
-		Partitioning rootPartitioning = Partitioning.getPartitioningWithMaxPartition(batch);	
-		int size_of_the_graph = rootPartitioning.partitions.get(0).vertexNumber + rootPartitioning.partitions.get(0).edgeNumber; 
-		//System.out.println(rootPartitioning.toString(windows));
+		Partitioning root_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);	
+		int size_of_the_graph = root_partitioning.partitions.get(0).vertexNumber + root_partitioning.partitions.get(0).edgeNumber; 
+		//System.out.println("Root: " + root_partitioning.toString(windows));
 		
 		Partitioner partitioner;
 		if (search_algorithm==1) {
 			partitioner = new Exh_maxPartition(windows);
-			optimal_partitioning = partitioner.getPartitioning(rootPartitioning, memory_limit);
+			optimal_partitioning = partitioner.getPartitioning(root_partitioning, memory_limit);
 		} else {
 			partitioner = new BandB_maxPartition(windows);
-			optimal_partitioning = partitioner.getPartitioning(rootPartitioning, memory_limit);
+			optimal_partitioning = partitioner.getPartitioning(root_partitioning, memory_limit);
 		}		
-		System.out.println(optimal_partitioning.toString(windows));
+		//System.out.println("Optimal: " + optimal_partitioning.toString(windows));
 		
 		/*** Compute results per partition ***/
 		int cets_within_partitions = 0;
 		for (Partition partition : optimal_partitioning.partitions) {	
+			
+			//if (partition.isShared(windows)) System.out.println("Shared partition: " + partition.toString());
 			
 			for (Node first_node : partition.first_nodes) { first_node.isFirst = true; }
 			Dynamic.computeResults(partition.last_nodes);
@@ -61,14 +63,14 @@ public class Partitioned extends Transaction {
 		}
 		
 		/*** Compute results across partition ***/
-		int max_cet_across_partitions = -1;
-		for (Node first_node : optimal_partitioning.partitions.get(0).first_nodes) {
+		int max_cet_across_partitions = 0;
+		if (optimal_partitioning.partitions.size() > 1) {
+			for (Node first_node : optimal_partitioning.partitions.get(0).first_nodes) {
 				
-			for (EventTrend event_trend : first_node.results) {				
-				int length = computeResults(event_trend, new Stack<EventTrend>(), max_cet_across_partitions);				
-				if (max_cet_across_partitions < length) max_cet_across_partitions = length;		
-			}					
-		}	
+				for (EventTrend event_trend : first_node.results) {				
+					int length = computeResults(event_trend, new Stack<EventTrend>(), max_cet_across_partitions);				
+					if (max_cet_across_partitions < length) max_cet_across_partitions = length;		
+		}}}	
 				
 		long end =  System.currentTimeMillis();
 		long processingDuration = end - start;
@@ -97,7 +99,7 @@ public class Partitioned extends Transaction {
 	       	}
 	       	if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;	
 	       	//results.add(result);  
-	       	System.out.println("result " + result + " " + maxSeqLength);
+	       	//System.out.println("result " + result);
 	   } else {
 	   /*** Recursive case: Traverse the following nodes. ***/        	
 	       	for(Node first_in_next_partition : event_trend.last_node.following) {        		

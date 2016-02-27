@@ -66,9 +66,9 @@ public class Dynamic extends Transaction {
 				}
 				// Delete intermediate results
 				this_node.results.clear();
-			} else {
+			} /*else {
 				System.out.println(this_node.toString() + ": " + this_node.resultsToString());
-			}
+			}*/
 		}
 				
 		// Call this method recursively

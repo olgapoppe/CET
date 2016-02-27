@@ -34,6 +34,7 @@ public class BandB_maxPartition extends Partitioner {
 			if (pruned.containsKey(temp.id)) continue;
 			double temp_cpu = temp.getCPUcost(windows);
 			double temp_mem = temp.getMEMcost(windows);
+			
 			ArrayList<Partitioning> children = temp.getChildrenBySplitting();
 			
 			//System.out.println("Considered: " + temp.toString());
@@ -62,8 +63,8 @@ public class BandB_maxPartition extends Partitioner {
 				}
 			}
 		}
-		System.out.println("Max heap size: " + maxHeapSize + 
-				"\nConsidered: " + considered_count);		
+		/*System.out.println("Max heap size: " + maxHeapSize + 
+				"\nConsidered: " + considered_count);*/		
 		
 		//System.out.println("Chosen: " + solution.toString()); 
 		

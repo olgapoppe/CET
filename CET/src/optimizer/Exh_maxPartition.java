@@ -36,7 +36,12 @@ public class Exh_maxPartition extends Partitioner {
 			memCosts.add(new Double(temp_mem).intValue());
 			considered_count++;
 			
-			// System.out.println("Considered: " + temp.toString());
+			if (temp.partitions.size() == 1 ||
+				temp.partitions.size() == 5 ||
+				temp.partitions.size() == 10 ||
+				temp.partitions.size() == 15 ||
+				temp.partitions.size() == 20)
+				System.out.println("Considered: " + temp.toString(windows));
 			
 			// Update solution			
 			if (minCPU > temp_cpu && temp_mem <= memory_limit) {
@@ -63,7 +68,7 @@ public class Exh_maxPartition extends Partitioner {
 				"\nConsidered: " + considered_count +
 				"\nMedian memory cost: " + median);		
 		
-		// System.out.println("Chosen: " + solution.toString()); 
+		System.out.println("Chosen: " + solution.toString()); 
 		
 		return solution;		
 	}
