@@ -3,7 +3,6 @@ package transaction;
 import iogenerator.OutputFileGenerator;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -22,7 +21,7 @@ public class Dynamic extends Transaction {
 		
 		long start =  System.currentTimeMillis();
 		graph = Graph.constructGraph(batch);
-		computeResults(graph.first_nodes);		
+		computeResults(graph.last_nodes);		
 		long end =  System.currentTimeMillis();
 		long processingDuration = end - start;
 		processingTime.set(processingTime.get() + processingDuration);
@@ -44,33 +43,20 @@ public class Dynamic extends Transaction {
 			
 			/*** Base case: Create the results for the first nodes ***/
 			if (this_node.results.isEmpty()) {
-				ArrayList<EventTrend> new_trends = new ArrayList<EventTrend>();
 				EventTrend new_trend = new EventTrend(this_node, this_node, this_node.toString());
-				new_trends.add(new_trend);
-				this_node.results.put(this_node, new_trends); 
+				this_node.results.add(new_trend); 			
 			}
 			
-			/*** Recursive case: Copy results from the current node to its following node and  
-			* append this following node to each copied result ***/
-			if (!this_node.isLastNode) {
-				for (Node next_node : this_node.following) {
+			/*** Recursive case: Copy results from the current node to its previous node and  
+			* append this previous node to each copied result ***/
+			if (!this_node.isFirst) {			
+				for (Node next_node : this_node.previous) {
 				
-					Set<Node> first_nodes = this_node.results.keySet();
-					for (Node first_node : first_nodes) {
-					
-						ArrayList<EventTrend> old_trends = this_node.results.get(first_node);
-						ArrayList<EventTrend> new_trends = new ArrayList<EventTrend>();
-						ArrayList<EventTrend> all_trends = new ArrayList<EventTrend>();
-					
-						for (EventTrend trend : old_trends) {
-							String new_seq = trend.sequence + ";" + next_node.toString();
-							EventTrend new_trend = new EventTrend(first_node, next_node, new_seq);
-							new_trends.add(new_trend); 
-						}
-						if (next_node.results.containsKey(first_node)) all_trends.addAll(next_node.results.get(first_node));
-						all_trends.addAll(new_trends);
-						next_node.results.put(first_node, all_trends);
-					}					
+					for (EventTrend old_trend : this_node.results) {
+						String new_seq = next_node.toString() + ";" + old_trend.sequence;
+						EventTrend new_trend = new EventTrend(next_node, old_trend.last_node, new_seq);
+						next_node.results.add(new_trend); 
+					}														
 				
 					// Check that following is not in next_level
 					if (!next_level_hash.containsKey(next_node.event.id)) {
@@ -80,8 +66,11 @@ public class Dynamic extends Transaction {
 				}
 				// Delete intermediate results
 				this_node.results.clear();
+			} else {
+				System.out.println(this_node.toString() + ": " + this_node.resultsToString());
 			}
-		}		
+		}
+				
 		// Call this method recursively
 		if (!next_level_array.isEmpty()) computeResults(next_level_array);
 	}
@@ -91,8 +80,8 @@ public class Dynamic extends Transaction {
 		int memory4results = 0;
 				
 		if (output.isAvailable()) {
-			for (Node last : graph.last_nodes) {
-				memory4results += last.printResults(output);
+			for (Node first : graph.first_nodes) {
+				memory4results += first.printResults(output);
 			}
 			output.setAvailable();
 		}

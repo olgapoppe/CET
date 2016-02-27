@@ -4,13 +4,13 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import graph.*;
 
-public class SharedPartitions {
+public class SharedEventTrends {
 
-	public HashMap<String,Partition> contents;
+	public HashMap<Integer,Node> contents;
 	public AtomicInteger progress;
 				
-	public SharedPartitions (AtomicInteger p) {		
-		contents = new  HashMap<String,Partition>();
+	public SharedEventTrends (AtomicInteger p) {		
+		contents = new  HashMap<Integer,Node>();
 		progress = p;		
 	}
 	

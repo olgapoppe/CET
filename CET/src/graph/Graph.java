@@ -40,9 +40,8 @@ public class Graph {
 			/*** Case I: This event starts a new sequence. It is a first and a last event. ***/
 			if (graph.last_nodes.isEmpty()) {
 				graph.first_nodes.add(node);
-				graph.last_nodes.add(node);
-				node.isLastNode = true;
-				
+				node.isFirst = true;
+				graph.last_nodes.add(node);				
 				//System.out.println(event.id + " starts a new sequence.");
 			} else {
 				
@@ -72,12 +71,11 @@ public class Graph {
 						/*** Case I: This event is compatible with no previous event. Add this event to the last nodes. ***/
 						if (first) {
 							graph.first_nodes.add(node);
-							
+							node.isFirst = true;
 							//System.out.println(event.id + " starts a new sequence.");
 						}
 						if (!new_last_nodes.contains(node)) {
-							new_last_nodes.add(node);
-							node.isLastNode = true;
+							new_last_nodes.add(node);							
 						}					
 					}			
 				}

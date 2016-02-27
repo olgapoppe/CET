@@ -2,8 +2,6 @@ package graph;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Set;
-
 import event.*;
 import optimizer.*;
 
@@ -172,29 +170,6 @@ public class Partition extends Graph {
 		ArrayList<Node> last = other.last_nodes;
 		return new Partition(start,end,vertexes,edges,first,last);
 	}
-	
-	public void copyResultsFromLast2First () {
-		
-		for (Node last_node : last_nodes) {		
-			
-			//System.out.println("LAST: " + last_node.toString() + ": " + last_node.resultsToString());		
-			
-			Set<Node> first_nodes = last_node.results.keySet();
-			for (Node first_node : first_nodes) {
-				
-				if (!first_node.isLastNode) {
-					
-					ArrayList<EventTrend> old_trends = new ArrayList<EventTrend>(); 
-					if (first_node.results.containsKey(first_node)) old_trends = first_node.results.get(first_node);
-					ArrayList<EventTrend> trends2copy = last_node.results.get(first_node);
-					ArrayList<EventTrend> all_trends = new ArrayList<EventTrend>();
-					all_trends.addAll(old_trends);
-					all_trends.addAll(trends2copy);
-					first_node.results.put(first_node, all_trends);
-				
-					//System.out.println("FIRST: " + first_node.toString() + ": " + first_node.resultsToString());
-		}}}
-	}	
 	
 	public String toString() {
 		return start + "-" + end + ": " + vertexNumber + "; " + edgeNumber;

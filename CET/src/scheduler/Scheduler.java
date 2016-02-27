@@ -30,7 +30,7 @@ public class Scheduler implements Runnable {
 	AtomicInteger maxMemoryPerWindow;
 	OutputFileGenerator output;
 	
-	SharedPartitions shared_partitions;
+	SharedEventTrends shared_partitions;
 	
 	public Scheduler (EventQueue eq, int last, int wl, int ws, int a, int ml, int sa, 
 			ExecutorService exe, AtomicInteger dp, CountDownLatch d, AtomicLong pT, AtomicInteger mMPW, OutputFileGenerator o) {	
@@ -55,7 +55,7 @@ public class Scheduler implements Runnable {
 		processingTime = pT;	
 		output = o;
 		
-		shared_partitions = new SharedPartitions(new AtomicInteger(0));
+		shared_partitions = new SharedEventTrends(new AtomicInteger(0));
 	}
 	
 	/**
