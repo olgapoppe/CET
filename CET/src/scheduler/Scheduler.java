@@ -1,12 +1,10 @@
 package scheduler;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
 import event.*;
 import iogenerator.*;
 import transaction.*;
@@ -32,6 +30,8 @@ public class Scheduler implements Runnable {
 	AtomicInteger maxMemoryPerWindow;
 	OutputFileGenerator output;
 	
+	SharedPartitions shared_partitions;
+	
 	public Scheduler (EventQueue eq, int last, int wl, int ws, int a, int ml, int sa, 
 			ExecutorService exe, AtomicInteger dp, CountDownLatch d, AtomicLong pT, AtomicInteger mMPW, OutputFileGenerator o) {	
 		
@@ -54,6 +54,8 @@ public class Scheduler implements Runnable {
 		maxMemoryPerWindow = mMPW;
 		processingTime = pT;	
 		output = o;
+		
+		shared_partitions = new SharedPartitions(new AtomicInteger(0));
 	}
 	
 	/**
@@ -95,7 +97,7 @@ public class Scheduler implements Runnable {
 				if (!windows2iterate.isEmpty() && windows2iterate.getFirst().expired(e)) {					
 					Window window = windows2iterate.poll();
 					System.out.println(window.toString());
-					execute(window.events);					
+					execute(window);					
 				}
 				event = eventqueue.contents.peek();
 			}		 
@@ -114,7 +116,7 @@ public class Scheduler implements Runnable {
 		/*** Poll the last windows and submit them for execution ***/
 		for (Window window : windows2iterate) {
 			System.out.println(window.toString());
-			execute(window.events);			
+			execute(window);			
 		}		
 		/*** Terminate ***/
 		try { transaction_number.await(); } catch (InterruptedException e) { e.printStackTrace(); }
@@ -122,18 +124,18 @@ public class Scheduler implements Runnable {
 		System.out.println("Scheduler is done.");
 	}	
 	
-	public void execute(ArrayList<Event> events) {
+	public void execute(Window window) {
 		Transaction transaction;
 		if (algorithm == 1) {
-			transaction = new BaseLine(events,output,transaction_number,processingTime,maxMemoryPerWindow);		
+			transaction = new BaseLine(window.events,output,transaction_number,processingTime,maxMemoryPerWindow);		
 		} else {
 		if (algorithm == 2) {
-			transaction = new NonDynamic(events,output,transaction_number,processingTime,maxMemoryPerWindow);
+			transaction = new NonDynamic(window.events,output,transaction_number,processingTime,maxMemoryPerWindow);
 		} else {
 		if (algorithm == 3) {
-			transaction = new Dynamic(events,output,transaction_number,processingTime,maxMemoryPerWindow);
+			transaction = new Dynamic(window.events,output,transaction_number,processingTime,maxMemoryPerWindow);
 		} else {
-			transaction = new Partitioned(events,output,transaction_number,processingTime,maxMemoryPerWindow,memory_limit,search_algorithm,windows);
+			transaction = new Partitioned(window.events,output,transaction_number,processingTime,maxMemoryPerWindow,memory_limit,search_algorithm,windows,window,shared_partitions);
 		}}}
 		executor.execute(transaction);	
 	}

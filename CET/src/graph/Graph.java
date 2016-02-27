@@ -73,7 +73,7 @@ public class Graph {
 						if (first) {
 							graph.first_nodes.add(node);
 							
-							System.out.println(event.id + " starts a new sequence.");
+							//System.out.println(event.id + " starts a new sequence.");
 						}
 						if (!new_last_nodes.contains(node)) {
 							new_last_nodes.add(node);

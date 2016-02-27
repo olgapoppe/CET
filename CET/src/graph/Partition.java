@@ -56,6 +56,15 @@ public class Partition extends Graph {
 		return count;
 	}
 	
+	public boolean is2write (ArrayDeque<Window> windows, Window window) {
+		for (Window w : windows) {
+			if (w.contains(this)) {
+				return w.equals(window);  
+			}
+		}
+		return false;
+	}
+	
 	public boolean isShared (ArrayDeque<Window> windows) {
 		return getSharingWindowNumber(windows)>1;
 	}
@@ -168,7 +177,7 @@ public class Partition extends Graph {
 		
 		for (Node last_node : last_nodes) {		
 			
-			System.out.println("LAST: " + last_node.toString() + ": " + last_node.resultsToString());		
+			//System.out.println("LAST: " + last_node.toString() + ": " + last_node.resultsToString());		
 			
 			Set<Node> first_nodes = last_node.results.keySet();
 			for (Node first_node : first_nodes) {
@@ -183,7 +192,7 @@ public class Partition extends Graph {
 					all_trends.addAll(trends2copy);
 					first_node.results.put(first_node, all_trends);
 				
-					System.out.println("FIRST: " + first_node.toString() + ": " + first_node.resultsToString());
+					//System.out.println("FIRST: " + first_node.toString() + ": " + first_node.resultsToString());
 		}}}
 	}	
 	

@@ -17,6 +17,11 @@ public class Window {
 		event_number = 0;
 	}
 	
+	public boolean equals (Object other) {
+		Window w = (Window) other;
+		return this.start == w.start && this.end == w.end;
+ 	}
+	
 	public boolean relevant (Event e) {
 		return start <= e.sec && e.sec <= end;
 	}

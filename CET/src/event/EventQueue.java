@@ -8,20 +8,17 @@ public class EventQueue {
 	public ConcurrentLinkedQueue<Event> contents;
 	public AtomicInteger driverProgress;
 				
-	public EventQueue (AtomicInteger dp) {
-		
+	public EventQueue (AtomicInteger dp) {		
 		contents = new ConcurrentLinkedQueue<Event>();
 		driverProgress = dp;		
 	}
 	
 	public synchronized void setDriverProgress (int sec) {
-		
 		driverProgress.set(sec);			
 		notifyAll();		
 	}
 
 	public synchronized boolean getDriverProgress (int sec) {	
-		
 		try {			
 			while (driverProgress.get() < sec) {				
 				wait(); 						
