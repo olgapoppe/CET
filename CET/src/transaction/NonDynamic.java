@@ -1,6 +1,7 @@
 package transaction;
 
 import iogenerator.OutputFileGenerator;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -8,6 +9,7 @@ import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
 import event.Event;
 import graph.*;
 
@@ -26,6 +28,11 @@ public class NonDynamic extends Transaction {
 		
 		long start =  System.currentTimeMillis();
 		graph = Graph.constructGraph(batch);	
+		
+		/*double cpu = 2 * Math.pow(3, Math.floor(batch.size()/3));
+		double mem = batch.size() + graph.edgeNumber;
+		System.out.println("CPU: " + cpu + " MEM: " + mem);*/
+		
 		int maxSeqLength = 0;
 		for (Node first : graph.first_nodes) {
 			Stack<Node> current_sequence = new Stack<Node>();
