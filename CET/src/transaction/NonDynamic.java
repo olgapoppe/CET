@@ -29,7 +29,7 @@ public class NonDynamic extends Transaction {
 		long start =  System.currentTimeMillis();
 		graph = Graph.constructGraph(batch);	
 		
-		/*double cpu = 2 * Math.pow(3, Math.floor(batch.size()/3));
+		/*double cpu = 2 * Math.pow(3, Math.floor(batch.size()/3)) * batch.size();
 		double mem = batch.size() + graph.edgeNumber;
 		System.out.println("CPU: " + cpu + " MEM: " + mem);*/
 		
