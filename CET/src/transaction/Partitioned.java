@@ -53,9 +53,11 @@ public class Partitioned extends Transaction {
 			optimal_partitioning = partitioner.getPartitioning(root_partitioning, memory_limit);
 		}		
 		System.out.println("Optimal: " + optimal_partitioning.toString(windows));
-		
+				
 		long start =  System.currentTimeMillis();
 		
+		if (!optimal_partitioning.partitions.isEmpty()) {
+			
 		/*** Compute results per partition ***/
 		int cets_within_partitions = 0;
 		for (Partition partition : optimal_partitioning.partitions) {	
@@ -82,7 +84,8 @@ public class Partitioned extends Transaction {
 		
 		int memory = size_of_the_graph + cets_within_partitions + max_cet_across_partitions;
 		writeOutput2File(memory);
-		transaction_number.countDown();
+		}
+		transaction_number.countDown();		
 	}
 	
 	// DFS recomputing intermediate results
