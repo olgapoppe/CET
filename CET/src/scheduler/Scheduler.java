@@ -75,7 +75,7 @@ public class Scheduler implements Runnable {
 			windows2iterate.add(window);
 			start += window_slide;
 			end = (start+window_length > lastsec) ? lastsec : (start+window_length); 
-			System.out.println(window.toString() + " is created.");
+			//System.out.println(window.toString() + " is created.");
 		}			
 		
 		/*** Set local variables ***/
@@ -123,7 +123,7 @@ public class Scheduler implements Runnable {
 		/*** Terminate ***/
 		try { transaction_number.await(); } catch (InterruptedException e) { e.printStackTrace(); }
 		done.countDown();	
-		System.out.println("Scheduler is done.");
+		//System.out.println("Scheduler is done.");
 	}	
 	
 	public void execute(Window window) {

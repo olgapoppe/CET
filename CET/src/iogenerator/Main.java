@@ -22,11 +22,10 @@ public class Main {
 		
 		try {
 		
-		long hs = Runtime.getRuntime().maxMemory();
 		/*** Print current time ***/
 		Date dNow = new Date( );
 	    SimpleDateFormat ft = new SimpleDateFormat ("E yyyy.MM.dd 'at' hh:mm:ss a zzz");
-	    System.out.println("Current Date: " + ft.format(dNow) + " hs: " + hs);
+	    System.out.println("----------------------------------\nCurrent Date: " + ft.format(dNow));
 	    
 	    /*** Input and output ***/
 	    // Set default values
@@ -60,7 +59,7 @@ public class Main {
 	    OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
 	    
 	    // Print input parameters
-	    System.out.println(	"Input file: " + input +
+	    System.out.println(	"Input file: " + inputfile +
 	    					"\nLast sec: " + lastsec +
 	    					"\nWindow length: " + window_length + 
 							"\nWindow slide: " + window_slide +
@@ -104,13 +103,12 @@ public class Main {
 		executor.shutdown();	
 		output.file.close();
 		
-		System.out.println("----------------------------------\n" +
-				"Event number: " + eventNumber.get() +
-				"\nProcessing time: " + processingTime.get() +
+		System.out.println(//"Event number: " + eventNumber.get() +
+				"\nCPU: " + processingTime.get() +
 				//"\nThroughput: " + eventNumber.get()/processingTime.get() +
-				"\nMemory: " + maxMemoryPerWindow.get() +
-				"\nExecutor is done." +
-				"\nMain is done.");
+				"\nMEM: " + maxMemoryPerWindow.get() + "\n");
+				//"\nExecutor is done." +
+				//"\nMain is done.");
 			
 		} catch (InterruptedException e) { e.printStackTrace(); }
 		  catch (IOException e1) { e1.printStackTrace(); }

@@ -60,9 +60,9 @@ public class Exh_maxPartition extends Partitioner {
 		Arrays.sort(array);
 		int median = array[length/2];
 				
-		System.out.println("Max heap size: " + maxHeapSize + 
+		/*System.out.println("Max heap size: " + maxHeapSize + 
 				"\nConsidered: " + considered_count +
-				"\nMedian memory cost: " + median);		
+				"\nMedian memory cost: " + median);*/
 		
 		//System.out.println("Chosen: " + solution.toString(windows)); 
 		

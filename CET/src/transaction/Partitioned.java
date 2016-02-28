@@ -52,7 +52,7 @@ public class Partitioned extends Transaction {
 			partitioner = new BandB_maxPartition(windows);
 			optimal_partitioning = partitioner.getPartitioning(root_partitioning, memory_limit);
 		}		
-		System.out.println("Optimal: " + optimal_partitioning.toString(windows));
+		//System.out.println("Optimal: " + optimal_partitioning.toString(windows));
 				
 		long start =  System.currentTimeMillis();
 		

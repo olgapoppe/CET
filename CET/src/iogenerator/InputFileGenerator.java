@@ -98,7 +98,7 @@ public class InputFileGenerator {
 			// Random time progress 
 			sec+=30;
 			// Random event compatibility
-			int comp = random.nextInt(max_comp+1) + 1;
+			int comp = 3;//random.nextInt(max_comp+1) + 1;
 			sequence_number *= comp;
 			if (event_number+comp>event_number_per_window) comp = event_number_per_window - event_number;
 			// Following events
