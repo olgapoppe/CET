@@ -42,8 +42,8 @@ public class Partitioned extends Transaction {
 		/*** Get an optimal CET graph partitioning ***/
 		Partitioning root_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);	
 		int size_of_the_graph = root_partitioning.partitions.get(0).vertexNumber + root_partitioning.partitions.get(0).edgeNumber; 
-		//System.out.println("Root: " + root_partitioning.toString(windows));
-		
+		System.out.println("Root: " + root_partitioning.toString(windows));
+				
 		Partitioner partitioner;
 		if (search_algorithm==1) {
 			partitioner = new Exh_maxPartition(windows);
@@ -52,10 +52,10 @@ public class Partitioned extends Transaction {
 			partitioner = new BandB_maxPartition(windows);
 			optimal_partitioning = partitioner.getPartitioning(root_partitioning, memory_limit);
 		}		
-		//System.out.println("Optimal: " + optimal_partitioning.toString(windows));
-				
-		long start =  System.currentTimeMillis();
+		System.out.println("Optimal: " + optimal_partitioning.toString(windows));
 		
+		long start =  System.currentTimeMillis();
+					
 		if (!optimal_partitioning.partitions.isEmpty()) {
 			
 		/*** Compute results per partition ***/
@@ -76,7 +76,8 @@ public class Partitioned extends Transaction {
 			for (EventTrend event_trend : first_node.results) {				
 				int length = computeResults(event_trend, new Stack<EventTrend>(), max_cet_across_partitions);				
 				if (max_cet_across_partitions < length) max_cet_across_partitions = length;		
-		}}	
+		}}
+			
 				
 		long end =  System.currentTimeMillis();
 		long processingDuration = end - start;
@@ -106,12 +107,12 @@ public class Partitioned extends Transaction {
 	       	}
 	       	if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;	
 	       	String s = (!result.isEmpty()) ? result : event_trend.sequence;
-	       	//results.add(s);  
-	       	//System.out.println("result " + result);
+	       	// results.add(s);  
+	       	// System.out.println("result " + result);
 	   } else {
 	   /*** Recursive case: Traverse the following nodes. ***/        	
 	       	for(Node first_in_next_partition : event_trend.last_node.following) {        		
-	       		//System.out.println("following of " + node.event.id + " is " + following.event.id);
+	       		// System.out.println("following of " + node.event.id + " is " + following.event.id);
 	       		
 	       		for (EventTrend next_event_trend : first_in_next_partition.results) {	       			
 	       			maxSeqLength = computeResults(next_event_trend, current_cet, maxSeqLength);       			

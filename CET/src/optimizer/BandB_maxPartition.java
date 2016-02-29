@@ -63,8 +63,8 @@ public class BandB_maxPartition extends Partitioner {
 				}
 			}
 		}
-		/*System.out.println("Max heap size: " + maxHeapSize + 
-				"\nConsidered: " + considered_count);*/		
+		System.out.println("Max heap size: " + maxHeapSize + 
+				"\nConsidered: " + considered_count);	
 		
 		//System.out.println("Chosen: " + solution.toString()); 
 		

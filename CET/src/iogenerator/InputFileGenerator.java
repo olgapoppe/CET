@@ -2,11 +2,14 @@ package iogenerator;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Scanner;
+
 import event.*;
 
 public class InputFileGenerator {
@@ -15,31 +18,107 @@ public class InputFileGenerator {
 	
 	public static void main (String[] args) {
 		
+		int action = Integer.parseInt(args[0]);
+		
 		// Parameters to vary
-		int event_number_per_window = 20;
-		int max_comp = 3;
+		int event_number_per_window = 60;
+		int max_comp = 12;
 		int window_length = 600;
 		int window_slide = 300;
+		int time_progress = 1;
+		boolean random_comp = false;
 		
 		try {
-		// Open the output file
-		//String output_file_name = "CET\\src\\iofiles\\rate" + event_number_per_window + ".txt"; 
-		//String output_file_name = "CET\\src\\iofiles\\comp" + max_comp + ".txt";
-		String output_file_name = "CET\\src\\iofiles\\stream.txt";
-		File output_file = new File(output_file_name);
-		BufferedWriter output = new BufferedWriter(new FileWriter(output_file));
+			
+		/*** Generate input event stream ***/
+		if (action == 0) {		
+			
+			// Open the output file
+			//String output_file_name = "CET\\src\\iofiles\\rate" + event_number_per_window + ".txt"; 
+			String output_file_name = "CET\\src\\iofiles\\comp" + max_comp + ".txt";
+			//String output_file_name = "CET\\src\\iofiles\\stream.txt";
+			File output_file = new File(output_file_name);
+			BufferedWriter output = new BufferedWriter(new FileWriter(output_file));
 		
-		// Generate the input event stream
-		//generate_batches(output);
-		generate_windows(output,event_number_per_window,max_comp,window_length,window_slide);
+			// Generate the input event stream
+			//generate_batches(output);
+			generate_windows(output,event_number_per_window,max_comp,window_length,window_slide,time_progress,random_comp);
 		
-		// Close the file
-		output.close();	
-		
-		} catch (IOException e) { e.printStackTrace(); }
+			// Close the file
+			output.close();	
+					
+		} else {
+		/*** Parse input event stream and count events per second ***/
+		if (action == 1) {
+			
+			
+			String input_file_name = "CET\\src\\iofiles\\114.dat";
+			File input_file = new File(input_file_name);
+			Scanner input = new Scanner(input_file);   
+			countEvents(input);
+			input.close();       	
+			 
+		} else {
+		/*** Select events ***/
+			
+			// Input file
+			String input_file_name = "CET\\src\\iofiles\\114.dat";
+			File input_file = new File(input_file_name);
+	        Scanner input = new Scanner(input_file);     
+	        
+	        // Output file 
+	        String output_file_name = "CET\\src\\iofiles\\real_stream.dat";
+            File output_file = new File(output_file_name);
+            BufferedWriter output = new BufferedWriter(new FileWriter(output_file));
+            
+            selectEvents(input,output);       		
+	       	input.close();       		       		
+	       	output.close();
+            
+		}}} catch (IOException e ) { e.printStackTrace(); }			
 	}
 	
-	public static void generate_windows (BufferedWriter output, int event_number_per_window, int max_comp, int window_length, int window_slide) {
+	public static void countEvents (Scanner input) {
+		
+		String eventString = "";
+		int sec = 0;
+		int count = 0; 
+				
+		while (input.hasNextLine() && sec <= 600) {         	
+        			
+			eventString = input.nextLine();
+			Event event = Event.parseReal(eventString);	
+			if (event.id > 0) {
+				if (event.sec > sec) {
+					System.out.println("Sec: " + sec + " Count: " + count);
+					sec = event.sec;
+					count = 1;
+				} else {
+					count++;
+		}}}		
+	}
+	
+	public static void selectEvents (Scanner input, BufferedWriter output) {
+		
+		String eventString = "";
+		int count = 0; 
+		try {
+			while (input.hasNextLine()) {         	
+        			
+				eventString = input.nextLine();
+				Event event = Event.parseReal(eventString);				
+				if (event.id > 0) {					
+					count++;
+					event.id = count;
+					event.value = 1;
+					output.write(event.print2file());            	            	            	         	
+				}
+			}   
+		} catch (IOException e) { System.err.println(e); }	
+		System.out.println("Count: " + count);
+	}
+	
+	public static void generate_windows (BufferedWriter output, int event_number_per_window, int max_comp, int window_length, int window_slide, int time_progress, boolean random_comp) {
 		
 		// Local variables
 		int last_sec = 1800;
@@ -67,7 +146,7 @@ public class InputFileGenerator {
 		// Generate events and keep track of their number per window
 		int event_id = 1;
 		for (Window window : windows) {			
-			ArrayList<Event> events = getEvents(window, event_id, event_number_per_window, max_comp);
+			ArrayList<Event> events = getEvents(window, event_id, event_number_per_window, max_comp, time_progress, random_comp);
 			for (Event event : events) {
 				try { output.append(event.print2file()); } catch (IOException e) { e.printStackTrace(); }
 			}
@@ -79,7 +158,7 @@ public class InputFileGenerator {
 		System.out.println("Average sequence number is " + total_sequence_number/windows.size());
 	}	
 	
-	public static ArrayList<Event> getEvents(Window window, int event_id, int event_number_per_window, int max_comp) {
+	public static ArrayList<Event> getEvents(Window window, int event_id, int event_number_per_window, int max_comp, int time_progress, boolean random_comp) {
 		
 		ArrayList<Event> events = new ArrayList<Event>();		
 				
@@ -96,9 +175,9 @@ public class InputFileGenerator {
 		while (event_number<event_number_per_window && sec<=window.end) {
 			
 			// Random time progress 
-			sec+=30;
+			sec = sec + time_progress; 
 			// Random event compatibility
-			int comp = 3;//random.nextInt(max_comp+1) + 1;
+			int comp = (random_comp) ? random.nextInt(max_comp+1) + 1 : max_comp;
 			sequence_number *= comp;
 			if (event_number+comp>event_number_per_window) comp = event_number_per_window - event_number;
 			// Following events

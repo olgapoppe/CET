@@ -39,7 +39,7 @@ public class Exh_maxPartition extends Partitioner {
 			// System.out.println("Considered: " + temp.toString(windows));
 			
 			// Update solution			
-			if (minCPU > temp_cpu && temp.partitions.size() == part_num) { // && temp_mem <= memory_limit
+			if (minCPU > temp_cpu && temp.partitions.size() == part_num) { // temp_mem <= memory_limit) {
 				solution = temp;
 				minCPU = temp_cpu;
 			}			

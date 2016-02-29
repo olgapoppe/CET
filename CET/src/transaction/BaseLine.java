@@ -113,7 +113,7 @@ public class BaseLine extends Transaction {
 					}
 				}					
 			}
-			//System.out.println("results size : " + results.size());					
+			System.out.println("results size : " + results.size());					
 		}		
 	}	
 	
@@ -122,8 +122,13 @@ public class BaseLine extends Transaction {
 		int memory4results = 0;
 				
 		if (output.isAvailable()) {
-			for(TreeSet<Event> sequence : results) { 					
-				try { output.file.append(sequence.toString() + "\n"); } catch (IOException e) { e.printStackTrace(); }
+			for(TreeSet<Event> sequence : results) { 
+				try { 
+					for (Event event : sequence) {
+						output.file.append(event.id + ",");					
+					}
+					output.file.append("\n");
+				} catch (IOException e) { e.printStackTrace(); }
 				memory4results += sequence.size();	
 			}
 			output.setAvailable();

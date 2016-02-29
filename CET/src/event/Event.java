@@ -25,6 +25,19 @@ public class Event implements Comparable<Event> {
         return event;
 	}
 	
+	public static Event parseReal (String line) {
+		
+		String[] values = line.split(",");
+		
+		int s = Integer.parseInt(values[1]);
+        int i = Integer.parseInt(values[3]);
+        int v = Integer.parseInt(values[2]);          	
+    	    	    	
+    	Event event = new Event(s,i,v);    	
+    	//System.out.println(event.toString());    	
+        return event;
+	}
+	
 	public int compareTo(Event other) {
 		if(this.value == other.value && this.sec > other.sec){
             return 1;
@@ -34,11 +47,11 @@ public class Event implements Comparable<Event> {
     }
 	
 	public boolean isCompatible(Event other) {
-		return this.value==other.value && this.sec<other.sec;
+		return this.value == other.value && this.sec < other.sec;
 	}
 	
 	public boolean equals(Event other) {
-		return this.id==other.id;
+		return this.id == other.id;
 	}
 	
 	/** Print this event to console */
