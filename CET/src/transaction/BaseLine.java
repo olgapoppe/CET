@@ -113,7 +113,7 @@ public class BaseLine extends Transaction {
 					}
 				}					
 			}
-			System.out.println("results size : " + results.size());					
+			//System.out.println("results size : " + results.size());					
 		}		
 	}	
 	

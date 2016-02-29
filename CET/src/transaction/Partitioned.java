@@ -76,8 +76,7 @@ public class Partitioned extends Transaction {
 			for (EventTrend event_trend : first_node.results) {				
 				int length = computeResults(event_trend, new Stack<EventTrend>(), max_cet_across_partitions);				
 				if (max_cet_across_partitions < length) max_cet_across_partitions = length;		
-		}}
-			
+		}}			
 				
 		long end =  System.currentTimeMillis();
 		long processingDuration = end - start;
