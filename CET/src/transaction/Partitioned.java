@@ -46,9 +46,11 @@ public class Partitioned extends Transaction {
 		int size_of_the_graph = vertex_number + edge_number; 
 		System.out.println("Root: " + root_partitioning.toString(windows));
 		
-		/*** Get the minimal number of required partitions ***/
+		/*** Get the minimal number of required partitions and bin size ***/
 		int k = root_partitioning.getMinNumberOfRequiredPartitions(vertex_number, memory_limit);
-		System.out.println("Minimal number of required partitions: " + k);
+		int bin_size = vertex_number/k;
+		System.out.println("Minimal number of required partitions: " + k +
+				"\nBin size: " + bin_size);
 				
 		/*Partitioner partitioner;
 		if (search_algorithm==1) {

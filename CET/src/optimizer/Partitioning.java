@@ -117,17 +117,15 @@ public class Partitioning {
 	/*** Get minimal number of required partitions ***/
 	public int getMinNumberOfRequiredPartitions(int vertex_number, int memory_limit) {		
 		for (int k=1; k<=vertex_number; k++) {
-			double vertex_number_per_partition = Math.floor(new Double(vertex_number)/new Double(k));
-			double power = Math.floor(vertex_number_per_partition/new Double(3));
 			
+			double vertex_number_per_partition = vertex_number/new Double(k);
+			double power = vertex_number_per_partition/new Double(3);			
 			double ideal_memory = k * Math.pow(3, power) * vertex_number_per_partition;
 			
-			System.out.println("k " + k + 
-					" 3^(V_i/3) " + Math.pow(3, power) +
-					" V_i " + vertex_number_per_partition +
-					" MEM " + ideal_memory);
-			// There are fluctruations since k grows faster than the 
-			// other values drop down
+			System.out.println("k=" + k + 
+					" 3^(V_i/3)=" + Math.pow(3, power) +
+					" V_i=" + vertex_number_per_partition +
+					" MEM=" + ideal_memory);
 			
 			if (ideal_memory <= memory_limit) return k;
 		}		
