@@ -11,16 +11,19 @@ public class Partition extends Graph {
 	public int start;
 	public int end;
 	public int vertexNumber;	
-	
-	public Partition (int s, int e, int vn, int en, ArrayList<Node> fn, ArrayList<Node> ln) {
+		
+	public Partition (int s, int e, int vn, int en, ArrayList<Node> fn, ArrayList<Node> ln, int n) {
 		id = s + " " + e;
 		start = s;
 		end = e;
-		vertexNumber = vn;
 		
+		vertexNumber = vn;
 		edgeNumber = en;
+		
 		first_nodes = fn;
 		last_nodes = ln;
+		
+		number_of_min_partitions = n;
 	}
 	
 	public boolean equals (Object o) {
@@ -35,7 +38,7 @@ public class Partition extends Graph {
 			Node n = new Node(e);
 			nodes.add(n);
 		}
-		return new Partition (sec, sec, batch.size(), 0, nodes, nodes);
+		return new Partition (sec, sec, batch.size(), 0, nodes, nodes, 1);
 	}
 	
 	public int getSharingWindowNumber (ArrayDeque<Window> windows) {
@@ -92,7 +95,7 @@ public class Partition extends Graph {
 		ArrayList<Partitioning> results = new ArrayList<Partitioning>();
 		
 		// Initial partitions
-		Partition first = new Partition(0,0,0,0,new ArrayList<Node>(),new ArrayList<Node>());
+		Partition first = new Partition(0,0,0,0,new ArrayList<Node>(),new ArrayList<Node>(),0);
 		Partition second = this;
 		
 		// Nodes
@@ -119,9 +122,13 @@ public class Partition extends Graph {
 			int new_first_en = first.edgeNumber + oldCutEdges;
 			int new_second_en = second.edgeNumber - newCutEdges;
 			
+			// Number of minimal partitions
+			int new_first_nmp = first.number_of_min_partitions + 1;
+			int new_second_nmp = second.number_of_min_partitions - 1;
+			
 			// New partitions
-			first = new Partition(start,secOfNodes2move,new_first_vn,new_first_en,first_nodes,nodes2move);
-			second = new Partition(secOfFollowingOfNodes2move,end,new_second_vn,new_second_en,followingOfNodes2move,last_nodes); 
+			first = new Partition(start,secOfNodes2move,new_first_vn,new_first_en,first_nodes,nodes2move,new_first_nmp);
+			second = new Partition(secOfFollowingOfNodes2move,end,new_second_vn,new_second_en,followingOfNodes2move,last_nodes,new_second_nmp); 
 			
 			// New partitioning
 			ArrayList<Partition> parts = new ArrayList<Partition>();
@@ -162,7 +169,8 @@ public class Partition extends Graph {
 		int edges = this.edgeNumber + other.edgeNumber + cut_edges;
 		ArrayList<Node> first = this.first_nodes;
 		ArrayList<Node> last = other.last_nodes;
-		return new Partition(start,end,vertexes,edges,first,last);
+		int nmp = this.number_of_min_partitions + other.number_of_min_partitions;
+		return new Partition(start,end,vertexes,edges,first,last,nmp);
 	}
 	
 	public String toString() {

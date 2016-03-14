@@ -40,7 +40,7 @@ public class Partitioning {
 		Graph graph = Graph.constructGraph(events);
 		int first_sec = events.get(0).sec;
 		int last_sec = events.get(events.size()-1).sec;
-		Partition part = new Partition(first_sec,last_sec,events.size(),graph.edgeNumber,graph.first_nodes,graph.last_nodes);
+		Partition part = new Partition(first_sec,last_sec,events.size(),graph.edgeNumber,graph.first_nodes,graph.last_nodes,graph.number_of_min_partitions);
 		
 		// Return an partitioning with this partition
 		ArrayList<Partition> parts = new ArrayList<Partition>();
@@ -115,12 +115,18 @@ public class Partitioning {
 	}
 	
 	/*** Get minimal number of required partitions ***/
-	public int getMinNumberOfRequiredPartitions(int vertex_number, int memory_limit) {		
-		for (int k=1; k<=vertex_number; k++) {
-			
+	public int getMinNumberOfRequiredPartitions(int vertex_number, int number_of_min_partitions, int memory_limit) {	
+		
+		// Extreme case: All events are in same partition (T-CET)
+		double power = vertex_number/new Double(3);
+		double ideal_memory = Math.pow(3, power) * vertex_number;
+		if (ideal_memory <= memory_limit) return 0;
+		
+		// Average case: Find the minimal number of required partitions (H-CET)
+		for (int k=1; k<number_of_min_partitions; k++) {			
 			double vertex_number_per_partition = vertex_number/new Double(k);
-			double power = vertex_number_per_partition/new Double(3);			
-			double ideal_memory = k * Math.pow(3, power) * vertex_number_per_partition;
+			power = vertex_number_per_partition/new Double(3);			
+			ideal_memory = k * Math.pow(3, power) * vertex_number_per_partition;
 			
 			System.out.println("k=" + k + 
 					" 3^(V_i/3)=" + Math.pow(3, power) +
@@ -128,7 +134,11 @@ public class Partitioning {
 					" MEM=" + ideal_memory);
 			
 			if (ideal_memory <= memory_limit) return k;
-		}		
+		}	
+		// Extreme case: Each event is in a separate partition (M-CET)
+		if (vertex_number <= memory_limit) return vertex_number;
+		
+		// Partitioning does not reduce the memory enough
 		return -1;
 	}
 	

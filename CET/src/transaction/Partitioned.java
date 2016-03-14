@@ -40,14 +40,16 @@ public class Partitioned extends Transaction {
 	public void run() {			
 		
 		/*** Get the root partitioning (all events are in one partition) ***/
-		Partitioning root_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);	
-		int vertex_number = root_partitioning.partitions.get(0).vertexNumber;
-		int edge_number = root_partitioning.partitions.get(0).edgeNumber;
+		Partitioning root_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
+		Partition first = root_partitioning.partitions.get(0);
+		int vertex_number = first.vertexNumber;
+		int edge_number = first.edgeNumber;
+		int number_of_min_partitions = first.number_of_min_partitions; 
 		int size_of_the_graph = vertex_number + edge_number; 
 		System.out.println("Root: " + root_partitioning.toString(windows));
 		
 		/*** Get the minimal number of required partitions and bin size ***/
-		int k = root_partitioning.getMinNumberOfRequiredPartitions(vertex_number, memory_limit);
+		int k = root_partitioning.getMinNumberOfRequiredPartitions(vertex_number, number_of_min_partitions, memory_limit);
 		int bin_size = vertex_number/k;
 		System.out.println("Minimal number of required partitions: " + k +
 				"\nBin size: " + bin_size);
