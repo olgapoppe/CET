@@ -39,12 +39,18 @@ public class Partitioned extends Transaction {
 
 	public void run() {			
 		
-		/*** Get an optimal CET graph partitioning ***/
+		/*** Get the root partitioning (all events are in one partition) ***/
 		Partitioning root_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);	
-		int size_of_the_graph = root_partitioning.partitions.get(0).vertexNumber + root_partitioning.partitions.get(0).edgeNumber; 
+		int vertex_number = root_partitioning.partitions.get(0).vertexNumber;
+		int edge_number = root_partitioning.partitions.get(0).edgeNumber;
+		int size_of_the_graph = vertex_number + edge_number; 
 		System.out.println("Root: " + root_partitioning.toString(windows));
+		
+		/*** Get the minimal number of required partitions ***/
+		int k = root_partitioning.getMinNumberOfRequiredPartitions(vertex_number, memory_limit);
+		System.out.println("Minimal number of required partitions: " + k);
 				
-		Partitioner partitioner;
+		/*Partitioner partitioner;
 		if (search_algorithm==1) {
 			partitioner = new Exh_maxPartition(windows);
 			optimal_partitioning = partitioner.getPartitioning(root_partitioning, part_num);
@@ -58,7 +64,7 @@ public class Partitioned extends Transaction {
 					
 		if (!optimal_partitioning.partitions.isEmpty()) {
 			
-		/*** Compute results per partition ***/
+		*//*** Compute results per partition ***//*
 		int cets_within_partitions = 0;
 		for (Partition partition : optimal_partitioning.partitions) {	
 			
@@ -69,7 +75,7 @@ public class Partitioned extends Transaction {
 			cets_within_partitions += partition.getCETlength();			
 		}		
 		
-		/*** Compute results across partition ***/
+		*//*** Compute results across partition ***//*
 		int max_cet_across_partitions = 0;
 		for (Node first_node : optimal_partitioning.partitions.get(0).first_nodes) {
 				
@@ -84,7 +90,7 @@ public class Partitioned extends Transaction {
 		
 		int memory = size_of_the_graph + cets_within_partitions + max_cet_across_partitions;
 		writeOutput2File(memory);
-		}
+		}*/
 		transaction_number.countDown();		
 	}
 	

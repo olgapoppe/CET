@@ -50,8 +50,7 @@ public class InputFileGenerator {
 		} else {
 		/*** Parse input event stream and count events per second ***/
 		if (action == 1) {
-			
-			
+						
 			String input_file_name = "CET\\src\\iofiles\\114.dat";
 			File input_file = new File(input_file_name);
 			Scanner input = new Scanner(input_file);   

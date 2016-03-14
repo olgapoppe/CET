@@ -9,15 +9,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class EventDriver implements Runnable {	
 	
 	String filename;
+	boolean realtime;
 	int lastsec;
 	final EventQueue eventqueue;			
 	long startOfSimulation;
 	AtomicInteger drProgress;
 	AtomicInteger eventNumber;
 		
-	public EventDriver (String f, int last, EventQueue eq, long start, AtomicInteger dp, AtomicInteger eN) {
+	public EventDriver (String f, boolean rt, int last, EventQueue eq, long start, AtomicInteger dp, AtomicInteger eN) {
 		
 		filename = f;
+		realtime = rt;
 		lastsec = last;
 		eventqueue = eq;			
 		startOfSimulation = start;
@@ -91,7 +93,7 @@ public class EventDriver implements Runnable {
 					system_time = System.currentTimeMillis() - startOfSimulation;
 					//System.out.println("Skipped time is " + skipped_time + " sec.\nSystem time is " + system_time/1000);
 					
-					if (system_time < batch.end*1000) { // !!!
+					if (realtime && system_time < batch.end*1000) { // !!!
 	 			
 						int sleep_time = new Double(batch.end*1000 - system_time).intValue(); // !!!	 			
 						//System.out.println("Distributor sleeps " + sleep_time + " ms at " + curr_sec );		 			
@@ -117,7 +119,7 @@ public class EventDriver implements Runnable {
 	 		
 	 		/*** Clean-up ***/		
 			scanner.close();				
-			//System.out.println("Driver is done.");	
+			System.out.println("Driver is done.");	
  		
 		} catch (FileNotFoundException e) { e.printStackTrace(); }
 	}	

@@ -99,7 +99,7 @@ public class Partitioning {
 	}
 	
 	/*** Get memory cost of this partitioning 
-	 * ignoring the memory cost of graph storage and partitioning ***/
+	 * ignoring the memory cost of graph storage ***/
 	public double getMEMcost (ArrayDeque<Window> windows) {
 		double cost_within = 0;
 		int v = 0;
@@ -112,6 +112,26 @@ public class Partitioning {
 		int k = partitions.size();
 		double cost_across = (k==1) ? 0 : v;
 		return cost_within + cost_across;
+	}
+	
+	/*** Get minimal number of required partitions ***/
+	public int getMinNumberOfRequiredPartitions(int vertex_number, int memory_limit) {		
+		for (int k=1; k<=vertex_number; k++) {
+			double vertex_number_per_partition = Math.floor(new Double(vertex_number)/new Double(k));
+			double power = Math.floor(vertex_number_per_partition/new Double(3));
+			
+			double ideal_memory = k * Math.pow(3, power) * vertex_number_per_partition;
+			
+			System.out.println("k " + k + 
+					" 3^(V_i/3) " + Math.pow(3, power) +
+					" V_i " + vertex_number_per_partition +
+					" MEM " + ideal_memory);
+			// There are fluctruations since k grows faster than the 
+			// other values drop down
+			
+			if (ideal_memory <= memory_limit) return k;
+		}		
+		return -1;
 	}
 	
 	/*** Get children of this partitioning by splitting a partition in each child ***/
