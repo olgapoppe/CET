@@ -41,6 +41,62 @@ public class Partition extends Graph {
 		return new Partition (sec, sec, batch.size(), 0, nodes, nodes, 1);
 	}
 	
+	/*** Get minimal number of required partitions ***/
+	public int getMinNumberOfRequiredPartitions_walkDown(int memory_limit) {	
+		
+		// Find the minimal number of required partitions (T-CET, H-CET)
+		for (int k=0; k<number_of_min_partitions; k++) {	
+			double ideal_memory = getIdealMEMcost(k);
+						
+			System.out.println("k=" + k + " mem=" + ideal_memory);
+			
+			if (ideal_memory <= memory_limit) return k;
+		}	
+		// Each event is in a separate partition (M-CET)
+		if (vertexNumber <= memory_limit) return vertexNumber;
+		
+		// Partitioning does not reduce the memory enough
+		return -1;
+	}
+	
+	public int getMinNumberOfRequiredPartitions_walkUp(int memory_limit) {	
+		
+		// Partitioning does not reduce the memory enough
+		int result = -1;
+		
+		// Each event is in a separate partition (M-CET)
+		if (vertexNumber <= memory_limit) result = vertexNumber;
+		
+		// Find the minimal number of required partitions (T-CET, H-CET)
+		for (int k=number_of_min_partitions-1; k>=0; k--) {
+			double ideal_memory = getIdealMEMcost(k);
+			if (ideal_memory <= memory_limit) {
+				result = k;
+				
+				System.out.println("k=" + k + " mem=" + ideal_memory);
+			} else {
+				break;
+			}
+		}				
+		return result;
+	}
+	
+	public double getIdealMEMcost (int k) {
+		
+		double exp;
+		double ideal_memory;
+		
+		if (k == 0) {			
+			exp = vertexNumber/new Double(3);
+			ideal_memory = Math.pow(3, exp) * vertexNumber;			
+		} else {			
+			double vertex_number_per_partition = vertexNumber/new Double(k);
+			exp = vertex_number_per_partition/new Double(3);			
+			ideal_memory = k * Math.pow(3, exp) * vertex_number_per_partition;			
+		}	
+		return ideal_memory;
+	}
+	
 	public int getSharingWindowNumber (ArrayDeque<Window> windows) {
 		int count = 0;
 		for (Window window : windows) {

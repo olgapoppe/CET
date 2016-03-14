@@ -44,13 +44,19 @@ public class Partitioned extends Transaction {
 		Partition first = root_partitioning.partitions.get(0);
 		int vertex_number = first.vertexNumber;
 		int edge_number = first.edgeNumber;
-		int number_of_min_partitions = first.number_of_min_partitions; 
+		int number_of_min_partitions = first.number_of_min_partitions;
 		int size_of_the_graph = vertex_number + edge_number; 
 		System.out.println("Root: " + root_partitioning.toString(windows));
 		
 		/*** Get the minimal number of required partitions and bin size ***/
-		int k = root_partitioning.getMinNumberOfRequiredPartitions(vertex_number, number_of_min_partitions, memory_limit);
-		int bin_size = vertex_number/k;
+		double ideal_memory_in_the_middle = first.getIdealMEMcost(number_of_min_partitions/2); 
+		int k;
+		if (memory_limit > ideal_memory_in_the_middle) {
+			k = first.getMinNumberOfRequiredPartitions_walkDown(memory_limit);
+		} else {
+			k = first.getMinNumberOfRequiredPartitions_walkUp(memory_limit);
+		}		
+		int bin_size = (k==0) ? vertex_number : vertex_number/k;
 		System.out.println("Minimal number of required partitions: " + k +
 				"\nBin size: " + bin_size);
 				
