@@ -12,7 +12,7 @@ public class Partition extends Graph {
 	public int end;
 	public int vertexNumber;	
 		
-	public Partition (int s, int e, int vn, int en, ArrayList<Node> fn, ArrayList<Node> ln, int n) {
+	public Partition (int s, int e, int vn, int en, ArrayList<Node> fn, ArrayList<Node> ln) {
 		id = s + " " + e;
 		start = s;
 		end = e;
@@ -21,9 +21,7 @@ public class Partition extends Graph {
 		edgeNumber = en;
 		
 		first_nodes = fn;
-		last_nodes = ln;
-		
-		number_of_min_partitions = n;
+		last_nodes = ln;		
 	}
 	
 	public boolean equals (Object o) {
@@ -38,63 +36,7 @@ public class Partition extends Graph {
 			Node n = new Node(e);
 			nodes.add(n);
 		}
-		return new Partition (sec, sec, batch.size(), 0, nodes, nodes, 1);
-	}
-	
-	/*** Get minimal number of required partitions ***/
-	public int getMinNumberOfRequiredPartitions_walkDown(int memory_limit) {	
-		
-		// Find the minimal number of required partitions (T-CET, H-CET)
-		for (int k=0; k<number_of_min_partitions; k++) {	
-			double ideal_memory = getIdealMEMcost(k);
-						
-			System.out.println("k=" + k + " mem=" + ideal_memory);
-			
-			if (ideal_memory <= memory_limit) return k;
-		}	
-		// Each event is in a separate partition (M-CET)
-		if (vertexNumber <= memory_limit) return vertexNumber;
-		
-		// Partitioning does not reduce the memory enough
-		return -1;
-	}
-	
-	public int getMinNumberOfRequiredPartitions_walkUp(int memory_limit) {	
-		
-		// Partitioning does not reduce the memory enough
-		int result = -1;
-		
-		// Each event is in a separate partition (M-CET)
-		if (vertexNumber <= memory_limit) result = vertexNumber;
-		
-		// Find the minimal number of required partitions (T-CET, H-CET)
-		for (int k=number_of_min_partitions-1; k>=0; k--) {
-			double ideal_memory = getIdealMEMcost(k);
-			if (ideal_memory <= memory_limit) {
-				result = k;
-				
-				System.out.println("k=" + k + " mem=" + ideal_memory);
-			} else {
-				break;
-			}
-		}				
-		return result;
-	}
-	
-	public double getIdealMEMcost (int k) {
-		
-		double exp;
-		double ideal_memory;
-		
-		if (k == 0) {			
-			exp = vertexNumber/new Double(3);
-			ideal_memory = Math.pow(3, exp) * vertexNumber;			
-		} else {			
-			double vertex_number_per_partition = vertexNumber/new Double(k);
-			exp = vertex_number_per_partition/new Double(3);			
-			ideal_memory = k * Math.pow(3, exp) * vertex_number_per_partition;			
-		}	
-		return ideal_memory;
+		return new Partition (sec, sec, batch.size(), 0, nodes, nodes);
 	}
 	
 	public int getSharingWindowNumber (ArrayDeque<Window> windows) {
@@ -151,7 +93,7 @@ public class Partition extends Graph {
 		ArrayList<Partitioning> results = new ArrayList<Partitioning>();
 		
 		// Initial partitions
-		Partition first = new Partition(0,0,0,0,new ArrayList<Node>(),new ArrayList<Node>(),0);
+		Partition first = new Partition(0,0,0,0,new ArrayList<Node>(),new ArrayList<Node>());
 		Partition second = this;
 		
 		// Nodes
@@ -178,13 +120,9 @@ public class Partition extends Graph {
 			int new_first_en = first.edgeNumber + oldCutEdges;
 			int new_second_en = second.edgeNumber - newCutEdges;
 			
-			// Number of minimal partitions
-			int new_first_nmp = first.number_of_min_partitions + 1;
-			int new_second_nmp = second.number_of_min_partitions - 1;
-			
 			// New partitions
-			first = new Partition(start,secOfNodes2move,new_first_vn,new_first_en,first_nodes,nodes2move,new_first_nmp);
-			second = new Partition(secOfFollowingOfNodes2move,end,new_second_vn,new_second_en,followingOfNodes2move,last_nodes,new_second_nmp); 
+			first = new Partition(start,secOfNodes2move,new_first_vn,new_first_en,first_nodes,nodes2move);
+			second = new Partition(secOfFollowingOfNodes2move,end,new_second_vn,new_second_en,followingOfNodes2move,last_nodes); 
 			
 			// New partitioning
 			ArrayList<Partition> parts = new ArrayList<Partition>();
@@ -225,8 +163,7 @@ public class Partition extends Graph {
 		int edges = this.edgeNumber + other.edgeNumber + cut_edges;
 		ArrayList<Node> first = this.first_nodes;
 		ArrayList<Node> last = other.last_nodes;
-		int nmp = this.number_of_min_partitions + other.number_of_min_partitions;
-		return new Partition(start,end,vertexes,edges,first,last,nmp);
+		return new Partition(start,end,vertexes,edges,first,last);
 	}
 	
 	public String toString() {

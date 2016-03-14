@@ -37,44 +37,55 @@ public class Partitioned extends Transaction {
 		results = new ArrayList<String>();
 	}
 
-	public void run() {			
+	public void run() {		
+		
+		/*** Get the ideal memory in the middle of the search space 
+		 * to decide from where to start the search: from the top or from the bottom ***/
+		int curr_sec = -1;
+		int number_of_min_partitions = 0;
+		for(Event event : batch) {
+			if (curr_sec < event.sec) {
+				curr_sec = event.sec;
+				number_of_min_partitions++;
+		}}		
+		int event_number = batch.size();
+		double ideal_memory_in_the_middle = getIdealMEMcost(event_number, number_of_min_partitions/2);
+		boolean from_top = (memory_limit > ideal_memory_in_the_middle);
 		
 		/*** Get the root partitioning (all events are in one partition) ***/
-		Partitioning root_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
+		Partitioning root_partitioning = from_top ? 
+					Partitioning.getPartitioningWithMaxPartition(batch) :
+					Partitioning.getPartitioningWithMinPartitions(batch);
+						
 		Partition first = root_partitioning.partitions.get(0);
 		int vertex_number = first.vertexNumber;
 		int edge_number = first.edgeNumber;
-		int number_of_min_partitions = first.number_of_min_partitions;
 		int size_of_the_graph = vertex_number + edge_number; 
-		System.out.println("Root: " + root_partitioning.toString(windows));
+		System.out.println("Root: " + root_partitioning.toString(windows));		
 		
-		/*** Get the minimal number of required partitions and bin size ***/
-		double ideal_memory_in_the_middle = first.getIdealMEMcost(number_of_min_partitions/2); 
-		int k;
-		if (memory_limit > ideal_memory_in_the_middle) {
-			k = first.getMinNumberOfRequiredPartitions_walkDown(memory_limit);
-		} else {
-			k = first.getMinNumberOfRequiredPartitions_walkUp(memory_limit);
-		}		
-		int bin_size = (k==0) ? vertex_number : vertex_number/k;
-		System.out.println("Minimal number of required partitions: " + k +
-				"\nBin size: " + bin_size);
-				
-		/*Partitioner partitioner;
+		Partitioner partitioner;		
 		if (search_algorithm==1) {
-			partitioner = new Exh_maxPartition(windows);
-			optimal_partitioning = partitioner.getPartitioning(root_partitioning, part_num);
-		} else {
-			partitioner = new BandB_maxPartition(windows);
+			partitioner = from_top ? 
+					new BandB_maxPartition(windows) :
+					new BandB_minPartitions(windows);
 			optimal_partitioning = partitioner.getPartitioning(root_partitioning, memory_limit);
-		}		
-		System.out.println("Optimal: " + optimal_partitioning.toString(windows));
+			System.out.println("Optimal: " + optimal_partitioning.toString(windows));
+		} else {			
+			/*** Get the minimal number of required partitions and bin size ***/			 
+			int k = from_top ?
+					getMinNumberOfRequiredPartitions_walkDown(event_number,number_of_min_partitions,memory_limit) :
+					getMinNumberOfRequiredPartitions_walkUp(event_number,number_of_min_partitions,memory_limit);
+			int bin_size = (k==0) ? vertex_number : vertex_number/k;
+			System.out.println("Minimal number of required partitions: " + k +
+						"\nBin size: " + bin_size);
+		}
 		
-		long start =  System.currentTimeMillis();
+		
+		/*long start =  System.currentTimeMillis();
 					
-		if (!optimal_partitioning.partitions.isEmpty()) {
+		if (!optimal_partitioning.partitions.isEmpty()) {*/
 			
-		*//*** Compute results per partition ***//*
+		/*** Compute results per partition ***//*
 		int cets_within_partitions = 0;
 		for (Partition partition : optimal_partitioning.partitions) {	
 			
@@ -103,6 +114,63 @@ public class Partitioned extends Transaction {
 		}*/
 		transaction_number.countDown();		
 	}
+	
+	public double getIdealMEMcost (int n, int k) {
+		
+		double exp;
+		double ideal_memory;
+		
+		if (k == 0) {			
+			exp = n/new Double(3);
+			ideal_memory = Math.pow(3, exp) * n;			
+		} else {			
+			double vertex_number_per_partition = n/new Double(k);
+			exp = vertex_number_per_partition/new Double(3);			
+			ideal_memory = k * Math.pow(3, exp) * vertex_number_per_partition;			
+		}	
+		return ideal_memory;
+	}
+	
+	/*** Get minimal number of required partitions walking the search space top down ***/
+	public int getMinNumberOfRequiredPartitions_walkDown(int event_number, int number_of_min_partitions, int memory_limit) {	
+		
+		// Find the minimal number of required partitions (T-CET, H-CET)
+		for (int k=0; k<number_of_min_partitions; k++) {	
+			double ideal_memory = getIdealMEMcost(event_number,k);
+						
+			System.out.println("k=" + k + " mem=" + ideal_memory);
+			
+			if (ideal_memory <= memory_limit) return k;
+		}	
+		// Each event is in a separate partition (M-CET)
+		if (event_number <= memory_limit) return event_number;
+		
+		// Partitioning does not reduce the memory enough
+		return -1;
+	}
+	
+	/*** Get minimal number of required partitions walking the search space bottom up ***/
+	public int getMinNumberOfRequiredPartitions_walkUp(int event_number, int number_of_min_partitions, int memory_limit) {	
+		
+		// Partitioning does not reduce the memory enough
+		int result = -1;
+		
+		// Each event is in a separate partition (M-CET)
+		if (event_number <= memory_limit) result = event_number;
+		
+		// Find the minimal number of required partitions (T-CET, H-CET)
+		for (int k=number_of_min_partitions-1; k>=0; k--) {
+			double ideal_memory = getIdealMEMcost(event_number,k);
+			if (ideal_memory <= memory_limit) {
+				result = k;
+				
+				System.out.println("k=" + k + " mem=" + ideal_memory);
+			} else {
+				break;
+			}
+		}				
+		return result;
+	}	
 	
 	// DFS recomputing intermediate results
 	public int computeResults (EventTrend event_trend, Stack<EventTrend> current_cet, int maxSeqLength) {       

@@ -9,14 +9,12 @@ public class Graph {
 	public int edgeNumber;
 	public ArrayList<Node> first_nodes;
 	public ArrayList<Node> last_nodes;  
-	public int number_of_min_partitions;
-	
+		
 	public Graph () {
 		nodes = new ArrayList<Node>();
 		edgeNumber = 0;
 		first_nodes = new ArrayList<Node>();
 		last_nodes = new ArrayList<Node>();
-		number_of_min_partitions = 0;
 	}
 	
 	public void connect (Node first, Node second) {
@@ -29,18 +27,10 @@ public class Graph {
 	public static Graph constructGraph (ArrayList<Event> events) {		
 		
 		Graph graph = new Graph();
-		int curr_sec = -1;
-		int n = 0;
 				
 		for (Event event : events) {
 			
 			//System.out.println("--------------" + event.id);
-			
-			// Update the number of minimal partitions
-			if (curr_sec < event.sec) {
-				n++;
-				curr_sec = event.sec;
-			}
 			
 			// Create a new node
 			Node node = new Node(event);
@@ -94,8 +84,6 @@ public class Graph {
 			graph.nodes.add(node);	
 		}
 		//for (Node node : graph.nodes) { System.out.println(node.toString()); }	
-		graph.number_of_min_partitions = n;
-		
 		return graph;
 	}	
 }

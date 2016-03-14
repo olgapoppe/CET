@@ -40,7 +40,7 @@ public class Partitioning {
 		Graph graph = Graph.constructGraph(events);
 		int first_sec = events.get(0).sec;
 		int last_sec = events.get(events.size()-1).sec;
-		Partition part = new Partition(first_sec,last_sec,events.size(),graph.edgeNumber,graph.first_nodes,graph.last_nodes,graph.number_of_min_partitions);
+		Partition part = new Partition(first_sec,last_sec,events.size(),graph.edgeNumber,graph.first_nodes,graph.last_nodes);
 		
 		// Return an partitioning with this partition
 		ArrayList<Partition> parts = new ArrayList<Partition>();
