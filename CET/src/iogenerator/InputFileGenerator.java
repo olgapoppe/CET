@@ -20,7 +20,7 @@ public class InputFileGenerator {
 		
 		// Parameters to vary
 		int event_number_per_window = 20;
-		int max_comp = 7;
+		int max_comp = 12;
 		int window_length = 310;
 		int window_slide = 311;
 		int time_progress = 30;
