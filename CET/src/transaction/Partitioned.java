@@ -51,6 +51,7 @@ public class Partitioned extends Transaction {
 				number_of_min_partitions++;
 		}}		
 		int event_number = batch.size();
+		int edge_number = Graph.constructGraph(batch).edgeNumber;
 		double ideal_memory_in_the_middle = getIdealMEMcost(event_number, number_of_min_partitions/2);
 		boolean top_down = (memory_limit > ideal_memory_in_the_middle);				
 		
@@ -59,21 +60,14 @@ public class Partitioned extends Transaction {
 		int bin_size = 0;
 		Partitioner partitioner;		
 		if (search_algorithm==1) {
-			/*** Get the root partitioning ***/
+			/*** Get the input partitioning ***/
 			input_partitioning = top_down ? 
 						Partitioning.getPartitioningWithMaxPartition(batch) :
-						Partitioning.getPartitioningWithMinPartitions(batch);
-							
-			/*Partition first = root_partitioning.partitions.get(0);
-			int vertex_number = first.vertexNumber;
-			int edge_number = first.edgeNumber;
-			int size_of_the_graph = vertex_number + edge_number; */
-			System.out.println("Root: " + input_partitioning.toString(windows));
-			
+						Partitioning.getPartitioningWithMinPartitions(batch);							
+			System.out.println("Input partitioning: " + input_partitioning.toString(windows));			
 			partitioner = top_down ? 
 					new BandB_maxPartition(windows) :
-					new BandB_minPartitions(windows);
-			
+					new BandB_minPartitions(windows);			
 		} else {			
 			/*** Get the minimal number of required partitions and their size ***/			 
 			bin_number = top_down ?
@@ -83,12 +77,13 @@ public class Partitioned extends Transaction {
 			System.out.println("Bin number: " + bin_number +
 						"\nBin size: " + bin_size);
 			
-			/*** Fill the bins with minimal partitions ***/
+			/*** Get the input partitioning ***/
 			input_partitioning = Partitioning.getPartitioningWithMinPartitions(batch);						
 			partitioner = new BalancedPartitions(windows);			
 		}		
 		resulting_partitioning = partitioner.getPartitioning(input_partitioning, memory_limit, bin_number, bin_size);
-		System.out.println("Result: " + resulting_partitioning.toString(windows));
+		System.out.println("Result: " + resulting_partitioning.toString(windows) +
+				"MEM: " + (event_number+edge_number));
 		
 		/*if (!optimal_partitioning.partitions.isEmpty()) {*/
 			
