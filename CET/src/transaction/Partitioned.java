@@ -51,7 +51,6 @@ public class Partitioned extends Transaction {
 				number_of_min_partitions++;
 		}}		
 		int event_number = batch.size();
-		int edge_number = Graph.constructGraph(batch).edgeNumber;
 		double ideal_memory_in_the_middle = getIdealMEMcost(event_number, number_of_min_partitions/2);
 		boolean top_down = (memory_limit > ideal_memory_in_the_middle);				
 		
@@ -82,8 +81,7 @@ public class Partitioned extends Transaction {
 			partitioner = new BalancedPartitions(windows);			
 		}		
 		resulting_partitioning = partitioner.getPartitioning(input_partitioning, memory_limit, bin_number, bin_size);
-		System.out.println("Result: " + resulting_partitioning.toString(windows) +
-				"MEM: " + (event_number+edge_number));
+		System.out.println("Result: " + resulting_partitioning.toString(windows));
 		
 		/*if (!optimal_partitioning.partitions.isEmpty()) {*/
 			
