@@ -2,14 +2,12 @@ package iogenerator;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
-
 import event.*;
 
 public class InputFileGenerator {
@@ -21,12 +19,12 @@ public class InputFileGenerator {
 		int action = Integer.parseInt(args[0]);
 		
 		// Parameters to vary
-		int event_number_per_window = 60;
-		int max_comp = 12;
-		int window_length = 600;
-		int window_slide = 300;
-		int time_progress = 1;
-		boolean random_comp = false;
+		int event_number_per_window = 20;
+		int max_comp = 7;
+		int window_length = 310;
+		int window_slide = 311;
+		int time_progress = 30;
+		boolean random_comp = true;
 		
 		try {
 			
@@ -176,7 +174,7 @@ public class InputFileGenerator {
 			// Random time progress 
 			sec = sec + time_progress; 
 			// Random event compatibility
-			int comp = (random_comp) ? random.nextInt(max_comp+1) + 1 : max_comp;
+			int comp = (random_comp) ? random.nextInt(max_comp) + 1 : max_comp;
 			sequence_number *= comp;
 			if (event_number+comp>event_number_per_window) comp = event_number_per_window - event_number;
 			// Following events

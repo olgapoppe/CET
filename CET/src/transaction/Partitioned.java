@@ -37,7 +37,9 @@ public class Partitioned extends Transaction {
 		results = new ArrayList<String>();
 	}
 
-	public void run() {		
+	public void run() {	
+		
+		long start =  System.currentTimeMillis();
 		
 		/*** Get the ideal memory in the middle of the search space 
 		 * to decide from where to start the search: from the top or from the bottom ***/
@@ -78,12 +80,9 @@ public class Partitioned extends Transaction {
 			int bin_size = (k==0) ? vertex_number : vertex_number/k;
 			System.out.println("Minimal number of required partitions: " + k +
 						"\nBin size: " + bin_size);
-		}
+		}		
 		
-		
-		/*long start =  System.currentTimeMillis();
-					
-		if (!optimal_partitioning.partitions.isEmpty()) {*/
+		/*if (!optimal_partitioning.partitions.isEmpty()) {*/
 			
 		/*** Compute results per partition ***//*
 		int cets_within_partitions = 0;
@@ -103,15 +102,15 @@ public class Partitioned extends Transaction {
 			for (EventTrend event_trend : first_node.results) {				
 				int length = computeResults(event_trend, new Stack<EventTrend>(), max_cet_across_partitions);				
 				if (max_cet_across_partitions < length) max_cet_across_partitions = length;		
-		}}			
+		}}*/			
 				
 		long end =  System.currentTimeMillis();
 		long processingDuration = end - start;
 		processingTime.set(processingTime.get() + processingDuration);
 		
-		int memory = size_of_the_graph + cets_within_partitions + max_cet_across_partitions;
-		writeOutput2File(memory);
-		}*/
+		//int memory = size_of_the_graph + cets_within_partitions + max_cet_across_partitions;
+		//writeOutput2File(memory);
+		//}
 		transaction_number.countDown();		
 	}
 	
