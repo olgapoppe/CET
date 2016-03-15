@@ -14,7 +14,7 @@ public class Exh_maxPartition extends Partitioner {
 		super(w);
 	}
 	
-	public Partitioning getPartitioning (Partitioning root, int part_num) {
+	public Partitioning getPartitioning (Partitioning root, int part_num, int bin_number, int bin_size) {
 		
 		// Set local variables
 		Partitioning solution = new Partitioning(new ArrayList<Partition>());

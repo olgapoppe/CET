@@ -17,7 +17,7 @@ import optimizer.*;
 
 public class Partitioned extends Transaction {
 	
-	Partitioning optimal_partitioning;
+	Partitioning resulting_partitioning;
 	int memory_limit;
 	int part_num;
 	int search_algorithm;
@@ -52,35 +52,43 @@ public class Partitioned extends Transaction {
 		}}		
 		int event_number = batch.size();
 		double ideal_memory_in_the_middle = getIdealMEMcost(event_number, number_of_min_partitions/2);
-		boolean from_top = (memory_limit > ideal_memory_in_the_middle);
+		boolean top_down = (memory_limit > ideal_memory_in_the_middle);				
 		
-		/*** Get the root partitioning (all events are in one partition) ***/
-		Partitioning root_partitioning = from_top ? 
-					Partitioning.getPartitioningWithMaxPartition(batch) :
-					Partitioning.getPartitioningWithMinPartitions(batch);
-						
-		Partition first = root_partitioning.partitions.get(0);
-		int vertex_number = first.vertexNumber;
-		int edge_number = first.edgeNumber;
-		int size_of_the_graph = vertex_number + edge_number; 
-		System.out.println("Root: " + root_partitioning.toString(windows));		
-		
+		Partitioning input_partitioning;
+		int bin_number = 0;
+		int bin_size = 0;
 		Partitioner partitioner;		
 		if (search_algorithm==1) {
-			partitioner = from_top ? 
+			/*** Get the root partitioning ***/
+			input_partitioning = top_down ? 
+						Partitioning.getPartitioningWithMaxPartition(batch) :
+						Partitioning.getPartitioningWithMinPartitions(batch);
+							
+			/*Partition first = root_partitioning.partitions.get(0);
+			int vertex_number = first.vertexNumber;
+			int edge_number = first.edgeNumber;
+			int size_of_the_graph = vertex_number + edge_number; */
+			System.out.println("Root: " + input_partitioning.toString(windows));
+			
+			partitioner = top_down ? 
 					new BandB_maxPartition(windows) :
 					new BandB_minPartitions(windows);
-			optimal_partitioning = partitioner.getPartitioning(root_partitioning, memory_limit);
-			System.out.println("Optimal: " + optimal_partitioning.toString(windows));
+			
 		} else {			
-			/*** Get the minimal number of required partitions and bin size ***/			 
-			int k = from_top ?
+			/*** Get the minimal number of required partitions and their size ***/			 
+			bin_number = top_down ?
 					getMinNumberOfRequiredPartitions_walkDown(event_number,number_of_min_partitions,memory_limit) :
 					getMinNumberOfRequiredPartitions_walkUp(event_number,number_of_min_partitions,memory_limit);
-			int bin_size = (k==0) ? vertex_number : vertex_number/k;
-			System.out.println("Minimal number of required partitions: " + k +
+			bin_size = (bin_number==0) ? event_number : event_number/bin_number;
+			System.out.println("Bin number: " + bin_number +
 						"\nBin size: " + bin_size);
+			
+			/*** Fill the bins with minimal partitions ***/
+			input_partitioning = Partitioning.getPartitioningWithMinPartitions(batch);						
+			partitioner = new BalancedPartitions(windows);			
 		}		
+		resulting_partitioning = partitioner.getPartitioning(input_partitioning, memory_limit, bin_number, bin_size);
+		System.out.println("Result: " + resulting_partitioning.toString(windows));
 		
 		/*if (!optimal_partitioning.partitions.isEmpty()) {*/
 			

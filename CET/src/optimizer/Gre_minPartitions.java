@@ -10,7 +10,7 @@ public class Gre_minPartitions extends Partitioner {
 		super(w);
 	}
 	
-	public Partitioning getPartitioning (Partitioning temp, int memory_limit) {
+	public Partitioning getPartitioning (Partitioning temp, int memory_limit, int bin_number, int bin_size) {
 		
 		// Set local variables
 		Partitioning solution = temp;
