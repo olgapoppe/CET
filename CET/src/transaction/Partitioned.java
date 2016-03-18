@@ -51,43 +51,52 @@ public class Partitioned extends Transaction {
 				number_of_min_partitions++;
 		}}		
 		int event_number = batch.size();
-		double ideal_memory_in_the_middle = getIdealMEMcost(event_number, number_of_min_partitions/2);
+		double ideal_memory_in_the_middle = getIdealMEMcost(event_number, number_of_min_partitions/2, 3);
 		boolean top_down = (memory_limit > ideal_memory_in_the_middle);		
 		System.out.println("Top down: " + top_down);
 		//System.out.println("Ideal memory in the middle: " + ideal_memory_in_the_middle);
 		
 		Partitioning input_partitioning;
+		int algorithm = 0;
 		int bin_number = 0;
 		int bin_size = 0;
 		Partitioner partitioner;		
-		if (search_algorithm==1) {
-			/*** B&B ***/
-			/*** Get the input partitioning ***/
-			input_partitioning = top_down ? 
-						Partitioning.getPartitioningWithMaxPartition(batch) :
-						Partitioning.getPartitioningWithMinPartitions(batch);							
-			System.out.println("Input partitioning: " + input_partitioning.toString(windows));			
-			partitioner = top_down ? 
-					new BandB_maxPartition(windows) :
-					new BandB_minPartitions(windows);			
-		} else {	
-			/*** BalPart Heuristic ***/
-			/*** Get the minimal number of required partitions and their size ***/			 
-			bin_number = top_down ?
-					getMinNumberOfRequiredPartitions_walkDown(event_number,number_of_min_partitions,memory_limit) :
-					getMinNumberOfRequiredPartitions_walkUp(event_number,number_of_min_partitions,memory_limit);
-			bin_size = (bin_number==0) ? event_number : event_number/bin_number;
-			System.out.println("Bin number: " + bin_number +
-						"\nBin size: " + bin_size);
+		if (search_algorithm==1) { /*** B&B ***/
 			
-			/*** Get the input partitioning ***/
-			input_partitioning = (bin_number==0 || bin_size==1) ?
-					Partitioning.getPartitioningWithMaxPartition(batch) :
-					Partitioning.getPartitioningWithMinPartitions(batch);						
+			if (top_down) {
+				input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);							
+				partitioner = new BandB_maxPartition(windows);
+				algorithm = 2;
+			} else {
+				input_partitioning = Partitioning.getPartitioningWithMinPartitions(batch);							
+				partitioner = new BandB_minPartitions(windows);	
+				algorithm = 1;
+			}			
+		} else { /*** BalPart Heuristic ***/
+						 
+			if (top_down) {
+				bin_number = getMinNumberOfRequiredPartitions_walkDown(event_number,number_of_min_partitions,memory_limit);
+			} else {
+				bin_number = getMinNumberOfRequiredPartitions_walkUp(event_number,number_of_min_partitions,memory_limit);
+			}
+			bin_size = (bin_number==1) ? event_number : event_number/bin_number;
+			System.out.println("Bin number: " + bin_number + "\nBin size: " + bin_size);
+			if (bin_size == 1) {
+				input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
+				algorithm = 1;
+			} else {
+			if (bin_number == 1) {
+				input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
+				algorithm = 2;	
+			} else {
+				input_partitioning = Partitioning.getPartitioningWithMinPartitions(batch);
+				algorithm = 3; 
+			}}			
 			partitioner = new BalancedPartitions(windows);			
-		}		
+		}	
+		System.out.println("Input: " + input_partitioning.toString(windows,algorithm));
 		resulting_partitioning = partitioner.getPartitioning(input_partitioning, memory_limit, bin_number, bin_size);
-		System.out.println("Result: " + resulting_partitioning.toString(windows));
+		System.out.println("Result: " + resulting_partitioning.toString(windows,algorithm));
 		
 		/*if (!optimal_partitioning.partitions.isEmpty()) {*/
 			
@@ -121,22 +130,21 @@ public class Partitioned extends Transaction {
 		transaction_number.countDown();		
 	}
 	
-	public double getIdealMEMcost (int n, int k) {
+	public double getIdealMEMcost (int event_number, int partition_number, int algorithm) {
 		
 		double exp;
 		double ideal_memory;
 		
-		if (k == 0) {			
-			exp = n/new Double(3);
-			ideal_memory = Math.pow(3, exp) * n;			
-		} else {		
-		if (k == n) {
-			ideal_memory = n;
+		if (algorithm == 1) {
+			ideal_memory = event_number;
 		} else {
-			double vertex_number_per_partition = n/new Double(k);
+		if (algorithm == 2) {
+			ideal_memory = Math.pow(3, event_number) * event_number;			
+		} else {
+			double vertex_number_per_partition = event_number/new Double(partition_number);
 			exp = vertex_number_per_partition/new Double(3);			
-			ideal_memory = k * Math.pow(3, exp) * vertex_number_per_partition + n;			
-		}}	
+			ideal_memory = partition_number * Math.pow(3, exp) * vertex_number_per_partition + event_number;
+		}}
 		return ideal_memory;
 	}
 	
@@ -144,12 +152,13 @@ public class Partitioned extends Transaction {
 	public int getMinNumberOfRequiredPartitions_walkDown(int event_number, int number_of_min_partitions, int memory_limit) {	
 		
 		// Find the minimal number of required partitions (T-CET, H-CET)
-		for (int k=0; k<number_of_min_partitions; k++) {	
-			double ideal_memory = getIdealMEMcost(event_number,k);
+		for (int partition_number=1; partition_number<=number_of_min_partitions; partition_number++) {	
+			int algorithm = (partition_number==1) ? 2 : 3;
+			double ideal_memory = getIdealMEMcost(event_number,partition_number, algorithm);
 						
-			System.out.println("k=" + k + " mem=" + ideal_memory);
+			System.out.println("k=" + partition_number + " mem=" + ideal_memory);
 			
-			if (ideal_memory <= memory_limit) return k;
+			if (ideal_memory <= memory_limit) return partition_number;
 		}	
 		// Each event is in a separate partition (M-CET)
 		if (event_number <= memory_limit) return event_number;
@@ -168,12 +177,12 @@ public class Partitioned extends Transaction {
 		if (event_number <= memory_limit) result = event_number;
 		
 		// Find the minimal number of required partitions (T-CET, H-CET)
-		for (int k=number_of_min_partitions-1; k>=0; k--) {
-			double ideal_memory = getIdealMEMcost(event_number,k);
+		for (int partition_number=number_of_min_partitions; partition_number>0; partition_number--) {
+			double ideal_memory = getIdealMEMcost(event_number,partition_number,3);
 			if (ideal_memory <= memory_limit) {
-				result = k;
+				result = partition_number;
 				
-				System.out.println("k=" + k + " mem=" + ideal_memory);
+				System.out.println("k=" + partition_number + " mem=" + ideal_memory);
 			} else {
 				break;
 			}

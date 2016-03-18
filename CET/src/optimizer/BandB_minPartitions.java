@@ -20,6 +20,7 @@ public class BandB_minPartitions extends Partitioner {
 		
 		double minCPU = Integer.MAX_VALUE;
 		int maxHeapSize = 0;
+		int algorithm = 1;
 		
 		LinkedList<Partitioning> heap = new LinkedList<Partitioning>();
 		heap.add(root);
@@ -33,7 +34,7 @@ public class BandB_minPartitions extends Partitioner {
 			
 			// Get current node and compute its costs 
 			Partitioning temp = heap.poll();			
-			double temp_cpu = temp.getCPUcost(windows);
+			double temp_cpu = temp.getCPUcost(windows,algorithm);
 			considered_count++;
 			
 			//System.out.println("Considered: " + temp.toString());
@@ -49,8 +50,8 @@ public class BandB_minPartitions extends Partitioner {
 			// Add children to the heap and store their memory cost
 			ArrayList<Partitioning> children = temp.getChildrenByMerging();
 			for (Partitioning child : children) {
-				double child_mem = child.getMEMcost(windows);
-				double child_cpu = child.getCPUcost(windows);
+				double child_mem = child.getMEMcost(windows,algorithm);
+				double child_cpu = child.getCPUcost(windows,algorithm);
 				
 				if  (child_mem > memory_limit) pruning_1_count++;
 				if  (child_cpu > minCPU) pruning_2_count++;
@@ -61,6 +62,7 @@ public class BandB_minPartitions extends Partitioner {
 			}
 			// Update max heap size
 			if (maxHeapSize < heap.size()) maxHeapSize = heap.size();
+			algorithm = 3;
 		}
 		System.out.println("Max heap size: " + maxHeapSize + 
 				"\nPruning 1: " + pruning_1_count + 

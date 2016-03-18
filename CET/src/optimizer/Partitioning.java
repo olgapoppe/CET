@@ -83,38 +83,56 @@ public class Partitioning {
 	}
 	
 	/*** Get CPU cost of this partitioning 
-	 * ignoring the CPU cost of graph construction and partitioning ***/
-	public double getCPUcost (ArrayDeque<Window> windows) {
-		double cost_within = 0;		
-		int v = 0;
-		// CPU cost within partitions
-		for (Partition part : partitions) {
-			cost_within += part.getCPUcost(windows);
-			v += part.vertexNumber;			
-		}	
-		// CPU cost across partitions
-		int k = partitions.size();
-		double cost_across = (k==1) ? 0 : Math.pow(3, Math.floor(v/3)) * (2*k-2);
-		return cost_within + cost_across;
+	 * ignoring the CPU cost of graph construction and partitioning 
+	 * @param algorithm: 1 for M-CET, 2 for T-CET, 3 for H-CET ***/
+	public double getCPUcost (ArrayDeque<Window> windows, int algorithm) {
+		
+		if (algorithm == 1) { /*** M-CET ***/
+			int vertex_number = partitions.get(0).vertexNumber;
+			return 2 * Math.pow(3, vertex_number/new Double(3)) * vertex_number;
+		} else {
+		if (algorithm == 2) { /*** T-CET ***/
+			int vertex_number = partitions.get(0).vertexNumber;
+			int edge_number = partitions.get(0).edgeNumber;
+			return edge_number + Math.pow(3, vertex_number/new Double(3));
+		} else { /*** H-CET ***/
+			double cost_within = 0;		
+			int v = 0;
+			// CPU cost within partitions
+			for (Partition part : partitions) {
+				cost_within += part.getCPUcost(windows);
+				v += part.vertexNumber;			
+			}
+			// CPU cost across partitions
+			double cost_across = 2 * Math.pow(3, v/new Double(3)) * (partitions.size()-1);
+			return cost_within + cost_across;
+		}}	
 	}
 	
 	/*** Get memory cost of this partitioning 
-	 * ignoring the memory cost of graph storage ***/
-	public double getMEMcost (ArrayDeque<Window> windows) {
-		double cost_within = 0;
-		double cost_across = 0;
-		int v = 0;
-		// Memory cost within and across partitions
-		if (partitions.size()==1) {
-			cost_across = partitions.get(0).vertexNumber;
+	 * ignoring the memory cost of graph storage 
+	 * @param algorithm: 1 for M-CET, 2 for T-CET, 3 for H-CET ***/
+	public double getMEMcost (ArrayDeque<Window> windows, int algorithm) {
+		
+		if (algorithm == 1) { /*** M-CET ***/
+			int vertex_number = partitions.get(0).vertexNumber;
+			return vertex_number;
 		} else {
+		if (algorithm == 2) { /*** T-CET ***/
+			int vertex_number = partitions.get(0).vertexNumber;
+			return Math.pow(3, vertex_number/new Double(3)) * vertex_number;
+		} else { /*** H-CET ***/
+			double cost_within = 0;			
+			int v = 0;
+			// Memory cost within partitions
 			for (Partition part : partitions) {
 				cost_within += part.getMEMcost(windows);
 				v += part.vertexNumber;
 			}
-			cost_across = v;
-		}		
-		return cost_within + cost_across;
+			// Memory cost across partitions
+			double cost_across = v;					
+			return cost_within + cost_across;
+		}}		
 	}
 	
 	/*** Get children of this partitioning by splitting a partition in each child ***/
@@ -185,11 +203,11 @@ public class Partitioning {
 		return children;
 	}
 	
-	public String toString(ArrayDeque<Window> windows) {
+	public String toString(ArrayDeque<Window> windows, int algorithm) {
 		String s = 
 				"Partition number: " + partitions.size() +
-				" CPU: " + getCPUcost(windows) + 
-				" MEM: " + getMEMcost(windows) + "\n";
+				" CPU: " + getCPUcost(windows,algorithm) + 
+				" MEM: " + getMEMcost(windows,algorithm) + "\n";
 		for (Partition p : partitions) {
 			s += p.toString() + "\n";
 		}

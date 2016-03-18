@@ -62,7 +62,7 @@ public class Partition extends Graph {
 	 
 	/*** Get CPU cost of this partition ***/
 	public double getCPUcost (ArrayDeque<Window> windows) {
-		double cost = edgeNumber + Math.pow(3, Math.floor(vertexNumber/3));		
+		double cost = edgeNumber + Math.pow(3, vertexNumber/new Double(3));		
 		int windowNumber = getSharingWindowNumber(windows);
 		double final_cost = (windowNumber>1) ? cost/windowNumber : cost;
 		return final_cost;
@@ -70,7 +70,7 @@ public class Partition extends Graph {
 	
 	/*** Get memory cost of this partition ***/
 	public double getMEMcost (ArrayDeque<Window> windows) {
-		double cost = vertexNumber * Math.pow(3, Math.floor(vertexNumber/3)); 		
+		double cost = vertexNumber * Math.pow(3, Math.floor(vertexNumber/new Double(3))); 		
 		int windowNumber = getSharingWindowNumber(windows);
 		double final_cost = (windowNumber>1) ? cost/windowNumber : cost;
 		return final_cost;

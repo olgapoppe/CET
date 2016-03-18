@@ -14,7 +14,8 @@ public class Gre_minPartitions extends Partitioner {
 		
 		// Set local variables
 		Partitioning solution = temp;
-		double minCPU = temp.getCPUcost(windows);
+		int algorithm = 1;
+		double minCPU = temp.getCPUcost(windows,algorithm);
 		int maxChildrenNumber = 0;
 		//System.out.println("Best so far: " + solution.toString());
 		
@@ -29,15 +30,16 @@ public class Gre_minPartitions extends Partitioner {
 			
 			temp = null;
 			for (Partitioning child : children) {
-				double child_cpu = child.getCPUcost(windows);
-				double child_mem = child.getMEMcost(windows);
+				double child_cpu = child.getCPUcost(windows,algorithm);
+				double child_mem = child.getMEMcost(windows,algorithm);
 				if (minCPU > child_cpu && child_mem <= memory_limit) {
 					minCPU = child_cpu;
 					solution = child;
 					temp = child;
 					//System.out.println("Best so far: " + solution.toString());
 				}
-			}			
+			}
+			algorithm = 3;
 		}
 		System.out.println("Max children number: " + maxChildrenNumber);
 		return solution;		

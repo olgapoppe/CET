@@ -23,6 +23,7 @@ public class Exh_maxPartition extends Partitioner {
 		ArrayList<Integer> memCosts = new ArrayList<Integer>();
 		int maxHeapSize = 0;
 		int considered_count = 0;
+		int algorithm = 2;
 			
 		LinkedList<Partitioning> heap = new LinkedList<Partitioning>();
 		heap.add(root);		
@@ -31,8 +32,8 @@ public class Exh_maxPartition extends Partitioner {
 			
 			// Get the next node to process
 			Partitioning temp = heap.poll();			
-			double temp_cpu = temp.getCPUcost(windows);
-			double temp_mem = temp.getMEMcost(windows);
+			double temp_cpu = temp.getCPUcost(windows,algorithm);
+			double temp_mem = temp.getMEMcost(windows,algorithm);
 			memCosts.add(new Double(temp_mem).intValue());
 			considered_count++;
 			
@@ -51,7 +52,8 @@ public class Exh_maxPartition extends Partitioner {
 				if (!heap.contains(child)) heap.add(child); 
 			} 
 			// Update max heap size
-			if (maxHeapSize < heap.size()) maxHeapSize = heap.size();			
+			if (maxHeapSize < heap.size()) maxHeapSize = heap.size();
+			algorithm = 3;
 		}
 		// Compute median memory cost
 		int length = memCosts.size();

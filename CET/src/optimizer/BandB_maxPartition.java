@@ -23,6 +23,7 @@ public class BandB_maxPartition extends Partitioner {
 		double minCPU = Double.MAX_VALUE;		
 		int maxHeapSize = 0;
 		int considered_count = 0;
+		int algorithm = 2;
 			
 		LinkedList<Partitioning> heap = new LinkedList<Partitioning>();
 		heap.add(root);		
@@ -32,8 +33,8 @@ public class BandB_maxPartition extends Partitioner {
 			// Get the next node to process, its costs and children 
 			Partitioning temp = heap.poll();			
 			if (pruned.containsKey(temp.id)) continue;
-			double temp_cpu = temp.getCPUcost(windows);
-			double temp_mem = temp.getMEMcost(windows);
+			double temp_cpu = temp.getCPUcost(windows, algorithm);
+			double temp_mem = temp.getMEMcost(windows, algorithm);
 			
 			ArrayList<Partitioning> children = temp.getChildrenBySplitting();
 			
@@ -62,6 +63,7 @@ public class BandB_maxPartition extends Partitioner {
 					pruned.put(child.id, 1);
 				}
 			}
+			algorithm = 3;
 		}
 		System.out.println("Max heap size: " + maxHeapSize + 
 				"\nConsidered: " + considered_count);	

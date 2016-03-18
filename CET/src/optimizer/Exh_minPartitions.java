@@ -22,6 +22,7 @@ public class Exh_minPartitions extends Partitioner {
 		double minCPU = Integer.MAX_VALUE;
 		ArrayList<Integer> memCosts = new ArrayList<Integer>();
 		int maxHeapSize = 0;
+		int algorithm = 1;
 				
 		LinkedList<Partitioning> heap = new LinkedList<Partitioning>();
 		heap.add(root);
@@ -30,8 +31,8 @@ public class Exh_minPartitions extends Partitioner {
 			
 			// Get current node, compute its costs and store its memory cost
 			Partitioning temp = heap.poll();
-			double temp_cpu = temp.getCPUcost(windows);
-			double temp_mem = temp.getMEMcost(windows);
+			double temp_cpu = temp.getCPUcost(windows,algorithm);
+			double temp_mem = temp.getMEMcost(windows,algorithm);
 			memCosts.add(new Double(temp_mem).intValue());
 			
 			//System.out.println("Considered: " + temp.toString());
@@ -50,6 +51,7 @@ public class Exh_minPartitions extends Partitioner {
 			}
 			// Update max heap size
 			if (maxHeapSize < heap.size()) maxHeapSize = heap.size();
+			algorithm = 3;
 		}
 		// Compute median memory cost
 		int length = memCosts.size();
