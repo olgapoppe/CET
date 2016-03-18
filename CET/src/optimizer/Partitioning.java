@@ -102,15 +102,18 @@ public class Partitioning {
 	 * ignoring the memory cost of graph storage ***/
 	public double getMEMcost (ArrayDeque<Window> windows) {
 		double cost_within = 0;
+		double cost_across = 0;
 		int v = 0;
-		// Memory cost within partitions
-		for (Partition part : partitions) {
-			cost_within += part.getMEMcost(windows);
-			v += part.vertexNumber;
-		}
-		// Memory cost across partitions
-		int k = partitions.size();
-		double cost_across = (k==1) ? 0 : v;
+		// Memory cost within and across partitions
+		if (partitions.size()==1) {
+			cost_across = partitions.get(0).vertexNumber;
+		} else {
+			for (Partition part : partitions) {
+				cost_within += part.getMEMcost(windows);
+				v += part.vertexNumber;
+			}
+			cost_across = v;
+		}		
 		return cost_within + cost_across;
 	}
 	
