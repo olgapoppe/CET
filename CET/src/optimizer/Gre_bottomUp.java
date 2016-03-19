@@ -4,13 +4,13 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import event.Window;
 
-public class Gre_minPartitions extends Partitioner {	
+public class Gre_bottomUp extends Partitioner {	
 	
-	public Gre_minPartitions (ArrayDeque<Window> w) {
+	public Gre_bottomUp (ArrayDeque<Window> w) {
 		super(w);
 	}
 	
-	public Partitioning getPartitioning (Partitioning temp, int memory_limit, int bin_number, int bin_size) {
+	public Partitioning getPartitioning (Partitioning temp, double memory_limit, int bin_number, int bin_size) {
 		
 		// Set local variables
 		Partitioning solution = temp;

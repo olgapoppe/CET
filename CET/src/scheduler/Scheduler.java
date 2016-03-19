@@ -17,7 +17,7 @@ public class Scheduler implements Runnable {
 	int window_slide;
 	ArrayDeque<Window> windows;
 	int algorithm;
-	int memory_limit;
+	double memory_limit;
 	int part_num;
 	int search_algorithm;
 		
@@ -33,7 +33,7 @@ public class Scheduler implements Runnable {
 	
 	SharedPartitions shared_partitions;
 	
-	public Scheduler (EventQueue eq, int last, int wl, int ws, int a, int ml, int pn, int sa, 
+	public Scheduler (EventQueue eq, int last, int wl, int ws, int a, double ml, int pn, int sa, 
 			ExecutorService exe, AtomicInteger dp, CountDownLatch d, AtomicLong pT, AtomicInteger mMPW, OutputFileGenerator o) {	
 		
 		eventqueue = eq;

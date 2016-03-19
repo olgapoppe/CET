@@ -3,27 +3,28 @@ package optimizer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import event.*;
 
-import event.Window;
-import graph.*;
-
-public class BandB_minPartitions extends Partitioner {	
+public class BnB_bottomUp extends Partitioner {	
 	
-	public BandB_minPartitions (ArrayDeque<Window> w) {
+	ArrayList<Event> events;
+	
+	public BnB_bottomUp (ArrayDeque<Window> w, ArrayList<Event> e) {
 		super(w);
+		events = e;
 	}
 	
-	public Partitioning getPartitioning (Partitioning root, int memory_limit, int bin_number, int bin_size) {
+	public Partitioning getPartitioning (Partitioning root, double memory_limit, int bin_number, int bin_size) {
 		
-		// Set local variables
-		Partitioning solution = new Partitioning(new ArrayList<Partition>());
-		
-		double minCPU = Integer.MAX_VALUE;
+		// M-CET in the non-partitioned graph root
+		Partitioning solution = root;		
+		double minCPU = root.getCPUcost(windows,1);
 		int maxHeapSize = 0;
-		int algorithm = 1;
 		
+		// H-CET in the partitioned graph starting from min_partitions
+		Partitioning min_partitions = Partitioning.getPartitioningWithMinPartitions(events);						
 		LinkedList<Partitioning> heap = new LinkedList<Partitioning>();
-		heap.add(root);
+		heap.add(min_partitions);
 		
 		int pruning_1_count = 0;
 		int pruning_2_count = 0;
@@ -34,13 +35,14 @@ public class BandB_minPartitions extends Partitioner {
 			
 			// Get current node and compute its costs 
 			Partitioning temp = heap.poll();			
-			double temp_cpu = temp.getCPUcost(windows,algorithm);
+			double temp_cpu = temp.getCPUcost(windows,3);
+			double temp_mem = temp.getMEMcost(windows,3);
 			considered_count++;
-			
+						
 			//System.out.println("Considered: " + temp.toString());
 			
 			// Update the best solution seen so far
-			if (minCPU > temp_cpu) {
+			if (minCPU > temp_cpu && temp_mem <= memory_limit) {
 				minCPU = temp_cpu;
 				solution = temp;
 				improved_count++;
@@ -50,8 +52,8 @@ public class BandB_minPartitions extends Partitioner {
 			// Add children to the heap and store their memory cost
 			ArrayList<Partitioning> children = temp.getChildrenByMerging();
 			for (Partitioning child : children) {
-				double child_mem = child.getMEMcost(windows,algorithm);
-				double child_cpu = child.getCPUcost(windows,algorithm);
+				double child_mem = child.getMEMcost(windows,3);
+				double child_cpu = child.getCPUcost(windows,3);
 				
 				if  (child_mem > memory_limit) pruning_1_count++;
 				if  (child_cpu > minCPU) pruning_2_count++;
@@ -61,14 +63,14 @@ public class BandB_minPartitions extends Partitioner {
 				}
 			}
 			// Update max heap size
-			if (maxHeapSize < heap.size()) maxHeapSize = heap.size();
-			algorithm = 3;
+			if (maxHeapSize < heap.size()) maxHeapSize = heap.size();			
 		}
 		System.out.println("Max heap size: " + maxHeapSize + 
 				"\nPruning 1: " + pruning_1_count + 
 				"\nPruning 2: " + pruning_2_count + 
 				"\nConsidered: " + considered_count +
-				"\nImproved: " + improved_count);		
+				"\nImproved: " + improved_count);				
+		
 		return solution;		
 	}
 }

@@ -38,7 +38,7 @@ public class Main {
 		int window_length = 0;
 		int window_slide = 0;	
 		int algorithm = 4;
-		int memory_limit = Integer.MAX_VALUE;
+		double memory_limit = Double.MAX_VALUE;
 		int part_num = 1;
 		int search_algorithm = 1;
 				
@@ -51,7 +51,7 @@ public class Main {
 			if (args[i].equals("-wl")) 			window_length = Integer.parseInt(args[++i]);
 			if (args[i].equals("-ws")) 			window_slide = Integer.parseInt(args[++i]);
 			if (args[i].equals("-algo")) 		algorithm = Integer.parseInt(args[++i]);
-			if (args[i].equals("-mem")) 		memory_limit = Integer.parseInt(args[++i]);
+			if (args[i].equals("-mem")) 		memory_limit = Double.parseDouble(args[++i]);
 			if (args[i].equals("-part")) 		part_num = Integer.parseInt(args[++i]);
 			if (args[i].equals("-search")) 		search_algorithm = Integer.parseInt(args[++i]);
 		}

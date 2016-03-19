@@ -8,13 +8,13 @@ import java.util.LinkedList;
 import event.Window;
 import graph.*;
 
-public class Exh_minPartitions extends Partitioner {
+public class Exh_bottomUp extends Partitioner {
 	
-	public Exh_minPartitions (ArrayDeque<Window> w) {
+	public Exh_bottomUp (ArrayDeque<Window> w) {
 		super(w);
 	}
 	
-	public Partitioning getPartitioning (Partitioning root, int memory_limit, int bin_number, int bin_size) {
+	public Partitioning getPartitioning (Partitioning root, double memory_limit, int bin_number, int bin_size) {
 		
 		// Set local variables
 		Partitioning solution = new Partitioning(new ArrayList<Partition>());

@@ -8,13 +8,13 @@ import java.util.LinkedList;
 import event.Window;
 import graph.*;
 
-public class BandB_maxPartition extends Partitioner {	
+public class BnB_topDowm extends Partitioner {	
 	
-	public BandB_maxPartition (ArrayDeque<Window> w) {
+	public BnB_topDowm (ArrayDeque<Window> w) {
 		super(w);
 	}
 	
-	public Partitioning getPartitioning (Partitioning root, int memory_limit, int bin_number, int bin_size) {
+	public Partitioning getPartitioning (Partitioning root, double memory_limit, int bin_number, int bin_size) {
 		
 		// Set local variables
 		Partitioning solution = new Partitioning(new ArrayList<Partition>());

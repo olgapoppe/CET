@@ -11,7 +11,7 @@ public class BalancedPartitions extends Partitioner {
 		super(w);
 	}
 		
-	public Partitioning getPartitioning (Partitioning min_partitioning, int memory_limit, int bin_number, int bin_size) {
+	public Partitioning getPartitioning (Partitioning min_partitioning, double memory_limit, int bin_number, int bin_size) {
 		
 		if (min_partitioning.partitions.size() == 1) {
 			return min_partitioning;

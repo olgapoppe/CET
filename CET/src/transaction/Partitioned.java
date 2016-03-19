@@ -18,7 +18,7 @@ import optimizer.*;
 public class Partitioned extends Transaction {
 	
 	Partitioning resulting_partitioning;
-	int memory_limit;
+	double memory_limit;
 	int part_num;
 	int search_algorithm;
 	ArrayDeque<Window> windows;
@@ -26,7 +26,7 @@ public class Partitioned extends Transaction {
 	SharedPartitions shared_trends;
 	ArrayList<String> results;
 	
-	public Partitioned (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW, int ml, int pn, int sa, ArrayDeque<Window> ws, Window w, SharedPartitions sp) {
+	public Partitioned (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW, double ml, int pn, int sa, ArrayDeque<Window> ws, Window w, SharedPartitions sp) {
 		super(b,o,tn,pT,mMPW);	
 		memory_limit = ml;
 		part_num = pn;
@@ -63,13 +63,12 @@ public class Partitioned extends Transaction {
 		Partitioner partitioner;		
 		if (search_algorithm==1) { /*** B&B ***/
 			
+			input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
 			if (top_down) {
-				input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);							
-				partitioner = new BandB_maxPartition(windows);
+				partitioner = new BnB_topDowm(windows);
 				algorithm = 2;
 			} else {
-				input_partitioning = Partitioning.getPartitioningWithMinPartitions(batch);							
-				partitioner = new BandB_minPartitions(windows);	
+				partitioner = new BnB_bottomUp(windows,batch);	
 				algorithm = 1;
 			}			
 		} else { /*** BalPart Heuristic ***/
@@ -149,16 +148,16 @@ public class Partitioned extends Transaction {
 	}
 	
 	/*** Get minimal number of required partitions walking the search space top down ***/
-	public int getMinNumberOfRequiredPartitions_walkDown(int event_number, int number_of_min_partitions, int memory_limit) {	
+	public int getMinNumberOfRequiredPartitions_walkDown(int event_number, int number_of_min_partitions, double memory_limit) {	
 		
 		// Find the minimal number of required partitions (T-CET, H-CET)
 		for (int partition_number=1; partition_number<=number_of_min_partitions; partition_number++) {	
 			int algorithm = (partition_number==1) ? 2 : 3;
-			double ideal_memory = getIdealMEMcost(event_number,partition_number, algorithm);
+			double ideal_memory = getIdealMEMcost(event_number,partition_number,algorithm);
 						
 			System.out.println("k=" + partition_number + " mem=" + ideal_memory);
 			
-			if (ideal_memory <= memory_limit) return partition_number;
+			if (ideal_memory <= memory_limit) return partition_number;  
 		}	
 		// Each event is in a separate partition (M-CET)
 		if (event_number <= memory_limit) return event_number;
@@ -168,9 +167,9 @@ public class Partitioned extends Transaction {
 	}
 	
 	/*** Get minimal number of required partitions walking the search space bottom up ***/
-	public int getMinNumberOfRequiredPartitions_walkUp(int event_number, int number_of_min_partitions, int memory_limit) {	
+	public int getMinNumberOfRequiredPartitions_walkUp(int event_number, int number_of_min_partitions, double memory_limit) {	
 		
-		// Partitioning does not reduce the memory enough
+		// Partitioning does not reduce the memory enough zz
 		int result = -1;
 		
 		// Each event is in a separate partition (M-CET)

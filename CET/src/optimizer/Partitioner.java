@@ -11,5 +11,5 @@ public abstract class Partitioner {
 		 windows = w;
 	 }
 	
-	 abstract public Partitioning getPartitioning (Partitioning root, int memeory_limit, int bin_number, int bin_size);	
+	 abstract public Partitioning getPartitioning (Partitioning root, double memeory_limit, int bin_number, int bin_size);	
 }
