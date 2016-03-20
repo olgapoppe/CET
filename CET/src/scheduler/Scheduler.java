@@ -132,12 +132,12 @@ public class Scheduler implements Runnable {
 			transaction = new BaseLine(window.events,output,transaction_number,processingTime,maxMemoryPerWindow);		
 		} else {
 		if (algorithm == 2) {
-			transaction = new NonDynamic(window.events,output,transaction_number,processingTime,maxMemoryPerWindow);
+			transaction = new M_CET(window.events,output,transaction_number,processingTime,maxMemoryPerWindow);
 		} else {
 		if (algorithm == 3) {
-			transaction = new Dynamic(window.events,output,transaction_number,processingTime,maxMemoryPerWindow);
+			transaction = new T_CET(window.events,output,transaction_number,processingTime,maxMemoryPerWindow);
 		} else {
-			transaction = new Partitioned(window.events,output,transaction_number,processingTime,maxMemoryPerWindow,memory_limit,part_num,search_algorithm,windows,window,shared_partitions);
+			transaction = new H_CET(window.events,output,transaction_number,processingTime,maxMemoryPerWindow,memory_limit,part_num,search_algorithm,windows,window,shared_partitions);
 		}}}
 		executor.execute(transaction);	
 	}	

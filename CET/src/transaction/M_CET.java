@@ -13,13 +13,13 @@ import java.util.concurrent.atomic.AtomicLong;
 import event.Event;
 import graph.*;
 
-public class NonDynamic extends Transaction {
+public class M_CET extends Transaction {
 	
 	Graph graph;
 	// A result is a string of comma separated event ids
 	ArrayList<String> results;
 	
-	public NonDynamic (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW) {
+	public M_CET (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW) {
 		super(b,o,tn,pT,mMPW);	
 		results = new ArrayList<String>();
 	}

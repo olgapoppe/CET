@@ -9,11 +9,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import event.*;
 import graph.*;
 
-public class Dynamic extends Transaction {
+public class T_CET extends Transaction {
 	
 	Graph graph;
 	
-	public Dynamic (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW) {
+	public T_CET (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW) {
 		super(b,o,tn,pT,mMPW);			
 	}
 	

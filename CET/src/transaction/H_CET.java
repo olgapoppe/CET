@@ -15,7 +15,7 @@ import event.*;
 import graph.*;
 import optimizer.*;
 
-public class Partitioned extends Transaction {
+public class H_CET extends Transaction {
 	
 	Partitioning resulting_partitioning;
 	double memory_limit;
@@ -26,7 +26,7 @@ public class Partitioned extends Transaction {
 	SharedPartitions shared_trends;
 	ArrayList<String> results;
 	
-	public Partitioned (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW, double ml, int pn, int sa, ArrayDeque<Window> ws, Window w, SharedPartitions sp) {
+	public H_CET (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW, double ml, int pn, int sa, ArrayDeque<Window> ws, Window w, SharedPartitions sp) {
 		super(b,o,tn,pT,mMPW);	
 		memory_limit = ml;
 		part_num = pn;
@@ -39,7 +39,7 @@ public class Partitioned extends Transaction {
 
 	public void run() {	
 		
-		long start =  System.currentTimeMillis();
+		//long start =  System.currentTimeMillis();
 		
 		/*** Get the ideal memory in the middle of the search space 
 		 * to decide from where to start the search: from the top or from the bottom ***/
@@ -51,6 +51,8 @@ public class Partitioned extends Transaction {
 				number_of_min_partitions++;
 		}}		
 		int event_number = batch.size();
+		int edge_number = Graph.constructGraph(batch).edgeNumber;
+		int size_of_the_graph = event_number + edge_number;
 		double ideal_memory_in_the_middle = getIdealMEMcost(event_number, number_of_min_partitions/2, 3);
 		boolean top_down = (memory_limit > ideal_memory_in_the_middle);		
 		System.out.println("Top down: " + top_down);
@@ -68,8 +70,10 @@ public class Partitioned extends Transaction {
 				partitioner = new BnB_topDowm(windows);
 				algorithm = 2;
 			} else {
-				partitioner = new BnB_bottomUp(windows,batch);	
-				algorithm = 1;
+				partitioner = new BnB_bottomUp(windows,batch);
+				Partitioning min_partitions = Partitioning.getPartitioningWithMinPartitions(batch);
+				double mem_min_part = min_partitions.getMEMcost(windows,3);
+				algorithm = (mem_min_part > memory_limit) ? 1 : 3;
 			}			
 		} else { /*** BalPart Heuristic ***/
 						 
@@ -97,35 +101,37 @@ public class Partitioned extends Transaction {
 		resulting_partitioning = partitioner.getPartitioning(input_partitioning, memory_limit, bin_number, bin_size);
 		System.out.println("Result: " + resulting_partitioning.toString(windows,algorithm));
 		
-		/*if (!optimal_partitioning.partitions.isEmpty()) {*/
+		if (!resulting_partitioning.partitions.isEmpty()) {
 			
-		/*** Compute results per partition ***//*
-		int cets_within_partitions = 0;
-		for (Partition partition : optimal_partitioning.partitions) {	
+			long start =  System.currentTimeMillis();
 			
-			//if (partition.isShared(windows)) System.out.println("Shared partition: " + partition.toString());
+			/*** Compute results per partition ***/
+			int cets_within_partitions = 0;
+			for (Partition partition : resulting_partitioning.partitions) {	
 			
-			for (Node first_node : partition.first_nodes) { first_node.isFirst = true; }
-			Dynamic.computeResults(partition.last_nodes);
-			cets_within_partitions += partition.getCETlength();			
-		}		
+				//if (partition.isShared(windows)) System.out.println("Shared partition: " + partition.toString());
+			
+				for (Node first_node : partition.first_nodes) { first_node.isFirst = true; }
+				T_CET.computeResults(partition.last_nodes);
+				cets_within_partitions += partition.getCETlength();			
+			}		
 		
-		*//*** Compute results across partition ***//*
-		int max_cet_across_partitions = 0;
-		for (Node first_node : optimal_partitioning.partitions.get(0).first_nodes) {
+			/*** Compute results across partition ***/
+			int max_cet_across_partitions = 0;
+			for (Node first_node : resulting_partitioning.partitions.get(0).first_nodes) {
 				
-			for (EventTrend event_trend : first_node.results) {				
-				int length = computeResults(event_trend, new Stack<EventTrend>(), max_cet_across_partitions);				
-				if (max_cet_across_partitions < length) max_cet_across_partitions = length;		
-		}}*/			
-				
-		long end =  System.currentTimeMillis();
-		long processingDuration = end - start;
-		processingTime.set(processingTime.get() + processingDuration);
+				for (EventTrend event_trend : first_node.results) {				
+					int length = computeResults(event_trend, new Stack<EventTrend>(), max_cet_across_partitions);				
+					if (max_cet_across_partitions < length) max_cet_across_partitions = length;		
+			}}
 		
-		//int memory = size_of_the_graph + cets_within_partitions + max_cet_across_partitions;
-		//writeOutput2File(memory);
-		//}
+			long end =  System.currentTimeMillis();
+			long processingDuration = end - start;
+			processingTime.set(processingTime.get() + processingDuration);
+		
+			int memory = size_of_the_graph + cets_within_partitions + max_cet_across_partitions;
+			writeOutput2File(memory);
+		}
 		transaction_number.countDown();		
 	}
 	
