@@ -71,9 +71,7 @@ public class H_CET extends Transaction {
 				algorithm = 2;
 			} else {
 				partitioner = new BnB_bottomUp(windows,batch);
-				Partitioning min_partitions = Partitioning.getPartitioningWithMinPartitions(batch);
-				double mem_min_part = min_partitions.getMEMcost(windows,3);
-				algorithm = (mem_min_part > memory_limit) ? 1 : 3;
+				algorithm = 3; // 1 or 3
 			}			
 		} else { /*** BalPart Heuristic ***/
 						 
@@ -99,7 +97,7 @@ public class H_CET extends Transaction {
 		}	
 		System.out.println("Input: " + input_partitioning.toString(windows,algorithm));
 		resulting_partitioning = partitioner.getPartitioning(input_partitioning, memory_limit, bin_number, bin_size);
-		System.out.println("Result: " + resulting_partitioning.toString(windows,algorithm));
+		System.out.println("Result: " + resulting_partitioning.toString(windows,algorithm)); // 1 or 3
 		
 		if (!resulting_partitioning.partitions.isEmpty()) {
 			

@@ -51,7 +51,7 @@ public class T_CET extends Transaction {
 			* append this previous node to each copied result ***/
 			if (!this_node.isFirst) {			
 				
-				System.out.println(this_node.event.id + ": " + this_node.previous.toString());
+				// System.out.println(this_node.event.id + ": " + this_node.previous.toString());
 				
 				for (Node next_node : this_node.previous) {
 				
@@ -69,9 +69,9 @@ public class T_CET extends Transaction {
 				}
 				// Delete intermediate results
 				this_node.results.clear();
-			} else {
+			} /*else {
 				System.out.println(this_node.toString() + ": " + this_node.resultsToString());
-			}
+			}*/
 		}
 				
 		// Call this method recursively

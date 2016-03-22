@@ -30,8 +30,8 @@ public class Node {
 	}
 	
 	public void connect (Node other) {
-		this.following.add(other);
-		other.previous.add(this);
+		if (!this.following.contains(other)) this.following.add(other);
+		if (!other.previous.contains(this)) other.previous.add(this);
 	}	
 	
 	public int printResults(OutputFileGenerator output) {
