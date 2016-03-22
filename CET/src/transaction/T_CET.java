@@ -50,6 +50,9 @@ public class T_CET extends Transaction {
 			/*** Recursive case: Copy results from the current node to its previous node and  
 			* append this previous node to each copied result ***/
 			if (!this_node.isFirst) {			
+				
+				System.out.println(this_node.event.id + ": " + this_node.previous.toString());
+				
 				for (Node next_node : this_node.previous) {
 				
 					for (EventTrend old_trend : this_node.results) {
@@ -66,9 +69,9 @@ public class T_CET extends Transaction {
 				}
 				// Delete intermediate results
 				this_node.results.clear();
-			} /*else {
+			} else {
 				System.out.println(this_node.toString() + ": " + this_node.resultsToString());
-			}*/
+			}
 		}
 				
 		// Call this method recursively

@@ -8,9 +8,9 @@ import java.util.LinkedList;
 import event.Window;
 import graph.*;
 
-public class BnB_topDowm extends Partitioner {	
+public class BnB_topDown extends Partitioner {	
 	
-	public BnB_topDowm (ArrayDeque<Window> w) {
+	public BnB_topDown (ArrayDeque<Window> w) {
 		super(w);
 	}
 	

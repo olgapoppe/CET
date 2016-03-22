@@ -67,7 +67,7 @@ public class H_CET extends Transaction {
 			
 			input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
 			if (top_down) {
-				partitioner = new BnB_topDowm(windows);
+				partitioner = new BnB_topDown(windows);
 				algorithm = 2;
 			} else {
 				partitioner = new BnB_bottomUp(windows,batch);

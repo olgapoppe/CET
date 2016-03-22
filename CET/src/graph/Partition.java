@@ -35,8 +35,10 @@ public class Partition extends Graph {
 		for (Event e : batch) {
 			Node n = new Node(e);
 			nodes.add(n);
-		}
-		return new Partition (sec, sec, batch.size(), 0, nodes, nodes);
+		} 
+		Partition result = new Partition (sec, sec, batch.size(), 0, nodes, nodes);
+		result.nodes = nodes;
+		return result;
 	}
 	
 	public int getSharingWindowNumber (ArrayDeque<Window> windows) {
@@ -149,21 +151,29 @@ public class Partition extends Graph {
 	/*** Merge two input partitions and return the resulting partition ***/
 	public Partition merge (Partition other) {		
 		
-		// Connect each vertex in this partition to each vertex in other partition
-		for (Node node1 : this.nodes) {
-			for (Node node2 : other.nodes) {
-				node1.connect(node2);
-			}
-		}				
+		// Connect a last vertex in this partition to a first vertex in other partition
+		for (Node node1 : this.last_nodes) {
+			for (Node node2 : other.first_nodes) {
+				node1.connect(node2);			
+		}}				
 		// Create a merged partition
 		int start = this.start;
 		int end = other.end;
 		int vertexes = this.vertexNumber + other.vertexNumber;
 		int cut_edges = this.last_nodes.size() * other.first_nodes.size();
 		int edges = this.edgeNumber + other.edgeNumber + cut_edges;
-		ArrayList<Node> first = this.first_nodes;
+		ArrayList<Node> first = (!this.first_nodes.isEmpty()) ? this.first_nodes : other.first_nodes;
 		ArrayList<Node> last = other.last_nodes;
-		return new Partition(start,end,vertexes,edges,first,last);
+		Partition result = new Partition(start,end,vertexes,edges,first,last);
+		
+		// Merge the nodes of both partitions
+		ArrayList<Node> merged_nodes = new ArrayList<Node>();
+		merged_nodes.addAll(this.nodes);
+		merged_nodes.addAll(other.nodes);
+		result.nodes = merged_nodes;
+		
+		// Return the resulting partition
+		return result; 
 	}
 	
 	public String toString() {

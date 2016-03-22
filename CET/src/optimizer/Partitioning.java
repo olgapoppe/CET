@@ -79,7 +79,7 @@ public class Partitioning {
 		}
 		Partitioning rootPartitioning = new Partitioning(parts);
 		System.out.println(rootPartitioning.partitions.size() + " minimal partitions.");
-		return rootPartitioning;		
+		return rootPartitioning;			
 	}
 	
 	/*** Get CPU cost of this partitioning 

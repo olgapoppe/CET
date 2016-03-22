@@ -27,14 +27,21 @@ public class BalancedPartitions extends Partitioner {
 				current_vertex_number += min_partition.vertexNumber;
 			
 				if (current_vertex_number <= bin_size) {
+					
 					// Merge with the current partition
 					current_partition = current_partition.merge(min_partition);
 				} else {
 					// Add previous partition to the result
 					partitions.add(current_partition);
+					
+					// Create edges across partitions
+					for (Node node1 : current_partition.last_nodes) {
+						for (Node node2 : min_partition.first_nodes) {
+							node1.connect(node2);			
+					}}					
 					// Create new partition, add min partition to it
 					current_partition = min_partition;
-					current_vertex_number = min_partition.vertexNumber;
+					current_vertex_number = min_partition.vertexNumber;					
 			}}	
 			// Add last partition and return the result
 			partitions.add(current_partition);				
