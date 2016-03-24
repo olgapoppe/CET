@@ -39,7 +39,7 @@ public class H_CET extends Transaction {
 
 	public void run() {	
 		
-		//long start =  System.currentTimeMillis();
+		long start =  System.currentTimeMillis();
 		
 		/*** Get the ideal memory in the middle of the search space 
 		 * to decide from where to start the search: from the top or from the bottom ***/
@@ -93,17 +93,19 @@ public class H_CET extends Transaction {
 				input_partitioning = Partitioning.getPartitioningWithMinPartitions(batch);
 				algorithm = 3; 
 			}}			
-			partitioner = new BalancedPartitions(windows);			
+			partitioner = new RandomRoughlyBalancedPartitioning(windows);			
 		}	
 		System.out.println("Input: " + input_partitioning.toString(windows,algorithm));
 		resulting_partitioning = partitioner.getPartitioning(input_partitioning, memory_limit, bin_number, bin_size);
 		System.out.println("Result: " + resulting_partitioning.toString(windows,algorithm)); // 1 or 3
 		
-		if (!resulting_partitioning.partitions.isEmpty()) {
+		// The case where the 1st algorithm is called is missing
+		
+		/*if (!resulting_partitioning.partitions.isEmpty()) {
 			
 			long start =  System.currentTimeMillis();
 			
-			/*** Compute results per partition ***/
+			*//*** Compute results per partition ***//*
 			int cets_within_partitions = 0;
 			for (Partition partition : resulting_partitioning.partitions) {	
 			
@@ -114,22 +116,22 @@ public class H_CET extends Transaction {
 				cets_within_partitions += partition.getCETlength();			
 			}		
 		
-			/*** Compute results across partition ***/
+			*//*** Compute results across partition ***//*
 			int max_cet_across_partitions = 0;
 			for (Node first_node : resulting_partitioning.partitions.get(0).first_nodes) {
 				
 				for (EventTrend event_trend : first_node.results) {				
 					int length = computeResults(event_trend, new Stack<EventTrend>(), max_cet_across_partitions);				
 					if (max_cet_across_partitions < length) max_cet_across_partitions = length;		
-			}}
+			}}*/
 		
 			long end =  System.currentTimeMillis();
 			long processingDuration = end - start;
 			processingTime.set(processingTime.get() + processingDuration);
 		
-			int memory = size_of_the_graph + cets_within_partitions + max_cet_across_partitions;
+			/*int memory = size_of_the_graph + cets_within_partitions + max_cet_across_partitions;
 			writeOutput2File(memory);
-		}
+		}*/
 		transaction_number.countDown();		
 	}
 	

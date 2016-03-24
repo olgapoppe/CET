@@ -70,8 +70,7 @@ public class Partitioning {
 				curr_sec = event.sec;
 				batch.clear();
 				batch.add(event);
-			}			
-		}
+		}}
 		// Last partition
 		if (!batch.isEmpty()) {
 			Partition minimalPartitioning = Partition.getMinPartition(curr_sec, batch);		
