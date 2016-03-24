@@ -19,8 +19,7 @@ public class OptimalRoughlyBalancedPartitioning extends Partitioner {
 		Partitioning solution = new Partitioning(new ArrayList<Partition>());
 		double minCPU = Double.MAX_VALUE;		
 		int maxHeapSize = 0;
-		int considered_count = 0;
-							
+		int considered_count = 0;							
 		LinkedList<Partitioning> heap = new LinkedList<Partitioning>();
 								
 		while (!heap.isEmpty()) {
@@ -38,10 +37,10 @@ public class OptimalRoughlyBalancedPartitioning extends Partitioner {
 				minCPU = temp_cpu;
 			}
 			// Add children to the heap		
-			/*ArrayList<Partitioning> children = temp.getChildren(bin_number, bin_size);
+			ArrayList<Partitioning> children = temp.getChildren(bin_number, bin_size);
 			for (Partitioning child : children) {					
 				if (!heap.contains(child)) heap.add(child); 
-			}*/			
+			}			
 			// Update max heap size
 			if (maxHeapSize < heap.size()) maxHeapSize = heap.size();
 		}		

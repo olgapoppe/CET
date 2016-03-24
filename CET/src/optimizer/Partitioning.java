@@ -202,9 +202,16 @@ public class Partitioning {
 		return children;
 	}
 	
+	/*** Get children of this partitioning ***/
+	public ArrayList<Partitioning> getChildren(int bin_number, int bin_size) {
+		
+		ArrayList<Partitioning> children = new ArrayList<Partitioning>();
+		
+		return children;		
+	}
+	
 	public String toString(ArrayDeque<Window> windows, int algorithm) {
-		String s = 
-				"Partition number: " + partitions.size() +
+		String s = "Partition number: " + partitions.size() +
 				" CPU: " + getCPUcost(windows,algorithm) + 
 				" MEM: " + getMEMcost(windows,algorithm) + "\n";
 		for (Partition p : partitions) {
