@@ -73,8 +73,8 @@ public class H_CET extends Transaction {
 				partitioner = new BnB_bottomUp(windows,batch);
 				algorithm = 3; // 1 or 3
 			}			
-		} else { /*** BalPart Heuristic ***/
-						 
+		} else {
+								 
 			if (top_down) {
 				bin_number = getMinNumberOfRequiredPartitions_walkDown(event_number,number_of_min_partitions,memory_limit);
 			} else {
@@ -82,22 +82,30 @@ public class H_CET extends Transaction {
 			}
 			bin_size = (bin_number==1) ? event_number : event_number/bin_number;
 			System.out.println("Bin number: " + bin_number + "\nBin size: " + bin_size);
-			if (bin_size == 1) {
+			
+			if (search_algorithm==2) { /*** Greedy partitioning search ***/
+				if (bin_size == 1) {
+					input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
+					algorithm = 1;
+				} else {
+				if (bin_number == 1) {
+					input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
+					algorithm = 2;	
+				} else {
+					input_partitioning = Partitioning.getPartitioningWithMinPartitions(batch);
+					algorithm = 3; 
+				}}			
+				partitioner = new RandomRoughlyBalancedPartitioning(windows);
+			
+			} else { /*** Exhaustive partitioning search ***/
+			
 				input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
-				algorithm = 1;
-			} else {
-			if (bin_number == 1) {
-				input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
-				algorithm = 2;	
-			} else {
-				input_partitioning = Partitioning.getPartitioningWithMinPartitions(batch);
-				algorithm = 3; 
-			}}			
-			partitioner = new RandomRoughlyBalancedPartitioning(windows);			
-		}	
+				algorithm = 3;
+				partitioner = new OptimalRoughlyBalancedPartitioning(windows);
+		}}	
 		System.out.println("Input: " + input_partitioning.toString(windows,algorithm));
 		resulting_partitioning = partitioner.getPartitioning(input_partitioning, memory_limit, bin_number, bin_size);
-		System.out.println("Result: " + resulting_partitioning.toString(windows,algorithm)); // 1 or 3
+		System.out.println("Result: " + resulting_partitioning.toString(windows,3)); // 1 or 3
 		
 		// The case where the 1st algorithm is called is missing
 		

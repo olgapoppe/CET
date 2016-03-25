@@ -119,7 +119,8 @@ public class Partitioning {
 		} else {
 		if (algorithm == 2) { /*** T-CET ***/
 			int vertex_number = partitions.get(0).vertexNumber;
-			return Math.pow(3, vertex_number/new Double(3)) * vertex_number;
+			double exp = vertex_number/new Double(3);
+			return Math.pow(3, exp) * vertex_number;
 		} else { /*** H-CET ***/
 			double cost_within = 0;			
 			int v = 0;
@@ -203,10 +204,32 @@ public class Partitioning {
 	}
 	
 	/*** Get children of this partitioning ***/
-	public ArrayList<Partitioning> getChildren(int bin_number, int bin_size) {
+	public ArrayList<Partitioning> getChildren (int bin_number, int bin_size) {
 		
 		ArrayList<Partitioning> children = new ArrayList<Partitioning>();
+		int size = this.partitions.size();
 		
+		if (size < bin_number) {
+			
+			ArrayList<Partition> previous_partitions = new ArrayList<Partition>();
+			
+			// Copy all except the last partitions
+			for (int i=0; i<size-1; i++) {
+				previous_partitions.add(this.partitions.get(i));
+			}			
+			// Split the last partition in 2: first partition in part of final result, second partition is possibly to split
+			Partition partition2split = this.partitions.get(size-1);			
+			ArrayList<Partition> split_results = partition2split.split(bin_size);
+						
+			// Create a new child for each pair of split results
+			for (int i=0; i<split_results.size(); i=i+2) {
+				ArrayList<Partition> new_partitions = new ArrayList<Partition>();
+				new_partitions.addAll(previous_partitions);
+				new_partitions.add(split_results.get(i));
+				new_partitions.add(split_results.get(i+1));
+				Partitioning child = new Partitioning(new_partitions);
+				children.add(child);
+		}}		
 		return children;		
 	}
 	

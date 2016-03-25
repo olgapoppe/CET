@@ -2,7 +2,6 @@ package optimizer;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import event.Window;
 import graph.Partition;
@@ -13,25 +12,27 @@ public class OptimalRoughlyBalancedPartitioning extends Partitioner {
 		super(w);
 	}
 		
-	public Partitioning getPartitioning (Partitioning min_partitioning, double memory_limit, int bin_number, int bin_size) {
+	public Partitioning getPartitioning (Partitioning max_partitioning, double memory_limit, int bin_number, int bin_size) {
 		
 		// Set local variables
 		Partitioning solution = new Partitioning(new ArrayList<Partition>());
 		double minCPU = Double.MAX_VALUE;		
+		int considered_count = 0;		
+		
 		int maxHeapSize = 0;
-		int considered_count = 0;							
 		LinkedList<Partitioning> heap = new LinkedList<Partitioning>();
+		heap.add(max_partitioning);
 								
 		while (!heap.isEmpty()) {
 					
 			// Get the next node to process 
 			Partitioning temp = heap.poll();
-			//System.out.println("Considered: " + temp.toString());
+			//System.out.println("Considered: " + temp.toString(windows,3));
 			considered_count++;
 			
 			// Update solution
-			double temp_cpu = temp.getCPUcost(windows, 3);
 			double temp_mem = temp.getMEMcost(windows, 3);
+			double temp_cpu = temp.getCPUcost(windows, 3);
 			if (temp_mem <= memory_limit && temp_cpu < minCPU) {
 				solution = temp;
 				minCPU = temp_cpu;
@@ -47,7 +48,7 @@ public class OptimalRoughlyBalancedPartitioning extends Partitioner {
 		System.out.println("Max heap size: " + maxHeapSize + 
 						"\nConsidered: " + considered_count);	
 				
-		//System.out.println("Chosen: " + solution.toString()); 
+		// System.out.println("Chosen: " + solution.toString(windows,3)); 
 		return solution;
 	}
 }

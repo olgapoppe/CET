@@ -64,16 +64,18 @@ public class Partition extends Graph {
 	 
 	/*** Get CPU cost of this partition ***/
 	public double getCPUcost (ArrayDeque<Window> windows) {
-		double cost = edgeNumber + Math.pow(3, vertexNumber/new Double(3));		
-		int windowNumber = getSharingWindowNumber(windows);
+		double exp = vertexNumber/new Double(3);
+		double cost = edgeNumber + Math.pow(3, exp);		
+		int windowNumber = 1; //getSharingWindowNumber(windows);
 		double final_cost = (windowNumber>1) ? cost/windowNumber : cost;
 		return final_cost;
 	}
 	
 	/*** Get memory cost of this partition ***/
 	public double getMEMcost (ArrayDeque<Window> windows) {
-		double cost = vertexNumber * Math.pow(3, Math.floor(vertexNumber/new Double(3))); 		
-		int windowNumber = getSharingWindowNumber(windows);
+		double exp = vertexNumber/new Double(3);
+		double cost = vertexNumber * Math.pow(3, exp); 		
+		int windowNumber = 1; //getSharingWindowNumber(windows);
 		double final_cost = (windowNumber>1) ? cost/windowNumber : cost;
 		return final_cost;
 	}
@@ -84,8 +86,7 @@ public class Partition extends Graph {
 		for (Node first_node : first_nodes) {
 			for (EventTrend result : first_node.results) {
 				count += result.getEventNumber();
-			}
-		}
+		}}
 		return count;
 	}
 	
@@ -145,6 +146,66 @@ public class Partition extends Graph {
 			secOfNodes2move = nodes2move.get(0).event.sec;
 			secOfFollowingOfNodes2move = (followingOfNodes2move.isEmpty()) ? 0 : followingOfNodes2move.get(0).event.sec;
 		}		
+		return results;
+	}
+	
+	/*** Split input partition and return the resulting partitions ***/
+	public ArrayList<Partition> split (int bin_size) {
+		
+		ArrayList<Partition> results = new ArrayList<Partition>();
+		
+		// Find the time points where to cut
+		ArrayList<Node> previous_nodes = new ArrayList<Node>();
+		ArrayList<Node> current_nodes = this.first_nodes;
+		int count = current_nodes.size();
+		int prev_sec = 0;
+		int new_sec = 0;
+		int vertex_number = 0;
+		int edge_number = 0;
+		int cut_edges = 0;
+				
+		while (count<bin_size) {
+			
+			ArrayList<Node> new_current_nodes = new ArrayList<Node>();
+			for (Node current_node : current_nodes) {
+				for (Node following : current_node.following) {
+					if (!new_current_nodes.contains(following)) new_current_nodes.add(following);
+			}}
+			count += new_current_nodes.size();
+			prev_sec = current_nodes.get(0).event.sec;
+			new_sec = new_current_nodes.get(0).event.sec;
+			vertex_number += current_nodes.size();
+			edge_number += previous_nodes.size() * current_nodes.size();
+			cut_edges = current_nodes.size() * new_current_nodes.size();
+			
+			previous_nodes = current_nodes;
+			current_nodes = new_current_nodes;
+		}
+		// Cut the graph at these time points
+		// 1st pair of partitions is created 
+		Partition first = new Partition(this.start, prev_sec, vertex_number, edge_number, this.first_nodes, previous_nodes);
+		Partition second = new Partition(new_sec, this.end, this.vertexNumber-vertex_number, this.edgeNumber-edge_number-cut_edges, current_nodes, this.last_nodes);
+		results.add(first);
+		results.add(second);
+			
+		// 2nd pair of partitions is created
+		if (vertex_number<bin_size) {
+			ArrayList<Node> new_current_nodes = new ArrayList<Node>();
+			for (Node current_node : current_nodes) {
+				for (Node following : current_node.following) {
+					if (!new_current_nodes.contains(following)) new_current_nodes.add(following);				
+			}}
+			prev_sec = current_nodes.get(0).event.sec;
+			new_sec = new_current_nodes.get(0).event.sec;
+			vertex_number += current_nodes.size();
+			edge_number += previous_nodes.size() * current_nodes.size();
+			cut_edges = current_nodes.size() * new_current_nodes.size();			
+			
+			Partition third = new Partition(this.start, prev_sec, vertex_number, edge_number, this.first_nodes, current_nodes);
+			Partition forth = new Partition(new_sec, this.end, this.vertexNumber-vertex_number, this.edgeNumber-edge_number-cut_edges, new_current_nodes, this.last_nodes);
+			results.add(third);
+			results.add(forth);
+		}			
 		return results;
 	}
 	
