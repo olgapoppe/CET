@@ -25,7 +25,7 @@ public abstract class Transaction implements Runnable {
 	}	
 	
 	public int getEventNumber (String sequence) {
-		int number = 1;
+		int number = 0;
 		for (int i=0; i<sequence.length(); i++) {
 			if (sequence.substring(i,i+1).equals(";")) number++;
 		}

@@ -98,8 +98,12 @@ public class Scheduler implements Runnable {
 				/*** Poll an expired window and submit it for execution ***/
 				if (!windows2iterate.isEmpty() && windows2iterate.getFirst().expired(e)) {					
 					Window window = windows2iterate.poll();
-					System.out.println(window.toString());
-					execute(window);					
+					if (window.events.size() > 1) {
+						System.out.println(window.toString());
+						execute(window);				
+					} else {
+						transaction_number.countDown();
+					}
 				}
 				event = eventqueue.contents.peek();
 			}		 
@@ -117,8 +121,12 @@ public class Scheduler implements Runnable {
 		}
 		/*** Poll the last windows and submit them for execution ***/
 		for (Window window : windows2iterate) {
-			System.out.println(window.toString());
-			execute(window);			
+			if (window.events.size() > 1) {
+				System.out.println(window.toString());
+				execute(window);			
+			} else {
+				transaction_number.countDown();
+			}
 		}		
 		/*** Terminate ***/
 		try { transaction_number.await(); } catch (InterruptedException e) { e.printStackTrace(); }
@@ -128,6 +136,9 @@ public class Scheduler implements Runnable {
 	
 	public void execute(Window window) {
 		Transaction transaction;
+		if (algorithm == 0) {
+			transaction = new Sase(window.events,output,transaction_number,processingTime,maxMemoryPerWindow,window.id);
+		} else {
 		if (algorithm == 1) {
 			transaction = new BaseLine(window.events,output,transaction_number,processingTime,maxMemoryPerWindow);		
 		} else {
@@ -138,7 +149,7 @@ public class Scheduler implements Runnable {
 			transaction = new T_CET(window.events,output,transaction_number,processingTime,maxMemoryPerWindow);
 		} else {
 			transaction = new H_CET(window.events,output,transaction_number,processingTime,maxMemoryPerWindow,memory_limit,part_num,search_algorithm,windows,window,shared_partitions);
-		}}}
+		}}}}
 		executor.execute(transaction);	
 	}	
 }

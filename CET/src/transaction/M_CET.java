@@ -1,7 +1,6 @@
 package transaction;
 
 import iogenerator.OutputFileGenerator;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -9,7 +8,6 @@ import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
 import event.Event;
 import graph.*;
 
@@ -70,7 +68,7 @@ public class M_CET extends Transaction {
         /*** Recursive case: Traverse the following nodes. ***/        	
         	for(Node following : node.following) {        		
         		//System.out.println("following of " + node.event.id + " is " + following.event.id);
-        		computeResults(following,current_sequence,maxSeqLength);        		
+        		maxSeqLength = computeResults(following,current_sequence,maxSeqLength);        		
         	}        	
         }
         Node top = current_sequence.pop();

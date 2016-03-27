@@ -195,18 +195,17 @@ public class Partition extends Graph {
 				for (Node following : current_node.following) {
 					if (!new_current_nodes.contains(following)) new_current_nodes.add(following);				
 			}}
-			if (!new_current_nodes.isEmpty()) {
-				prev_sec = current_nodes.get(0).event.sec;
-				new_sec = new_current_nodes.get(0).event.sec;
-				vertex_number += current_nodes.size();
-				edge_number += previous_nodes.size() * current_nodes.size();
-				cut_edges = current_nodes.size() * new_current_nodes.size();			
+			prev_sec = current_nodes.get(0).event.sec;
+			new_sec = new_current_nodes.get(0).event.sec;
+			vertex_number += current_nodes.size();
+			edge_number += previous_nodes.size() * current_nodes.size();
+			cut_edges = current_nodes.size() * new_current_nodes.size();			
 			
-				Partition third = new Partition(this.start, prev_sec, vertex_number, edge_number, this.first_nodes, current_nodes);
-				Partition forth = new Partition(new_sec, this.end, this.vertexNumber-vertex_number, this.edgeNumber-edge_number-cut_edges, new_current_nodes, this.last_nodes);
-				results.add(third);
-				results.add(forth);
-		}}			
+			Partition third = new Partition(this.start, prev_sec, vertex_number, edge_number, this.first_nodes, current_nodes);
+			Partition forth = new Partition(new_sec, this.end, this.vertexNumber-vertex_number, this.edgeNumber-edge_number-cut_edges, new_current_nodes, this.last_nodes);
+			results.add(third);
+			results.add(forth);
+		}		
 		return results;
 	}
 	

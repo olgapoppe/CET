@@ -1,15 +1,21 @@
 package event;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class Event implements Comparable<Event> {
 	
 	public int sec;
 	public int id;
 	public int value;
+	// Mapping of window identifier to the pointers of this event within this window
+	public HashMap<String,ArrayList<Event>> pointers;
 	
 	public Event (int s, int i, int v) {
 		sec = s;
 		id = i;
 		value = v;
+		pointers = new HashMap<String,ArrayList<Event>>();
 	}
 	
 	public static Event parse (String line) {
@@ -58,6 +64,16 @@ public class Event implements Comparable<Event> {
 	public String toString() {
 		return "sec: " + sec + " id: " + id + " value: " + value;
 	}	
+	
+	/** Print this event with pointers to console */
+	public String toStringWithPointers(String widnow_id) {
+		ArrayList<Event> predecessors = pointers.get(widnow_id);
+		String s = id + " : ";
+		for (Event predecessor : predecessors) {
+			s += predecessor.id + ",";
+		}
+		return s;
+	}
 	
 	/** Print this event to file */
 	public String print2file() {
