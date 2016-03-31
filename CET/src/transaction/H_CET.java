@@ -41,71 +41,18 @@ public class H_CET extends Transaction {
 		
 		long start =  System.currentTimeMillis();
 		
-		/*** Get the ideal memory in the middle of the search space 
-		 * to decide from where to start the search: from the top or from the bottom ***/
-		int curr_sec = -1;
-		int number_of_min_partitions = 0;
-		for(Event event : batch) {
-			if (curr_sec < event.sec) {
-				curr_sec = event.sec;
-				number_of_min_partitions++;
-		}}		
-		int event_number = batch.size();
-		int edge_number = Graph.constructGraph(batch).edgeNumber;
-		int size_of_the_graph = event_number + edge_number;
-		double ideal_memory_in_the_middle = getIdealMEMcost(event_number, number_of_min_partitions/2, 3);
-		boolean top_down = (memory_limit > ideal_memory_in_the_middle);		
-		System.out.println("Top down: " + top_down);
-		//System.out.println("Ideal memory in the middle: " + ideal_memory_in_the_middle);
+		Partitioning input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
 		
-		Partitioning input_partitioning;
-		int algorithm = 0;
-		int bin_number = 0;
-		int bin_size = 0;
-		Partitioner partitioner;		
-		if (search_algorithm==1) { /*** B&B ***/
-			
-			input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
-			if (top_down) {
-				partitioner = new BnB_topDown(windows);
-				algorithm = 2;
-			} else {
-				partitioner = new BnB_bottomUp(windows,batch);
-				algorithm = 3; // 1 or 3
-			}			
-		} else {
-								 
-			if (top_down) {
-				bin_number = getMinNumberOfRequiredPartitions_walkDown(event_number,number_of_min_partitions,memory_limit);
-			} else {
-				bin_number = getMinNumberOfRequiredPartitions_walkUp(event_number,number_of_min_partitions,memory_limit);
-			}
-			bin_size = (bin_number==1) ? event_number : event_number/bin_number;
-			System.out.println("Bin number: " + bin_number + "\nBin size: " + bin_size);
-			
-			if (search_algorithm==2) { /*** Greedy partitioning search ***/
-				if (bin_size == 1) {
-					input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
-					algorithm = 1;
-				} else {
-				if (bin_number == 1) {
-					input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
-					algorithm = 2;	
-				} else {
-					input_partitioning = Partitioning.getPartitioningWithMinPartitions(batch);
-					algorithm = 3; 
-				}}			
-				partitioner = new RandomRoughlyBalancedPartitioning(windows);
-			
-			} else { /*** Exhaustive partitioning search ***/
-			
-				input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
-				algorithm = 3;
-				partitioner = new OptimalRoughlyBalancedPartitioning(windows);
-		}}	
-		System.out.println("Input: " + input_partitioning.toString(windows,algorithm));
-		resulting_partitioning = partitioner.getPartitioning(input_partitioning, memory_limit, bin_number, bin_size);
-		System.out.println("Result: " + resulting_partitioning.toString(windows,3)); // 1 or 3
+		// Size of the graph
+		/*int event_number = batch.size();
+		int edge_number = input_partitioning.partitions.get(0).edgeNumber;
+		int size_of_the_graph = event_number + edge_number;*/
+		
+		Partitioner partitioner = (search_algorithm==0) ? new Exh_topDown(windows) : new BnB_topDown(windows);
+									
+		System.out.println("Input: " + input_partitioning.toString(windows,2));
+		resulting_partitioning = partitioner.getPartitioning(input_partitioning, memory_limit);
+		System.out.println("Result: " + resulting_partitioning.toString(windows,3)); 
 		
 		// The case where the 1st algorithm is called is missing
 		
@@ -255,4 +202,110 @@ public class H_CET extends Transaction {
 		// Output of statistics
 		if (maxMemoryPerWindow.get() < memory) maxMemoryPerWindow.getAndAdd(memory);			
 	}
+	
+	/*public void run() {	
+		
+		long start =  System.currentTimeMillis();
+		
+		*//*** Get the ideal memory in the middle of the search space 
+		 * to decide from where to start the search: from the top or from the bottom ***//*
+		int curr_sec = -1;
+		int number_of_min_partitions = 0;
+		for(Event event : batch) {
+			if (curr_sec < event.sec) {
+				curr_sec = event.sec;
+				number_of_min_partitions++;
+		}}		
+		int event_number = batch.size();
+		int edge_number = Graph.constructGraph(batch).edgeNumber;
+		int size_of_the_graph = event_number + edge_number;
+		double ideal_memory_in_the_middle = getIdealMEMcost(event_number, number_of_min_partitions/2, 3);
+		boolean top_down = (memory_limit > ideal_memory_in_the_middle);		
+		System.out.println("Top down: " + top_down);
+		//System.out.println("Ideal memory in the middle: " + ideal_memory_in_the_middle);
+		
+		Partitioning input_partitioning;
+		int algorithm = 0;
+		int bin_number = 0;
+		int bin_size = 0;
+		Partitioner partitioner;		
+		if (search_algorithm==1) { *//*** B&B ***//*
+			
+			input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
+			if (top_down) {
+				partitioner = new BnB_topDown(windows);
+				algorithm = 2;
+			} else {
+				partitioner = new BnB_bottomUp(windows,batch);
+				algorithm = 3; // 1 or 3
+			}			
+		} else {
+								 
+			if (top_down) {
+				bin_number = getMinNumberOfRequiredPartitions_walkDown(event_number,number_of_min_partitions,memory_limit);
+			} else {
+				bin_number = getMinNumberOfRequiredPartitions_walkUp(event_number,number_of_min_partitions,memory_limit);
+			}
+			bin_size = (bin_number==1) ? event_number : event_number/bin_number;
+			System.out.println("Bin number: " + bin_number + "\nBin size: " + bin_size);
+			
+			if (search_algorithm==2) { *//*** Greedy partitioning search ***//*
+				if (bin_size == 1) {
+					input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
+					algorithm = 1;
+				} else {
+				if (bin_number == 1) {
+					input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
+					algorithm = 2;	
+				} else {
+					input_partitioning = Partitioning.getPartitioningWithMinPartitions(batch);
+					algorithm = 3; 
+				}}			
+				partitioner = new RandomRoughlyBalancedPartitioning(windows);
+			
+			} else { *//*** Exhaustive partitioning search ***//*
+			
+				input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
+				algorithm = 3;
+				partitioner = new OptimalRoughlyBalancedPartitioning(windows);
+		}}	
+		System.out.println("Input: " + input_partitioning.toString(windows,algorithm));
+		resulting_partitioning = partitioner.getPartitioning(input_partitioning, memory_limit, bin_number, bin_size);
+		System.out.println("Result: " + resulting_partitioning.toString(windows,3)); // 1 or 3
+		
+		// The case where the 1st algorithm is called is missing
+		
+		if (!resulting_partitioning.partitions.isEmpty()) {
+			
+			long start =  System.currentTimeMillis();
+			
+			*//*** Compute results per partition ***//*
+			int cets_within_partitions = 0;
+			for (Partition partition : resulting_partitioning.partitions) {	
+			
+				//if (partition.isShared(windows)) System.out.println("Shared partition: " + partition.toString());
+			
+				for (Node first_node : partition.first_nodes) { first_node.isFirst = true; }
+				T_CET.computeResults(partition.last_nodes);
+				cets_within_partitions += partition.getCETlength();			
+			}		
+		
+			*//*** Compute results across partition ***//*
+			int max_cet_across_partitions = 0;
+			for (Node first_node : resulting_partitioning.partitions.get(0).first_nodes) {
+				
+				for (EventTrend event_trend : first_node.results) {				
+					int length = computeResults(event_trend, new Stack<EventTrend>(), max_cet_across_partitions);				
+					if (max_cet_across_partitions < length) max_cet_across_partitions = length;		
+			}}
+		
+			long end =  System.currentTimeMillis();
+			long processingDuration = end - start;
+			processingTime.set(processingTime.get() + processingDuration);
+		
+			int memory = size_of_the_graph + cets_within_partitions + max_cet_across_partitions;
+			writeOutput2File(memory);
+		}
+		transaction_number.countDown();		
+	}*/
 }

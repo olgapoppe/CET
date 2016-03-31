@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import graph.*;
 import event.Window;
 
-public class RandomRoughlyBalancedPartitioning extends Partitioner {	
+public class RandomRoughlyBalancedPartitioning { //extends Partitioner {	
 		
-	public RandomRoughlyBalancedPartitioning (ArrayDeque<Window> w) {
+	/*public RandomRoughlyBalancedPartitioning (ArrayDeque<Window> w) {
 		super(w);
 	}
 		
@@ -47,5 +47,5 @@ public class RandomRoughlyBalancedPartitioning extends Partitioner {
 			partitions.add(current_partition);				
 			return new Partitioning(partitions);
 		}
-	}
+	}*/
 }

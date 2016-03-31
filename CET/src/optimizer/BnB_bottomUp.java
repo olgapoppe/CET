@@ -14,7 +14,7 @@ public class BnB_bottomUp extends Partitioner {
 		events = e;
 	}
 	
-	public Partitioning getPartitioning (Partitioning root, double memory_limit, int bin_number, int bin_size) {
+	public Partitioning getPartitioning (Partitioning root, double memory_limit) {
 		
 		// M-CET in the non-partitioned graph root
 		Partitioning solution = root;		

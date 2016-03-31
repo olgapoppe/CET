@@ -6,9 +6,9 @@ import java.util.LinkedList;
 import event.Window;
 import graph.Partition;
 
-public class OptimalRoughlyBalancedPartitioning extends Partitioner {
+public class OptimalRoughlyBalancedPartitioning { //extends Partitioner {
 	
-	public OptimalRoughlyBalancedPartitioning (ArrayDeque<Window> w) {
+	/*public OptimalRoughlyBalancedPartitioning (ArrayDeque<Window> w) {
 		super(w);
 	}
 		
@@ -50,5 +50,5 @@ public class OptimalRoughlyBalancedPartitioning extends Partitioner {
 				
 		// System.out.println("Chosen: " + solution.toString(windows,3)); 
 		return solution;
-	}
+	}*/
 }

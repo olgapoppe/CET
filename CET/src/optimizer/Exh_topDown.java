@@ -14,7 +14,7 @@ public class Exh_topDown extends Partitioner {
 		super(w);
 	}
 	
-	public Partitioning getPartitioning (Partitioning root, double part_num, int bin_number, int bin_size) {
+	public Partitioning getPartitioning (Partitioning root, double memory_limit) { // double part_num
 		
 		// Set local variables
 		Partitioning solution = new Partitioning(new ArrayList<Partition>());
@@ -40,11 +40,11 @@ public class Exh_topDown extends Partitioner {
 			// System.out.println("Considered: " + temp.toString(windows));
 			
 			// Update solution			
-			if (minCPU > temp_cpu && temp.partitions.size() == part_num) { // temp_mem <= memory_limit) {
+			if (minCPU > temp_cpu && temp_mem <= memory_limit) { // temp.partitions.size() == part_num) {
 				solution = temp;
 				minCPU = temp_cpu;
 			}			
-			if (temp.partitions.size() > part_num) break;			
+			//if (temp.partitions.size() > part_num) break;			
 			
 			// Add children to the heap			
 			ArrayList<Partitioning> children = temp.getChildrenBySplitting();
@@ -62,9 +62,9 @@ public class Exh_topDown extends Partitioner {
 		Arrays.sort(array);
 		int median = array[length/2];
 				
-		/*System.out.println("Max heap size: " + maxHeapSize + 
+		System.out.println("Max heap size: " + maxHeapSize + 
 				"\nConsidered: " + considered_count +
-				"\nMedian memory cost: " + median);*/
+				"\nMedian memory cost: " + median);
 		
 		//System.out.println("Chosen: " + solution.toString(windows)); 
 		

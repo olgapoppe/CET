@@ -10,7 +10,7 @@ public class Gre_bottomUp extends Partitioner {
 		super(w);
 	}
 	
-	public Partitioning getPartitioning (Partitioning temp, double memory_limit, int bin_number, int bin_size) {
+	public Partitioning getPartitioning (Partitioning temp, double memory_limit) {
 		
 		// Set local variables
 		Partitioning solution = temp;

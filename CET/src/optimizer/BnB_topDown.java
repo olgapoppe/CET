@@ -14,7 +14,7 @@ public class BnB_topDown extends Partitioner {
 		super(w);
 	}
 	
-	public Partitioning getPartitioning (Partitioning root, double memory_limit, int bin_number, int bin_size) {
+	public Partitioning getPartitioning (Partitioning root, double memory_limit) {
 		
 		// Set local variables
 		Partitioning solution = new Partitioning(new ArrayList<Partition>());
