@@ -2,6 +2,7 @@ package optimizer;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+
 import event.*;
 import graph.*;
 
@@ -42,6 +43,7 @@ public class Partitioning {
 		int last_sec = events.get(events.size()-1).sec;
 		Partition part = new Partition(first_sec,last_sec,events.size(),graph.edgeNumber,graph.first_nodes,graph.last_nodes);
 		part.hash = graph.hash;
+		part.minPartitionNumber = graph.minPartitionNumber;
 		
 		// Return an partitioning with this partition
 		ArrayList<Partition> parts = new ArrayList<Partition>();
@@ -80,59 +82,6 @@ public class Partitioning {
 		Partitioning rootPartitioning = new Partitioning(parts);
 		System.out.println(rootPartitioning.partitions.size() + " minimal partitions.");
 		return rootPartitioning;			
-	}
-	
-	public Partitioning getPartitioning (ArrayList<Integer> cuts) {
-		
-		ArrayList<Partition> parts = new ArrayList<Partition>();
-		
-		// Set local variables
-		Partition graph = this.partitions.get(0);
-		int start = graph.start;
-		int end = graph.end;
-		int vertex_number = 0;
-		int prev_node_number = 0;
-		int edge_number = 0;
-		ArrayList<Node> first_nodes = graph.first_nodes;
-		ArrayList<Node> last_nodes = graph.last_nodes;
-				
-		int index = 0;
-		int cut = cuts.get(index);
-		int cut_count = 1;		
-			
-		// Add seconds to current partition until the next cut
-		for (int sec=graph.start; sec<=graph.end; sec++) {
-			
-			ArrayList<Node> nodes = graph.hash.get(sec);
-						
-			if (cut_count == cut) {
-				
-				vertex_number += nodes.size();
-				edge_number += prev_node_number * nodes.size();
-				Partition p = new Partition(start,sec,vertex_number,edge_number,first_nodes,nodes);
-				parts.add(p);
-				System.out.println(p.toString());
-				
-				start = sec+1;
-				vertex_number = 0;
-				edge_number = 0;
-				prev_node_number = 0;
-				if (sec+1<=graph.end) first_nodes = graph.hash.get(sec+1);
-				if (index+1<=cuts.size()-1) cut = cuts.get(++index);
-			} else {
-				vertex_number += nodes.size();
-				edge_number += prev_node_number * nodes.size();
-				prev_node_number = nodes.size();
-			}
-			cut_count++;
-		}	
-		// Add last partition
-		Partition p = new Partition(start,end,vertex_number,edge_number,first_nodes,last_nodes);
-		parts.add(p);
-		System.out.println(p.toString());
-		
-		Partitioning partitioning = new Partitioning(parts);
-		return partitioning;
 	}
 	
 	/*** Get CPU cost of this partitioning 
@@ -197,8 +146,14 @@ public class Partitioning {
 		for (int i=0; i<partitions.size(); i++) {
 			
 			// Split ith partition
-			Partition partition2split = partitions.get(i);
-			ArrayList<Partitioning> split_results = partition2split.split();
+			Partition partition2split = partitions.get(i);			
+			ArrayList<ArrayList<Integer>> cuts = partition2split.getAllCombinationsOfCuts(1);
+			ArrayList<Partitioning> split_results = new ArrayList<Partitioning>();
+			for (ArrayList<Integer> cut : cuts) {
+				//System.out.println(cut.toString());
+				Partitioning split_result = partition2split.getPartitioning(cut);		
+				split_results.add(split_result);
+			}
 			
 			for (Partitioning p : split_results) {
 				

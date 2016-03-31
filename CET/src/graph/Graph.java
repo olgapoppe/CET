@@ -11,6 +11,7 @@ public class Graph {
 	public int edgeNumber;
 	public ArrayList<Node> first_nodes;
 	public ArrayList<Node> last_nodes;  
+	public int minPartitionNumber;
 		
 	public Graph () {
 		nodes = new ArrayList<Node>();
@@ -18,6 +19,7 @@ public class Graph {
 		edgeNumber = 0;
 		first_nodes = new ArrayList<Node>();
 		last_nodes = new ArrayList<Node>();
+		minPartitionNumber = 0;
 	}
 	
 	public void connect (Node first, Node second) {
@@ -30,10 +32,17 @@ public class Graph {
 	public static Graph constructGraph (ArrayList<Event> events) {		
 		
 		Graph graph = new Graph();
+		int curr_sec = -1;
 				
 		for (Event event : events) {
 			
 			//System.out.println("--------------" + event.id);
+			
+			// Update minimal partition number
+			if (curr_sec < event.sec) {
+				graph.minPartitionNumber++;
+				curr_sec = event.sec;
+			}
 			
 			// Create a new node
 			Node node = new Node(event);
@@ -92,6 +101,7 @@ public class Graph {
 			graph.hash.put(sec,ns);			
 		}
 		//for (Node node : graph.nodes) { System.out.println(node.toString()); }	
+		
 		return graph;
 	}	
 }

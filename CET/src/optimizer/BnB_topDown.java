@@ -31,31 +31,19 @@ public class BnB_topDown extends Partitioner {
 		System.out.println("Min number of necessary cuts: " + number_of_necessary_cuts);
 		
 		/*** Node search ***/
-		// Get number of possible cuts
-		int curr_sec = -1;
-		int number_of_min_partitions = 0;
-		for(Event event : batch) {
-			if (curr_sec < event.sec) {
-				curr_sec = event.sec;
-				number_of_min_partitions++;
-		}}	
-		int number_of_possible_cuts = number_of_min_partitions - 1;
-		System.out.println("Number of possible cuts: " + number_of_possible_cuts);		
-		if (number_of_necessary_cuts > number_of_possible_cuts) number_of_necessary_cuts = number_of_possible_cuts;		
-		
 		// Get all possibilities to cut, cut the graph and store the nodes in the heap 
-		ArrayList<ArrayList<Integer>> cuts = getAllCombinationsOfCuts(number_of_possible_cuts,number_of_necessary_cuts);
-		System.out.println("There are " + cuts.size() + " possibilities to cut.");
-		
 		Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
+		ArrayList<ArrayList<Integer>> cuts = max_partitioning.partitions.get(0).getAllCombinationsOfCuts(number_of_necessary_cuts);
+		System.out.println("There are " + cuts.size() + " possibilities to cut.");		
 		
 		for (ArrayList<Integer> cut : cuts) {
 			System.out.println(cut.toString());
-			Partitioning node = max_partitioning.getPartitioning(cut);		
+			Partitioning node = max_partitioning.partitions.get(0).getPartitioning(cut);		
 			heap.add(node);		
 		}
 		
-		/*while (!heap.isEmpty()) {
+		// Find optimal solution
+		while (!heap.isEmpty()) {
 			
 			// Get the next node to process, its costs and children 
 			Partitioning temp = heap.poll();			
@@ -92,7 +80,7 @@ public class BnB_topDown extends Partitioner {
 			}			
 		}
 		System.out.println("Max heap size: " + maxHeapSize + 
-				"\nConsidered: " + considered_count);*/	
+				"\nConsidered: " + considered_count);
 		
 		//System.out.println("Chosen: " + solution.toString()); 
 		
@@ -150,49 +138,5 @@ public class BnB_topDown extends Partitioner {
 			ideal_memory = partition_number * Math.pow(3, exp) * vertex_number_per_partition + event_number;
 		}}
 		return ideal_memory;
-	}
-	
-	/*** Get all combinations of numbers from 1 to max of length n  ***/
-	public ArrayList<ArrayList<Integer>> getAllCombinationsOfCuts (int max, int n) {		
-		
-		// Fill input array with numbers
-		int arr[] = new int[max];		
-		for (int i=1; i<=max; i++) {
-			arr[i-1] = i;
-		}	
-				
-		// A temporary array to store all combination one by one
-		int data[] = new int[n];
-		
-		// Result accumulator
-		ArrayList<ArrayList<Integer>> results = new ArrayList<ArrayList<Integer>>();
-
-		// Get all combinations using temporary array 'data[]'
-		return getAllCombinationsOfCutsAux(arr, data, 0, arr.length-1, 0, n, results);	
-	}
-	
-	static ArrayList<ArrayList<Integer>> getAllCombinationsOfCutsAux(int arr[], int data[], int start, int end, int index, int r, ArrayList<ArrayList<Integer>> results) {
-		
-		// Current combination is ready to be printed, print it
-		if (index == r) {
-			ArrayList<Integer> result = new ArrayList<Integer> ();
-			for (int j=0; j<r; j++) {
-				//System.out.print(data[j]+" ");
-				result.add(data[j]);
-			}
-			//System.out.println("");
-			results.add(result);
-			return results;
-		}
-
-		// replace index with all possible elements. The condition
-		// "end-i+1 >= r-index" makes sure that including one element
-		// at index will make a combination with remaining elements
-		// at remaining positions
-		for (int i=start; i<=end && end-i+1 >= r-index; i++) {
-			data[index] = arr[i];
-			results = getAllCombinationsOfCutsAux(arr, data, i+1, end, index+1, r, results);
-		}
-		return results;
 	}
 }

@@ -40,7 +40,7 @@ public class Exh_topDown extends Partitioner {
 			memCosts.add(new Double(temp_mem).intValue());
 			considered_count++;
 			
-			//System.out.println("Considered: " + temp.toString(windows,algorithm));
+			System.out.println("Considered: " + temp.toString(windows,algorithm));
 			
 			// Update solution			
 			if (minCPU > temp_cpu && temp_mem <= memory_limit) { // temp.partitions.size() == part_num) {
@@ -52,7 +52,7 @@ public class Exh_topDown extends Partitioner {
 			// Add children to the heap			
 			ArrayList<Partitioning> children = temp.getChildrenBySplitting();
 			for (Partitioning child : children) {					
-				if (!heap.contains(child)) heap.add(child); 
+				heap.add(child); 
 			} 
 			// Update max heap size
 			if (maxHeapSize < heap.size()) maxHeapSize = heap.size();

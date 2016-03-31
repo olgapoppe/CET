@@ -2,8 +2,9 @@ package graph;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+
+import optimizer.Partitioning;
 import event.*;
-import optimizer.*;
 
 public class Partition extends Graph {
 	
@@ -88,66 +89,6 @@ public class Partition extends Graph {
 				count += result.getEventNumber();
 		}}
 		return count;
-	}
-	
-	/*** Split input partition and return the resulting partitions ***/
-	public ArrayList<Partitioning> split () {	
-		
-		ArrayList<Partitioning> results = new ArrayList<Partitioning>();
-		
-		// Initial partitions
-		Partition first = new Partition(0,0,0,0,new ArrayList<Node>(),new ArrayList<Node>());
-		Partition second = this;
-		
-		// Nodes
-		ArrayList<Node> nodes2move = second.first_nodes;
-		ArrayList<Node> followingOfNodes2move = new ArrayList<Node>();
-		for (Node node2move : nodes2move) {
-			for (Node following : node2move.following) {
-				if (!followingOfNodes2move.contains(following)) followingOfNodes2move.add(following);			
-		}}
-		
-		// Second
-		int secOfNodes2move = nodes2move.get(0).event.sec;
-		int secOfFollowingOfNodes2move = (followingOfNodes2move.isEmpty()) ? 0 : followingOfNodes2move.get(0).event.sec;
-		
-		while (!followingOfNodes2move.isEmpty() && secOfFollowingOfNodes2move <= end) {		
-						
-			// Vertexes
-			int new_first_vn = first.vertexNumber + nodes2move.size();
-			int new_second_vn = second.vertexNumber - nodes2move.size();
-			
-			// Edges
-			int oldCutEdges = first.last_nodes.size() * nodes2move.size();
-			int newCutEdges = nodes2move.size() * followingOfNodes2move.size();			
-			int new_first_en = first.edgeNumber + oldCutEdges;
-			int new_second_en = second.edgeNumber - newCutEdges;
-			if (new_second_en < 0) new_second_en = 0;
-			
-			// New partitions
-			first = new Partition(start,secOfNodes2move,new_first_vn,new_first_en,first_nodes,nodes2move);
-			second = new Partition(secOfFollowingOfNodes2move,end,new_second_vn,new_second_en,followingOfNodes2move,last_nodes); 
-			
-			// New partitioning
-			ArrayList<Partition> parts = new ArrayList<Partition>();
-			parts.add(first);
-			parts.add(second);
-			Partitioning result = new Partitioning(parts);
-			results.add(result);	
-			
-			// Reset nodes
-			nodes2move = second.first_nodes;
-			followingOfNodes2move = new ArrayList<Node>();
-			for (Node node2move : nodes2move) {
-				for (Node following : node2move.following) {
-					if (!followingOfNodes2move.contains(following)) followingOfNodes2move.add(following);			
-			}}
-			
-			// Reset second
-			secOfNodes2move = nodes2move.get(0).event.sec;
-			secOfFollowingOfNodes2move = (followingOfNodes2move.isEmpty()) ? 0 : followingOfNodes2move.get(0).event.sec;
-		}		
-		return results;
 	}
 	
 	/*** Split input partition and return the resulting partitions ***/
@@ -236,6 +177,111 @@ public class Partition extends Graph {
 		
 		// Return the resulting partition
 		return result; 
+	}
+	
+	/*** Get all combinations of numbers from 1 to max of length n  ***/
+	public ArrayList<ArrayList<Integer>> getAllCombinationsOfCuts (int n) {	
+		
+		// Result accumulator
+		ArrayList<ArrayList<Integer>> results = new ArrayList<ArrayList<Integer>>();
+			
+		// Fill input array with numbers
+		int max = this.minPartitionNumber-1;
+		
+		if (max>0) {
+		
+			int arr[] = new int[max];		
+			for (int i=1; i<=max; i++) {
+				arr[i-1] = i;
+			}	
+				
+			// A temporary array to store all combination one by one
+			int data[] = new int[n];		
+
+			// Get all combinations using temporary array 'data[]'
+			results = getAllCombinationsOfCutsAux(arr, data, 0, arr.length-1, 0, n, results);
+		}
+		return results;
+	}
+	
+	static ArrayList<ArrayList<Integer>> getAllCombinationsOfCutsAux(int arr[], int data[], int start, int end, int index, int r, ArrayList<ArrayList<Integer>> results) {
+		
+		// Current combination is ready to be printed, print it
+		if (index == r) {
+			ArrayList<Integer> result = new ArrayList<Integer> ();
+			for (int j=0; j<r; j++) {
+				//System.out.print(data[j]+" ");
+				result.add(data[j]);
+			}
+			//System.out.println("");
+			results.add(result);
+			return results;
+		}
+
+		// replace index with all possible elements. The condition
+		// "end-i+1 >= r-index" makes sure that including one element
+		// at index will make a combination with remaining elements
+		// at remaining positions
+		for (int i=start; i<=end && end-i+1 >= r-index; i++) {
+			data[index] = arr[i];
+			results = getAllCombinationsOfCutsAux(arr, data, i+1, end, index+1, r, results);
+		}
+		return results;
+	}
+	
+	public Partitioning getPartitioning (ArrayList<Integer> cuts) {
+		
+		ArrayList<Partition> parts = new ArrayList<Partition>();
+		
+		// Set local variables
+		int start = this.start;
+		int end = this.end;
+		int vertex_number = 0;
+		int prev_node_number = 0;
+		int edge_number = 0;
+		ArrayList<Node> first_nodes = this.first_nodes;
+		ArrayList<Node> last_nodes = this.last_nodes;
+				
+		int index = 0;
+		int cut = cuts.get(index);
+		int cut_count = 1;		
+			
+		// Add seconds to current partition until the next cut
+		for (int sec=start; sec<=end; sec++) {
+			
+			if (hash.containsKey(sec)) {
+				
+				ArrayList<Node> nodes = hash.get(sec);
+						
+				if (cut_count == cut) {
+				
+					vertex_number += nodes.size();
+					edge_number += prev_node_number * nodes.size();
+					Partition p = new Partition(start,sec,vertex_number,edge_number,first_nodes,nodes);
+					parts.add(p);
+					//System.out.println(p.toString());
+				
+					start = sec+1;
+					vertex_number = 0;
+					edge_number = 0;
+					prev_node_number = 0;
+					if (sec+1<=end) first_nodes = hash.get(sec+1);
+					if (index+1<=cuts.size()-1) cut = cuts.get(++index);
+				} else {
+					vertex_number += nodes.size();
+					edge_number += prev_node_number * nodes.size();
+					prev_node_number = nodes.size();
+				}
+				cut_count++;
+			}
+		}	
+		// Add last partition
+		Partition p = new Partition(start,end,vertex_number,edge_number,first_nodes,last_nodes);
+		parts.add(p);
+		//System.out.println(p.toString());
+		
+		Partitioning partitioning = new Partitioning(parts);
+		return partitioning;
 	}
 	
 	public String toString() {
