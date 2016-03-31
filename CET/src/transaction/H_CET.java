@@ -41,18 +41,23 @@ public class H_CET extends Transaction {
 		
 		long start =  System.currentTimeMillis();
 		
-		Partitioning input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
+		//Partitioning input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
 		
 		// Size of the graph
 		/*int event_number = batch.size();
 		int edge_number = input_partitioning.partitions.get(0).edgeNumber;
 		int size_of_the_graph = event_number + edge_number;*/
 		
-		Partitioner partitioner = (search_algorithm==0) ? new Exh_topDown(windows) : new BnB_topDown(windows);
+		// Bin number
+			
+		int bin_number = getMinNumberOfRequiredPartitions_walkDown(batch,memory_limit);
+		System.out.println("Bin number: " + bin_number);
+				
+		//Partitioner partitioner = (search_algorithm==0) ? new Exh_topDown(windows) : new BnB_topDown(windows);
 									
-		System.out.println("Input: " + input_partitioning.toString(windows,2));
-		resulting_partitioning = partitioner.getPartitioning(input_partitioning, memory_limit);
-		System.out.println("Result: " + resulting_partitioning.toString(windows,3)); 
+		//System.out.println("Input: " + input_partitioning.toString(windows,2));
+		//resulting_partitioning = partitioner.getPartitioning(input_partitioning, memory_limit);
+		//System.out.println("Result: " + resulting_partitioning.toString(windows,3));*/ 
 		
 		// The case where the 1st algorithm is called is missing
 		
@@ -109,22 +114,38 @@ public class H_CET extends Transaction {
 	}
 	
 	/*** Get minimal number of required partitions walking the search space top down ***/
-	public int getMinNumberOfRequiredPartitions_walkDown(int event_number, int number_of_min_partitions, double memory_limit) {	
+	public int getMinNumberOfRequiredPartitions_walkDown(ArrayList<Event> batch, double memory_limit) {	
 		
-		// Find the minimal number of required partitions (T-CET, H-CET)
-		for (int partition_number=1; partition_number<=number_of_min_partitions; partition_number++) {	
-			int algorithm = (partition_number==1) ? 2 : 3;
-			double ideal_memory = getIdealMEMcost(event_number,partition_number,algorithm);
-						
-			System.out.println("k=" + partition_number + " mem=" + ideal_memory);
+		int event_number = batch.size();
+		
+		// Find the number of minimal partitions
+		int s = 1;
+		int e = 0;
+		int curr_sec = -1;		
+		for(Event event : batch) {
+			if (curr_sec < event.sec) {
+				curr_sec = event.sec;
+				e++;
+		}}
+		
+		// Find the minimal number of required partitions (H-CET)
+		int m = 0;
+		double ideal_memory = 0;
+		int level = 0;
+		while (s <= e) {	
+			m = s + (e-s)/2;
+			ideal_memory = getIdealMEMcost(event_number,m,3);						
+			System.out.println("k=" + m + " mem=" + ideal_memory);
 			
-			if (ideal_memory <= memory_limit) return partition_number;  
+			if (ideal_memory <= memory_limit) {
+				level = m;
+				e = m - 1;
+			} else {
+				s = m + 1;
+			}
+			System.out.println("s=" + s + " e=" + e + "\n");
 		}	
-		// Each event is in a separate partition (M-CET)
-		if (event_number <= memory_limit) return event_number;
-		
-		// Partitioning does not reduce the memory enough
-		return -1;
+		return (level > 0) ? level : event_number;
 	}
 	
 	/*** Get minimal number of required partitions walking the search space bottom up ***/
