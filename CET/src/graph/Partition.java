@@ -122,6 +122,7 @@ public class Partition extends Graph {
 			int newCutEdges = nodes2move.size() * followingOfNodes2move.size();			
 			int new_first_en = first.edgeNumber + oldCutEdges;
 			int new_second_en = second.edgeNumber - newCutEdges;
+			if (new_second_en < 0) new_second_en = 0;
 			
 			// New partitions
 			first = new Partition(start,secOfNodes2move,new_first_vn,new_first_en,first_nodes,nodes2move);

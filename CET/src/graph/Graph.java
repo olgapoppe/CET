@@ -1,17 +1,20 @@
 package graph;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import event.*;
 
 public class Graph {
 	
 	public ArrayList<Node> nodes;
+	public HashMap<Integer,ArrayList<Node>> hash;
 	public int edgeNumber;
 	public ArrayList<Node> first_nodes;
 	public ArrayList<Node> last_nodes;  
 		
 	public Graph () {
 		nodes = new ArrayList<Node>();
+		hash = new HashMap<Integer,ArrayList<Node>>();
 		edgeNumber = 0;
 		first_nodes = new ArrayList<Node>();
 		last_nodes = new ArrayList<Node>();
@@ -81,7 +84,12 @@ public class Graph {
 				graph.last_nodes.addAll(new_last_nodes);
 			}
 			// Add the new node to the graph
-			graph.nodes.add(node);	
+			graph.nodes.add(node);
+			
+			int sec = node.event.sec;
+			ArrayList<Node> ns = (graph.hash.containsKey(sec)) ? graph.hash.get(sec) : new ArrayList<Node>();
+			ns.add(node);
+			graph.hash.put(sec,ns);			
 		}
 		//for (Node node : graph.nodes) { System.out.println(node.toString()); }	
 		return graph;

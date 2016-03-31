@@ -46,14 +46,11 @@ public class H_CET extends Transaction {
 		int edge_number = input_partitioning.partitions.get(0).edgeNumber;
 		int size_of_the_graph = event_number + edge_number;*/
 		
-		//Partitioner partitioner = (search_algorithm==0) ? new Exh_topDown(windows) : new BnB_topDown(windows);
+		Partitioner partitioner = (search_algorithm==0) ? new Exh_topDown(windows) : new BnB_topDown(windows);
 									
-		//System.out.println("Input: " + input_partitioning.toString(windows,2));
-		//resulting_partitioning = partitioner.getPartitioning(input_partitioning, memory_limit);
-		//System.out.println("Result: " + resulting_partitioning.toString(windows,3));*/ 
-		
-		// The case where the 1st algorithm is called is missing
-		
+		resulting_partitioning = partitioner.getPartitioning(batch, memory_limit);
+		System.out.println("Result: " + resulting_partitioning.toString(windows,3));		
+			
 		/*if (!resulting_partitioning.partitions.isEmpty()) {
 			
 			long start =  System.currentTimeMillis();
