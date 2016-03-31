@@ -1,7 +1,8 @@
 package optimizer;
 
 import java.util.ArrayDeque;
-import event.Window;
+import java.util.ArrayList;
+import event.*;
 
 public abstract class Partitioner {
 	
@@ -11,5 +12,5 @@ public abstract class Partitioner {
 		 windows = w;
 	 }
 	
-	 abstract public Partitioning getPartitioning (Partitioning root, double memeory_limit);	
+	 abstract public Partitioning getPartitioning (ArrayList<Event> batch, double memeory_limit);	
 }

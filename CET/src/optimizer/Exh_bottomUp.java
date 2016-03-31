@@ -8,9 +8,9 @@ import java.util.LinkedList;
 import event.Window;
 import graph.*;
 
-public class Exh_bottomUp extends Partitioner {
+public class Exh_bottomUp { //extends Partitioner {
 	
-	public Exh_bottomUp (ArrayDeque<Window> w) {
+	/*public Exh_bottomUp (ArrayDeque<Window> w) {
 		super(w);
 	}
 	
@@ -64,5 +64,5 @@ public class Exh_bottomUp extends Partitioner {
 				"\nMedian memory cost: " + median);
 		
 		return solution;		
-	}
+	}*/
 }

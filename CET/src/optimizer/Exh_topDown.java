@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 
+import event.Event;
 import event.Window;
 import graph.*;
 
@@ -14,9 +15,10 @@ public class Exh_topDown extends Partitioner {
 		super(w);
 	}
 	
-	public Partitioning getPartitioning (Partitioning root, double memory_limit) { // double part_num
+	public Partitioning getPartitioning (ArrayList<Event> batch, double memory_limit) { // double part_num
 		
 		// Set local variables
+		Partitioning root = Partitioning.getPartitioningWithMaxPartition(batch);
 		Partitioning solution = new Partitioning(new ArrayList<Partition>());
 		
 		double minCPU = Double.MAX_VALUE;

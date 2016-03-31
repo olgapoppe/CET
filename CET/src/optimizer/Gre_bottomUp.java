@@ -4,9 +4,9 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import event.Window;
 
-public class Gre_bottomUp extends Partitioner {	
+public class Gre_bottomUp { //extends Partitioner {	
 	
-	public Gre_bottomUp (ArrayDeque<Window> w) {
+	/*public Gre_bottomUp (ArrayDeque<Window> w) {
 		super(w);
 	}
 	
@@ -43,5 +43,5 @@ public class Gre_bottomUp extends Partitioner {
 		}
 		System.out.println("Max children number: " + maxChildrenNumber);
 		return solution;		
-	}
+	}*/
 }

@@ -39,20 +39,13 @@ public class H_CET extends Transaction {
 
 	public void run() {	
 		
-		long start =  System.currentTimeMillis();
-		
-		//Partitioning input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
+		long start =  System.currentTimeMillis();		
 		
 		// Size of the graph
 		/*int event_number = batch.size();
 		int edge_number = input_partitioning.partitions.get(0).edgeNumber;
 		int size_of_the_graph = event_number + edge_number;*/
 		
-		// Bin number
-			
-		int bin_number = getMinNumberOfRequiredPartitions_walkDown(batch,memory_limit);
-		System.out.println("Bin number: " + bin_number);
-				
 		//Partitioner partitioner = (search_algorithm==0) ? new Exh_topDown(windows) : new BnB_topDown(windows);
 									
 		//System.out.println("Input: " + input_partitioning.toString(windows,2));
@@ -94,82 +87,6 @@ public class H_CET extends Transaction {
 		}*/
 		transaction_number.countDown();		
 	}
-	
-	public double getIdealMEMcost (int event_number, int partition_number, int algorithm) {
-		
-		double exp;
-		double ideal_memory;
-		
-		if (algorithm == 1) {
-			ideal_memory = event_number;
-		} else {
-		if (algorithm == 2) {
-			ideal_memory = Math.pow(3, event_number) * event_number;			
-		} else {
-			double vertex_number_per_partition = event_number/new Double(partition_number);
-			exp = vertex_number_per_partition/new Double(3);			
-			ideal_memory = partition_number * Math.pow(3, exp) * vertex_number_per_partition + event_number;
-		}}
-		return ideal_memory;
-	}
-	
-	/*** Get minimal number of required partitions walking the search space top down ***/
-	public int getMinNumberOfRequiredPartitions_walkDown(ArrayList<Event> batch, double memory_limit) {	
-		
-		int event_number = batch.size();
-		
-		// Find the number of minimal partitions
-		int s = 1;
-		int e = 0;
-		int curr_sec = -1;		
-		for(Event event : batch) {
-			if (curr_sec < event.sec) {
-				curr_sec = event.sec;
-				e++;
-		}}
-		
-		// Find the minimal number of required partitions (H-CET)
-		int m = 0;
-		double ideal_memory = 0;
-		int level = 0;
-		while (s <= e) {	
-			m = s + (e-s)/2;
-			ideal_memory = getIdealMEMcost(event_number,m,3);						
-			System.out.println("k=" + m + " mem=" + ideal_memory);
-			
-			if (ideal_memory <= memory_limit) {
-				level = m;
-				e = m - 1;
-			} else {
-				s = m + 1;
-			}
-			System.out.println("s=" + s + " e=" + e + "\n");
-		}	
-		return (level > 0) ? level : event_number;
-	}
-	
-	/*** Get minimal number of required partitions walking the search space bottom up ***/
-	public int getMinNumberOfRequiredPartitions_walkUp(int event_number, int number_of_min_partitions, double memory_limit) {	
-		
-		// Partitioning does not reduce the memory enough zz
-		int result = -1;
-		
-		// Each event is in a separate partition (M-CET)
-		if (event_number <= memory_limit) result = event_number;
-		
-		// Find the minimal number of required partitions (T-CET, H-CET)
-		for (int partition_number=number_of_min_partitions; partition_number>0; partition_number--) {
-			double ideal_memory = getIdealMEMcost(event_number,partition_number,3);
-			if (ideal_memory <= memory_limit) {
-				result = partition_number;
-				
-				System.out.println("k=" + partition_number + " mem=" + ideal_memory);
-			} else {
-				break;
-			}
-		}				
-		return result;
-	}	
 	
 	// DFS recomputing intermediate results
 	public int computeResults (EventTrend event_trend, Stack<EventTrend> current_cet, int maxSeqLength) {       

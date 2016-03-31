@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import event.*;
 
-public class BnB_bottomUp extends Partitioner {	
+public class BnB_bottomUp { //extends Partitioner {	
 	
 	ArrayList<Event> events;
 	
-	public BnB_bottomUp (ArrayDeque<Window> w, ArrayList<Event> e) {
+	/*public BnB_bottomUp (ArrayDeque<Window> w, ArrayList<Event> e) {
 		super(w);
 		events = e;
 	}
@@ -72,5 +72,27 @@ public class BnB_bottomUp extends Partitioner {
 				"\nImproved: " + improved_count);				
 		
 		return solution;		
-	}
+	}	
+	
+	public int getMinNumberOfRequiredPartitions_walkUp(int event_number, int number_of_min_partitions, double memory_limit) {	
+		
+		// Partitioning does not reduce the memory enough zz
+		int result = -1;
+		
+		// Each event is in a separate partition (M-CET)
+		if (event_number <= memory_limit) result = event_number;
+		
+		// Find the minimal number of required partitions (T-CET, H-CET)
+		for (int partition_number=number_of_min_partitions; partition_number>0; partition_number--) {
+			double ideal_memory = getIdealMEMcost(event_number,partition_number,3);
+			if (ideal_memory <= memory_limit) {
+				result = partition_number;
+				
+				System.out.println("k=" + partition_number + " mem=" + ideal_memory);
+			} else {
+				break;
+			}
+		}				
+		return result;
+	}*/
 }
