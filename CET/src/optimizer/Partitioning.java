@@ -1,8 +1,6 @@
 package optimizer;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-
 import event.*;
 import graph.*;
 

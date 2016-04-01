@@ -40,7 +40,7 @@ public class Exh_topDown extends Partitioner {
 			memCosts.add(new Double(temp_mem).intValue());
 			considered_count++;
 			
-			System.out.println("Considered: " + temp.toString(algorithm));
+			//System.out.println("Considered: " + temp.toString(algorithm));
 			
 			// Update solution			
 			if (minCPU > temp_cpu && temp_mem <= memory_limit) { // temp.partitions.size() == part_num) {

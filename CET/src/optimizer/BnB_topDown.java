@@ -34,10 +34,10 @@ public class BnB_topDown extends Partitioner {
 		// Get all possibilities to cut, cut the graph and store the nodes in the heap 
 		Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
 		ArrayList<ArrayList<Integer>> cuts = max_partitioning.partitions.get(0).getAllCombinationsOfCuts(number_of_necessary_cuts);
-		System.out.println("There are " + cuts.size() + " possibilities to cut.");		
+		System.out.println("There are " + cuts.size() + " possibilities to cut.\n");		
 		
 		for (ArrayList<Integer> cut : cuts) {
-			System.out.println("Cut: " + cut.toString());
+			//System.out.println("Cut: " + cut.toString());
 			Partitioning node = max_partitioning.partitions.get(0).getPartitioning(cut);		
 			heap.add(node);		
 		}
@@ -53,7 +53,7 @@ public class BnB_topDown extends Partitioner {
 			
 			ArrayList<Partitioning> children = temp.getChildrenBySplitting();
 			
-			//System.out.println("Considered: " + temp.toString());
+			//System.out.println("Considered: " + temp.toString(3));
 			
 			considered_count++;
 			
