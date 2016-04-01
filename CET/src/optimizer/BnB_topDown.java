@@ -33,7 +33,7 @@ public class BnB_topDown extends Partitioner {
 		/*** Node search ***/
 		// Get all possibilities to cut, cut the graph and store the nodes in the heap 
 		Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
-		ArrayList<ArrayList<Integer>> cuts = max_partitioning.partitions.get(0).getAllCombinationsOfCuts(number_of_necessary_cuts+1);
+		ArrayList<ArrayList<Integer>> cuts = max_partitioning.partitions.get(0).getAllCombinationsOfCuts(number_of_necessary_cuts);
 		System.out.println("There are " + cuts.size() + " possibilities to cut.\n");		
 		
 		for (ArrayList<Integer> cut : cuts) {
