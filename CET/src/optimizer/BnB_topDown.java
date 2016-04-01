@@ -37,7 +37,7 @@ public class BnB_topDown extends Partitioner {
 		System.out.println("There are " + cuts.size() + " possibilities to cut.");		
 		
 		for (ArrayList<Integer> cut : cuts) {
-			System.out.println(cut.toString());
+			System.out.println("Cut: " + cut.toString());
 			Partitioning node = max_partitioning.partitions.get(0).getPartitioning(cut);		
 			heap.add(node);		
 		}
@@ -48,8 +48,8 @@ public class BnB_topDown extends Partitioner {
 			// Get the next node to process, its costs and children 
 			Partitioning temp = heap.poll();			
 			if (pruned.containsKey(temp.id)) continue;
-			double temp_cpu = temp.getCPUcost(windows, 3);
-			double temp_mem = temp.getMEMcost(windows, 3);
+			double temp_cpu = temp.getCPUcost(3);
+			double temp_mem = temp.getMEMcost(3);
 			
 			ArrayList<Partitioning> children = temp.getChildrenBySplitting();
 			
@@ -94,7 +94,7 @@ public class BnB_topDown extends Partitioner {
 		
 		// Find the number of minimal partitions
 		int s = 1;
-		int e = 0;
+		int e = -1;
 		int curr_sec = -1;		
 		for(Event event : batch) {
 			if (curr_sec < event.sec) {
@@ -108,12 +108,12 @@ public class BnB_topDown extends Partitioner {
 		int level = 0;
 		while (s <= e) {	
 			m = s + (e-s)/2;
-			ideal_memory = getIdealMEMcost(event_number,m,3);						
-			System.out.println("k=" + m + " mem=" + ideal_memory);
+			ideal_memory = getIdealMEMcost(event_number,m+1,3);						
+			System.out.println("m=" + m + " mem=" + ideal_memory);
 			
 			if (ideal_memory <= memory_limit) {
 				level = m;
-				e = m - 1;
+				e = m - 1;				
 			} else {
 				s = m + 1;
 			}

@@ -49,7 +49,7 @@ public class H_CET extends Transaction {
 		Partitioner partitioner = (search_algorithm==0) ? new Exh_topDown(windows) : new BnB_topDown(windows);
 									
 		resulting_partitioning = partitioner.getPartitioning(batch, memory_limit);
-		System.out.println("Result: " + resulting_partitioning.toString(windows,3));		
+		System.out.println("Result: " + resulting_partitioning.toString(3));		
 			
 		/*if (!resulting_partitioning.partitions.isEmpty()) {
 			

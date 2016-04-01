@@ -64,21 +64,21 @@ public class Partition extends Graph {
 	}
 	 
 	/*** Get CPU cost of this partition ***/
-	public double getCPUcost (ArrayDeque<Window> windows) {
+	public double getCPUcost () {
 		double exp = vertexNumber/new Double(3);
-		double cost = edgeNumber + Math.pow(3, exp);		
-		int windowNumber = 1; //getSharingWindowNumber(windows);
-		double final_cost = (windowNumber>1) ? cost/windowNumber : cost;
-		return final_cost;
+		double cost = edgeNumber + Math.pow(3,exp);		
+		/*int windowNumber = getSharingWindowNumber(windows);
+		double final_cost = (windowNumber>1) ? cost/windowNumber : cost;*/
+		return cost;
 	}
 	
 	/*** Get memory cost of this partition ***/
-	public double getMEMcost (ArrayDeque<Window> windows) {
+	public double getMEMcost () {
 		double exp = vertexNumber/new Double(3);
 		double cost = vertexNumber * Math.pow(3, exp); 		
-		int windowNumber = 1; //getSharingWindowNumber(windows);
-		double final_cost = (windowNumber>1) ? cost/windowNumber : cost;
-		return final_cost;
+		/*int windowNumber = getSharingWindowNumber(windows);
+		double final_cost = (windowNumber>1) ? cost/windowNumber : cost;*/
+		return cost;
 	}
 	
 	/*** Get actual memory requirement of this partition ***/
@@ -187,6 +187,7 @@ public class Partition extends Graph {
 			
 		// Fill input array with numbers
 		int max = this.minPartitionNumber-1;
+		//System.out.println("Max: " + max);
 		
 		if (max>0) {
 		
@@ -235,19 +236,19 @@ public class Partition extends Graph {
 		
 		// Set local variables
 		int start = this.start;
-		int end = this.end;
 		int vertex_number = 0;
 		int prev_node_number = 0;
 		int edge_number = 0;
 		ArrayList<Node> first_nodes = this.first_nodes;
 		ArrayList<Node> last_nodes = this.last_nodes;
+		int minPartitionNumber = 0;
 				
 		int index = 0;
 		int cut = cuts.get(index);
 		int cut_count = 1;		
 			
 		// Add seconds to current partition until the next cut
-		for (int sec=start; sec<=end; sec++) {
+		for (int sec=start; sec<=this.end; sec++) {
 			
 			if (hash.containsKey(sec)) {
 				
@@ -257,7 +258,10 @@ public class Partition extends Graph {
 				
 					vertex_number += nodes.size();
 					edge_number += prev_node_number * nodes.size();
+					minPartitionNumber++;
 					Partition p = new Partition(start,sec,vertex_number,edge_number,first_nodes,nodes);
+					p.hash = this.hash;
+					p.minPartitionNumber = minPartitionNumber;
 					parts.add(p);
 					//System.out.println(p.toString());
 				
@@ -265,18 +269,22 @@ public class Partition extends Graph {
 					vertex_number = 0;
 					edge_number = 0;
 					prev_node_number = 0;
-					if (sec+1<=end) first_nodes = hash.get(sec+1);
+					if (sec+1<=this.end) first_nodes = hash.get(sec+1);
 					if (index+1<=cuts.size()-1) cut = cuts.get(++index);
+					minPartitionNumber = 0;
 				} else {
 					vertex_number += nodes.size();
 					edge_number += prev_node_number * nodes.size();
 					prev_node_number = nodes.size();
+					minPartitionNumber++;
 				}
 				cut_count++;
 			}
 		}	
 		// Add last partition
-		Partition p = new Partition(start,end,vertex_number,edge_number,first_nodes,last_nodes);
+		Partition p = new Partition(start,this.end,vertex_number,edge_number,first_nodes,last_nodes);
+		p.hash = this.hash;
+		p.minPartitionNumber = minPartitionNumber;
 		parts.add(p);
 		//System.out.println(p.toString());
 		

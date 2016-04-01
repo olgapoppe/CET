@@ -87,7 +87,7 @@ public class Partitioning {
 	/*** Get CPU cost of this partitioning 
 	 * ignoring the CPU cost of graph construction and partitioning 
 	 * @param algorithm: 1 for M-CET, 2 for T-CET, 3 for H-CET ***/
-	public double getCPUcost (ArrayDeque<Window> windows, int algorithm) {
+	public double getCPUcost (int algorithm) {
 		
 		if (algorithm == 1) { /*** M-CET ***/
 			int vertex_number = partitions.get(0).vertexNumber;
@@ -102,11 +102,12 @@ public class Partitioning {
 			int v = 0;
 			// CPU cost within partitions
 			for (Partition part : partitions) {
-				cost_within += part.getCPUcost(windows);
+				cost_within += part.getCPUcost();
 				v += part.vertexNumber;			
 			}
 			// CPU cost across partitions
-			double cost_across = 2 * Math.pow(3, v/new Double(3)) * (partitions.size()-1);
+			double exp = v/new Double(3);
+			double cost_across = 2 * Math.pow(3,exp) * (partitions.size()-1);
 			return cost_within + cost_across;
 		}}	
 	}
@@ -114,7 +115,7 @@ public class Partitioning {
 	/*** Get memory cost of this partitioning 
 	 * ignoring the memory cost of graph storage 
 	 * @param algorithm: 1 for M-CET, 2 for T-CET, 3 for H-CET ***/
-	public double getMEMcost (ArrayDeque<Window> windows, int algorithm) {
+	public double getMEMcost (int algorithm) {
 		
 		if (algorithm == 1) { /*** M-CET ***/
 			int vertex_number = partitions.get(0).vertexNumber;
@@ -129,7 +130,7 @@ public class Partitioning {
 			int v = 0;
 			// Memory cost within partitions
 			for (Partition part : partitions) {
-				cost_within += part.getMEMcost(windows);
+				cost_within += part.getMEMcost();
 				v += part.vertexNumber;
 			}
 			// Memory cost across partitions
@@ -146,13 +147,20 @@ public class Partitioning {
 		for (int i=0; i<partitions.size(); i++) {
 			
 			// Split ith partition
-			Partition partition2split = partitions.get(i);			
+			Partition partition2split = partitions.get(i);	
+			
+			//System.out.println("\n2 split: " + partition2split.toString());
+			
 			ArrayList<ArrayList<Integer>> cuts = partition2split.getAllCombinationsOfCuts(1);
 			ArrayList<Partitioning> split_results = new ArrayList<Partitioning>();
 			for (ArrayList<Integer> cut : cuts) {
+				
 				//System.out.println(cut.toString());
+				
 				Partitioning split_result = partition2split.getPartitioning(cut);		
 				split_results.add(split_result);
+				
+				//System.out.println("split result: " + split_result.toString(3));
 			}
 			
 			for (Partitioning p : split_results) {
@@ -242,10 +250,10 @@ public class Partitioning {
 		return children;		
 	}
 	
-	public String toString(ArrayDeque<Window> windows, int algorithm) {
+	public String toString(int algorithm) {
 		String s = "Partition number: " + partitions.size() +
-				" CPU: " + getCPUcost(windows,algorithm) + 
-				" MEM: " + getMEMcost(windows,algorithm) + "\n";
+				" CPU: " + getCPUcost(algorithm) + 
+				" MEM: " + getMEMcost(algorithm) + "\n";
 		for (Partition p : partitions) {
 			s += p.toString() + "\n";
 		}
