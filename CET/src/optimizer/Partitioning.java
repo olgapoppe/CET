@@ -40,7 +40,7 @@ public class Partitioning {
 		int first_sec = events.get(0).sec;
 		int last_sec = events.get(events.size()-1).sec;
 		Partition part = new Partition(first_sec,last_sec,events.size(),graph.edgeNumber,graph.first_nodes,graph.last_nodes);
-		part.hash = graph.hash;
+		part.events_per_second = graph.events_per_second;
 		part.minPartitionNumber = graph.minPartitionNumber;
 		
 		// Return an partitioning with this partition
@@ -149,13 +149,13 @@ public class Partitioning {
 			
 			//System.out.println("\n2 split: " + partition2split.toString());
 			
-			ArrayList<ArrayList<Integer>> cuts = partition2split.getAllCombinationsOfCuts(1);
+			ArrayList<CutSet> cutsets = partition2split.getAllCutSets(1);
 			ArrayList<Partitioning> split_results = new ArrayList<Partitioning>();
-			for (ArrayList<Integer> cut : cuts) {
+			for (CutSet cutset : cutsets) {
 				
 				//System.out.println(cut.toString());
 				
-				Partitioning split_result = partition2split.getPartitioning(cut);		
+				Partitioning split_result = partition2split.getPartitioning(cutset);		
 				split_results.add(split_result);
 				
 				//System.out.println("split result: " + split_result.toString(3));

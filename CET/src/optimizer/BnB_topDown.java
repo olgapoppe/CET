@@ -17,9 +17,9 @@ public class BnB_topDown extends Partitioner {
 	public Partitioning getPartitioning (ArrayList<Event> batch, double memory_limit) {
 		
 		// Set local variables
-		LinkedList<Partitioning> heap = new LinkedList<Partitioning>();
-		Partitioning solution = new Partitioning(new ArrayList<Partition>());
-		HashMap<String,Integer> pruned = new HashMap<String,Integer>();
+		LinkedList<CutSet> heap = new LinkedList<CutSet>();
+		CutSet bestcutset = new CutSet(new ArrayList<Integer>());
+		HashMap<Integer,Integer> pruned = new HashMap<Integer,Integer>();
 				
 		double minCPU = Double.MAX_VALUE;		
 		int maxHeapSize = 0;
@@ -31,25 +31,26 @@ public class BnB_topDown extends Partitioner {
 		System.out.println("Min number of necessary cuts: " + number_of_necessary_cuts);
 		
 		/*** Node search ***/
-		// Get all possibilities to cut, cut the graph and store the nodes in the heap 
+		// Get the graph and its events per second 
 		Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
-		ArrayList<ArrayList<Integer>> cuts = max_partitioning.partitions.get(0).getAllCombinationsOfCuts(number_of_necessary_cuts);
-		System.out.println("There are " + cuts.size() + " possibilities to cut.\n");		
+		Partition max_partition = max_partitioning.partitions.get(0);
+		HashMap<Integer,ArrayList<Node>> events_per_second = max_partition.events_per_second;
+		int start = max_partition.start;
+		int end = max+partition.end;
 		
-		for (ArrayList<Integer> cut : cuts) {
-			//System.out.println("Cut: " + cut.toString());
-			Partitioning node = max_partitioning.partitions.get(0).getPartitioning(cut);		
-			heap.add(node);		
-		}
-		
+		// Get all possibilities to cut, cut the graph and store the nodes in the heap
+		ArrayList<CutSet> cutsets = max_partition.getAllCutSets(number_of_necessary_cuts);
+		heap.addAll(cutsets);
+		System.out.println("There are " + cutsets.size() + " possibilities to cut.\n");		
+				
 		// Find optimal solution
 		while (!heap.isEmpty()) {
 			
 			// Get the next node to process, its costs and children 
-			Partitioning temp = heap.poll();			
-			if (pruned.containsKey(temp.id)) continue;
-			double temp_cpu = temp.getCPUcost(3);
-			double temp_mem = temp.getMEMcost(3);
+			CutSet temp = heap.poll();			
+			if (temp.isPruned(pruned)) continue;
+			double temp_cpu = temp.getCPUcost(start,end,events_per_second);
+			double temp_mem = temp.getMEMcost(start,end,events_per_second);
 			
 			ArrayList<Partitioning> children = temp.getChildrenBySplitting();
 			
@@ -70,7 +71,7 @@ public class BnB_topDown extends Partitioner {
 			} else {
 				// Update solution
 				if (temp_cpu < minCPU) {
-					solution = temp;
+					bestcutset = temp;
 					minCPU = temp_cpu;
 				}
 				// Prune the children
@@ -84,7 +85,9 @@ public class BnB_topDown extends Partitioner {
 		
 		//System.out.println("Chosen: " + solution.toString()); 
 		
-		return solution;		
+		
+		// Only the solution partitioning is actually constructed		
+		return max_partition.getPartitioning(bestcutset);		
 	}
 	
 	/*** Get minimal number of required partitions walking the search space top down ***/

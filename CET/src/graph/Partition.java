@@ -180,10 +180,10 @@ public class Partition extends Graph {
 	}
 	
 	/*** Get all combinations of numbers from 1 to max of length n  ***/
-	public ArrayList<ArrayList<Integer>> getAllCombinationsOfCuts (int n) {	
+	public ArrayList<CutSet> getAllCutSets (int n) {	
 		
 		// Result accumulator
-		ArrayList<ArrayList<Integer>> results = new ArrayList<ArrayList<Integer>>();
+		ArrayList<CutSet> results = new ArrayList<CutSet>();
 			
 		// Fill input array with numbers
 		int max = this.minPartitionNumber-1;
@@ -200,22 +200,27 @@ public class Partition extends Graph {
 			int data[] = new int[n];		
 
 			// Get all combinations using temporary array 'data[]'
-			results = getAllCombinationsOfCutsAux(arr, data, 0, arr.length-1, 0, n, results);
+			results = getAllCutSetsAux(arr, data, 0, arr.length-1, 0, n, results);
 		}
 		return results;
 	}
 	
-	static ArrayList<ArrayList<Integer>> getAllCombinationsOfCutsAux(int arr[], int data[], int start, int end, int index, int r, ArrayList<ArrayList<Integer>> results) {
+	static ArrayList<CutSet> getAllCutSetsAux(int arr[], int data[], int start, int end, int index, int r, ArrayList<CutSet> results) {
 		
 		// Current combination is ready to be printed, print it
 		if (index == r) {
-			ArrayList<Integer> result = new ArrayList<Integer> ();
+			CutSet result = new CutSet(new ArrayList<Integer> ());
 			for (int j=0; j<r; j++) {
 				//System.out.print(data[j]+" ");
-				result.add(data[j]);
+				result.cutset.add(data[j]);
 			}
 			//System.out.println("");
+			
+			// If result is nearly balanced and not pruned then add it to results
+			// input: pruned cuts, ideal number of nodes per partition and events per second 
+			
 			results.add(result);
+						
 			return results;
 		}
 
@@ -225,12 +230,12 @@ public class Partition extends Graph {
 		// at remaining positions
 		for (int i=start; i<=end && end-i+1 >= r-index; i++) {
 			data[index] = arr[i];
-			results = getAllCombinationsOfCutsAux(arr, data, i+1, end, index+1, r, results);
+			results = getAllCutSetsAux(arr, data, i+1, end, index+1, r, results);
 		}
 		return results;
 	}
 	
-	public Partitioning getPartitioning (ArrayList<Integer> cuts) {
+	public Partitioning getPartitioning (CutSet cutset) {
 		
 		ArrayList<Partition> parts = new ArrayList<Partition>();
 		
@@ -244,15 +249,15 @@ public class Partition extends Graph {
 		int minPartitionNumber = 0;
 				
 		int index = 0;
-		int cut = cuts.get(index);
+		int cut = cutset.cutset.get(index);
 		int cut_count = 1;		
 			
 		// Add seconds to current partition until the next cut
 		for (int sec=start; sec<=this.end; sec++) {
 			
-			if (hash.containsKey(sec)) {
+			if (events_per_second.containsKey(sec)) {
 				
-				ArrayList<Node> nodes = hash.get(sec);
+				ArrayList<Node> nodes = events_per_second.get(sec);
 						
 				if (cut_count == cut) {
 				
@@ -260,7 +265,7 @@ public class Partition extends Graph {
 					edge_number += prev_node_number * nodes.size();
 					minPartitionNumber++;
 					Partition p = new Partition(start,sec,vertex_number,edge_number,first_nodes,nodes);
-					p.hash = this.hash;
+					p.events_per_second = this.events_per_second;
 					p.minPartitionNumber = minPartitionNumber;
 					parts.add(p);
 					//System.out.println(p.toString());
@@ -269,8 +274,8 @@ public class Partition extends Graph {
 					vertex_number = 0;
 					edge_number = 0;
 					prev_node_number = 0;
-					if (sec+1<=this.end) first_nodes = hash.get(sec+1);
-					if (index+1<=cuts.size()-1) cut = cuts.get(++index);
+					if (sec+1<=this.end) first_nodes = events_per_second.get(sec+1);
+					if (index+1<=cutset.cutset.size()-1) cut = cutset.cutset.get(++index);
 					minPartitionNumber = 0;
 				} else {
 					vertex_number += nodes.size();
@@ -283,7 +288,7 @@ public class Partition extends Graph {
 		}	
 		// Add last partition
 		Partition p = new Partition(start,this.end,vertex_number,edge_number,first_nodes,last_nodes);
-		p.hash = this.hash;
+		p.events_per_second = this.events_per_second;
 		p.minPartitionNumber = minPartitionNumber;
 		parts.add(p);
 		//System.out.println(p.toString());

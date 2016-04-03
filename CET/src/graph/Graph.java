@@ -7,7 +7,8 @@ import event.*;
 public class Graph {
 	
 	public ArrayList<Node> nodes;
-	public HashMap<Integer,ArrayList<Node>> hash;
+	// Events per second
+	public HashMap<Integer,ArrayList<Node>> events_per_second;
 	public int edgeNumber;
 	public ArrayList<Node> first_nodes;
 	public ArrayList<Node> last_nodes;  
@@ -15,7 +16,7 @@ public class Graph {
 		
 	public Graph () {
 		nodes = new ArrayList<Node>();
-		hash = new HashMap<Integer,ArrayList<Node>>();
+		events_per_second = new HashMap<Integer,ArrayList<Node>>();
 		edgeNumber = 0;
 		first_nodes = new ArrayList<Node>();
 		last_nodes = new ArrayList<Node>();
@@ -96,9 +97,9 @@ public class Graph {
 			graph.nodes.add(node);
 			
 			int sec = node.event.sec;
-			ArrayList<Node> ns = (graph.hash.containsKey(sec)) ? graph.hash.get(sec) : new ArrayList<Node>();
+			ArrayList<Node> ns = (graph.events_per_second.containsKey(sec)) ? graph.events_per_second.get(sec) : new ArrayList<Node>();
 			ns.add(node);
-			graph.hash.put(sec,ns);			
+			graph.events_per_second.put(sec,ns);			
 		}
 		//for (Node node : graph.nodes) { System.out.println(node.toString()); }	
 		return graph;
