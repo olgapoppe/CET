@@ -46,6 +46,7 @@ public class BnB_topDown extends Partitioner {
 				cutset.partitioning = p;
 				heap.add(cutset);
 				count++;
+				//System.out.println(cutset.toString());	
 		}}	
 		System.out.println("There are " + count + " nearly balanced not pruned nodes at level " + level + "\n");		
 		
@@ -60,7 +61,7 @@ public class BnB_topDown extends Partitioner {
 			if (temp.isPruned(pruned)) continue;			
 			double temp_cpu = temp.partitioning.getCPUcost(3);
 			double temp_mem = temp.partitioning.getMEMcost(3);		
-			//System.out.println("Considered: " + temp.toString(3));
+			//System.out.println("Considered: " + temp.toString());
 			considered_count++;
 			
 			// Update the solution and prune the descendants
@@ -69,10 +70,13 @@ public class BnB_topDown extends Partitioner {
 					bestcutset = temp;
 					minCPU = temp_cpu;
 				}
-				for (Integer cut : temp.cutset) 
-					pruned.put(cut, 1);				
-			}		
-			
+				for (Integer cut : temp.cutset) {
+					if (!pruned.containsKey(cut)) {
+						pruned.put(cut, 1);
+						//System.out.println("Pruned cut: " + cut);
+					}				
+				}
+			}			
 			// Put all nearly balanced not pruned nodes from the next level to the heap
 			if (temp.cutset.size() == level) {
 				level++;
@@ -85,6 +89,7 @@ public class BnB_topDown extends Partitioner {
 						cutset.partitioning = p;
 						heap.add(cutset);
 						count++;
+						//System.out.println(cutset.toString());
 				}}	
 				System.out.println("There are " + count + " nearly balanced not pruned nodes at level " + level + "\n");			
 				
@@ -95,8 +100,7 @@ public class BnB_topDown extends Partitioner {
 		System.out.println("Max heap size: " + maxHeapSize + 
 				"\nConsidered: " + considered_count);
 		
-		//System.out.println("Chosen: " + solution.toString()); 
-						
+		//System.out.println("Chosen: " + solution.toString()); 					
 		return bestcutset.partitioning;		
 	}
 	

@@ -217,7 +217,7 @@ public class Partition extends Graph {
 			}
 			//System.out.println("");
 			
-			results.add(result);						
+			if (!result.cutset.contains(0)) results.add(result);						
 			return results;
 		}
 
