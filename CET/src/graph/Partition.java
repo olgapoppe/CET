@@ -206,7 +206,7 @@ public class Partition extends Graph {
 		return results;
 	}
 	
-	static ArrayList<CutSet> getAllCutSetsAux(int arr[], int data[], int start, int end, int index, int r, ArrayList<CutSet> results) {
+	public ArrayList<CutSet> getAllCutSetsAux (int arr[], int data[], int start, int end, int index, int r, ArrayList<CutSet> results) {
 		
 		// Current combination is done, save it in results
 		if (index == r) {
@@ -233,7 +233,7 @@ public class Partition extends Graph {
 	}
 	
 	/*** Get all combinations of numbers from 1 to max of length n excluding pruned  ***/
-	public ArrayList<CutSet> getAllNearlyBalancedNotPrunedCutSets (int n, HashMap<Integer,Integer> pruned) {	
+	public ArrayList<CutSet> getAllNotPrunedCutSets (int n, HashMap<Integer,Integer> pruned) {	
 		
 		// Result accumulator
 		ArrayList<CutSet> results = new ArrayList<CutSet>();
@@ -311,6 +311,71 @@ public class Partition extends Graph {
 					minPartitionNumber++;
 				}
 				cut_count++;
+			}
+		}	
+		// Add last partition
+		Partition p = new Partition(start,this.end,vertex_number,edge_number,first_nodes,last_nodes);
+		p.events_per_second = this.events_per_second;
+		p.minPartitionNumber = minPartitionNumber;
+		parts.add(p);
+		//System.out.println(p.toString());
+		
+		Partitioning partitioning = new Partitioning(parts);
+		return partitioning;
+	}
+	
+	public Partitioning getNearlyBalancedPartitioning (CutSet cutset, int ideal_partition_size) {
+		
+		ArrayList<Partition> parts = new ArrayList<Partition>();
+		
+		// Set local variables
+		int start = this.start;
+		int vertex_number = 0;
+		int prev_node_number = 0;
+		int edge_number = 0;
+		ArrayList<Node> first_nodes = this.first_nodes;
+		ArrayList<Node> last_nodes = this.last_nodes;
+		int minPartitionNumber = 0;
+				
+		int index = 0;
+		int cut = cutset.cutset.get(index);
+		int cut_count = 1;
+		boolean isNearlyBalanced = true;
+			
+		// Add seconds to current partition until the next cut
+		for (int sec=start; sec<=this.end; sec++) {
+			
+			if (events_per_second.containsKey(sec)) {
+				
+				ArrayList<Node> nodes = events_per_second.get(sec);
+						
+				if (cut_count == cut) {
+				
+					vertex_number += nodes.size();
+					edge_number += prev_node_number * nodes.size();
+					minPartitionNumber++;
+					Partition p = new Partition(start,sec,vertex_number,edge_number,first_nodes,nodes);
+					p.events_per_second = this.events_per_second;
+					p.minPartitionNumber = minPartitionNumber;
+					parts.add(p);
+					//System.out.println(p.toString());
+				
+					start = sec+1;
+					vertex_number = 0;
+					edge_number = 0;
+					prev_node_number = 0;
+					if (sec+1<=this.end) first_nodes = events_per_second.get(sec+1);
+					if (index+1<=cutset.cutset.size()-1) cut = cutset.cutset.get(++index);
+					minPartitionNumber = 0;					
+				} else {
+					vertex_number += nodes.size();
+					edge_number += prev_node_number * nodes.size();
+					prev_node_number = nodes.size();
+					minPartitionNumber++;					
+				}
+				cut_count++;
+				isNearlyBalanced = vertex_number<ideal_partition_size || cut_count>=cut;
+				if (!isNearlyBalanced) return null;
 			}
 		}	
 		// Add last partition

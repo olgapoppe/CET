@@ -2,10 +2,12 @@ package graph;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import optimizer.*;
 
 public class CutSet {
 	
 	public ArrayList<Integer> cutset;
+	public Partitioning partitioning;
 	
 	public CutSet (ArrayList<Integer> cs) {
 		cutset = cs;

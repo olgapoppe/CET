@@ -34,14 +34,20 @@ public class BnB_topDown extends Partitioner {
 		// Get the graph and its events per second 
 		Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
 		Partition max_partition = max_partitioning.partitions.get(0);
-		HashMap<Integer,ArrayList<Node>> events_per_second = max_partition.events_per_second;
-		int start = max_partition.start;
-		int end = max_partition.end;
+		int vertex_number = max_partition.vertexNumber; 
 		
-		// Get all possibilities to cut, cut the graph and store the nodes in the heap
-		ArrayList<CutSet> cutsets = max_partition.getAllNearlyBalncedNotPrunedCutSets(level, pruned, events_per_second);
-		heap.addAll(cutsets);
-		System.out.println("There are " + cutsets.size() + " nearly balanced not pruned nodes at level " + level + "\n");		
+		// Get all not pruned cut sets, construct nearly balanced partitionings, store them in the respective cut sets and store these cut sets in the heap
+		ArrayList<CutSet> cutsets = max_partition.getAllNotPrunedCutSets(level, pruned);
+		int ideal_partition_size = vertex_number / (level+1);
+		int count = 0;
+		for (CutSet cutset : cutsets) {			
+			Partitioning p = max_partition.getNearlyBalancedPartitioning(cutset, ideal_partition_size);
+			if (p != null) {
+				cutset.partitioning = p;
+				heap.add(cutset);
+				count++;
+		}}	
+		System.out.println("There are " + count + " nearly balanced not pruned nodes at level " + level + "\n");		
 		
 		// Update max heap size
 		if (maxHeapSize < heap.size()) maxHeapSize = heap.size();
@@ -52,8 +58,8 @@ public class BnB_topDown extends Partitioner {
 			// Get the next node to process, its costs and children 
 			CutSet temp = heap.poll();			
 			if (temp.isPruned(pruned)) continue;			
-			double temp_cpu = temp.getCPUcost(start,end,events_per_second);
-			double temp_mem = temp.getMEMcost(start,end,events_per_second);		
+			double temp_cpu = temp.partitioning.getCPUcost(3);
+			double temp_mem = temp.partitioning.getMEMcost(3);		
 			//System.out.println("Considered: " + temp.toString(3));
 			considered_count++;
 			
@@ -70,9 +76,17 @@ public class BnB_topDown extends Partitioner {
 			// Put all nearly balanced not pruned nodes from the next level to the heap
 			if (temp.cutset.size() == level) {
 				level++;
-				cutsets = max_partition.getAllNearlyBalncedNotPrunedCutSets(level, pruned, events_per_second);
-				heap.addAll(cutsets);
-				System.out.println("There are " + cutsets.size() + " nearly balanced not pruned nodes at level " + level + "\n");
+				cutsets = max_partition.getAllNotPrunedCutSets(level, pruned);				
+				ideal_partition_size = vertex_number / (level+1);
+				count = 0;
+				for (CutSet cutset : cutsets) {			
+					Partitioning p = max_partition.getNearlyBalancedPartitioning(cutset, ideal_partition_size);
+					if (p != null) {
+						cutset.partitioning = p;
+						heap.add(cutset);
+						count++;
+				}}	
+				System.out.println("There are " + count + " nearly balanced not pruned nodes at level " + level + "\n");			
 				
 				// Update max heap size
 				if (maxHeapSize < heap.size()) maxHeapSize = heap.size();
@@ -82,10 +96,8 @@ public class BnB_topDown extends Partitioner {
 				"\nConsidered: " + considered_count);
 		
 		//System.out.println("Chosen: " + solution.toString()); 
-		
-		
-		// Only the solution partitioning is actually constructed		
-		return max_partition.getPartitioning(bestcutset);		
+						
+		return bestcutset.partitioning;		
 	}
 	
 	/*** Get minimal number of required partitions walking the search space top down ***/
