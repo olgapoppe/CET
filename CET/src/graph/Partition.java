@@ -341,6 +341,7 @@ public class Partition extends Graph {
 		int cut = cutset.cutset.get(index);
 		int cut_count = 1;
 		boolean isNearlyBalanced = true;
+		boolean isFirstPartition = true;
 			
 		// Add seconds to current partition until the next cut
 		for (int sec=start; sec<=this.end; sec++) {
@@ -354,6 +355,14 @@ public class Partition extends Graph {
 					vertex_number += nodes.size();
 					edge_number += prev_node_number * nodes.size();
 					minPartitionNumber++;
+					
+					// Check that new partition is nearly balanced
+					isNearlyBalanced = (isFirstPartition) ? 
+						(vertex_number - nodes.size() <= ideal_partition_size) : 
+						(vertex_number - first_nodes.size() <= ideal_partition_size || vertex_number - nodes.size() <= ideal_partition_size);
+					if (!isNearlyBalanced) return null;
+					
+					// Add new partition to the results
 					Partition p = new Partition(start,sec,vertex_number,edge_number,first_nodes,nodes);
 					p.events_per_second = this.events_per_second;
 					p.minPartitionNumber = minPartitionNumber;
@@ -364,7 +373,10 @@ public class Partition extends Graph {
 					vertex_number = 0;
 					edge_number = 0;
 					prev_node_number = 0;
-					if (sec+1<=this.end) first_nodes = events_per_second.get(sec+1);
+					if (sec+1<=this.end) {
+						first_nodes = events_per_second.get(sec+1);
+						isFirstPartition = false;
+					}
 					if (index+1<=cutset.cutset.size()-1) cut = cutset.cutset.get(++index);
 					minPartitionNumber = 0;					
 				} else {
@@ -373,11 +385,13 @@ public class Partition extends Graph {
 					prev_node_number = nodes.size();
 					minPartitionNumber++;					
 				}
-				cut_count++;
-				isNearlyBalanced = vertex_number<ideal_partition_size || cut_count>=cut;
-				if (!isNearlyBalanced) return null;
+				cut_count++;				
 			}
 		}	
+		// Check that last partition is nearly balanced
+		isNearlyBalanced = vertex_number - first_nodes.size() <= ideal_partition_size;
+		if (!isNearlyBalanced) return null;
+		
 		// Add last partition
 		Partition p = new Partition(start,this.end,vertex_number,edge_number,first_nodes,last_nodes);
 		p.events_per_second = this.events_per_second;

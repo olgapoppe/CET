@@ -2,6 +2,8 @@ package graph;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
+
 import event.*;
 
 public class Graph {
@@ -102,6 +104,16 @@ public class Graph {
 			graph.events_per_second.put(sec,ns);			
 		}
 		//for (Node node : graph.nodes) { System.out.println(node.toString()); }	
+		//System.out.println(graph.printEventNumberPerSecond());
 		return graph;
 	}	
+	
+	public String printEventNumberPerSecond() {
+		String result = "";
+		Set<Integer> keyset = this.events_per_second.keySet();
+		for (int key : keyset) {
+			result += key + " : " + this.events_per_second.get(key).size() + ", ";
+		}
+		return result;
+	}
 }
