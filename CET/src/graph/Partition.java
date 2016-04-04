@@ -208,7 +208,7 @@ public class Partition extends Graph {
 	
 	static ArrayList<CutSet> getAllCutSetsAux(int arr[], int data[], int start, int end, int index, int r, ArrayList<CutSet> results) {
 		
-		// Current combination is ready to be printed, print it
+		// Current combination is done, save it in results
 		if (index == r) {
 			CutSet result = new CutSet(new ArrayList<Integer> ());
 			for (int j=0; j<r; j++) {
@@ -217,8 +217,7 @@ public class Partition extends Graph {
 			}
 			//System.out.println("");
 			
-			results.add(result);
-						
+			results.add(result);						
 			return results;
 		}
 
@@ -229,6 +228,36 @@ public class Partition extends Graph {
 		for (int i=start; i<=end && end-i+1 >= r-index; i++) {
 			data[index] = arr[i];
 			results = getAllCutSetsAux(arr, data, i+1, end, index+1, r, results);
+		}
+		return results;
+	}
+	
+	/*** Get all combinations of numbers from 1 to max of length n excluding pruned  ***/
+	public ArrayList<CutSet> getAllNearlyBalancedNotPrunedCutSets (int n, HashMap<Integer,Integer> pruned) {	
+		
+		// Result accumulator
+		ArrayList<CutSet> results = new ArrayList<CutSet>();
+			
+		// Fill input array with numbers excluding pruned
+		int max = this.minPartitionNumber-1;
+		//System.out.println("Max: " + max);
+		
+		if (max>0) {
+		
+			int arr[] = new int[max];	
+			int index = 0;
+			for (int i=1; i<=max; i++) {
+				if (!pruned.containsKey(i)) {
+					arr[index] = i;
+					index++;
+				}
+			}	
+				
+			// A temporary array to store all combination one by one
+			int data[] = new int[n];		
+
+			// Get all combinations using temporary array 'data[]'
+			results = getAllCutSetsAux(arr, data, 0, arr.length-1, 0, n, results);
 		}
 		return results;
 	}
