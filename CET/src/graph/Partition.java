@@ -2,6 +2,7 @@ package graph;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import optimizer.Partitioning;
 import event.*;
@@ -215,9 +216,6 @@ public class Partition extends Graph {
 				result.cutset.add(data[j]);
 			}
 			//System.out.println("");
-			
-			// If result is nearly balanced and not pruned then add it to results
-			// input: pruned cuts, ideal number of nodes per partition and events per second 
 			
 			results.add(result);
 						

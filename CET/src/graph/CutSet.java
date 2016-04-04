@@ -85,6 +85,10 @@ public class CutSet {
 		return cost_within + cost_across;
 	}
 	
+	public boolean isNearlyBalanced (HashMap<Integer,Integer> pruned, HashMap<Integer,ArrayList<Node>> events_per_second) {
+		return true;
+	}
+	
 	public boolean isPruned (HashMap<Integer,Integer> pruned) {
 		for (Integer cut : cutset) {
 			if (pruned.containsKey(cut)) return true;

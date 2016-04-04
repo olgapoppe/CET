@@ -27,8 +27,8 @@ public class BnB_topDown extends Partitioner {
 		
 		/*** Level search ***/		
 		// Get number of necessary cuts
-		int number_of_necessary_cuts = getMinNumberOfRequiredPartitions_walkDown(batch,memory_limit);
-		System.out.println("Min number of necessary cuts: " + number_of_necessary_cuts);
+		int level = getMinNumberOfRequiredPartitions_walkDown(batch,memory_limit);
+		System.out.println("Min number of necessary cuts: " + level);
 		
 		/*** Node search ***/
 		// Get the graph and its events per second 
@@ -36,48 +36,46 @@ public class BnB_topDown extends Partitioner {
 		Partition max_partition = max_partitioning.partitions.get(0);
 		HashMap<Integer,ArrayList<Node>> events_per_second = max_partition.events_per_second;
 		int start = max_partition.start;
-		int end = max+partition.end;
+		int end = max_partition.end;
 		
 		// Get all possibilities to cut, cut the graph and store the nodes in the heap
-		ArrayList<CutSet> cutsets = max_partition.getAllCutSets(number_of_necessary_cuts);
+		ArrayList<CutSet> cutsets = max_partition.getAllNearlyBalncedNotPrunedCutSets(level, pruned, events_per_second);
 		heap.addAll(cutsets);
-		System.out.println("There are " + cutsets.size() + " possibilities to cut.\n");		
+		System.out.println("There are " + cutsets.size() + " nearly balanced not pruned nodes at level " + level + "\n");		
+		
+		// Update max heap size
+		if (maxHeapSize < heap.size()) maxHeapSize = heap.size();
 				
 		// Find optimal solution
 		while (!heap.isEmpty()) {
 			
 			// Get the next node to process, its costs and children 
 			CutSet temp = heap.poll();			
-			if (temp.isPruned(pruned)) continue;
+			if (temp.isPruned(pruned)) continue;			
 			double temp_cpu = temp.getCPUcost(start,end,events_per_second);
-			double temp_mem = temp.getMEMcost(start,end,events_per_second);
-			
-			ArrayList<Partitioning> children = temp.getChildrenBySplitting();
-			
+			double temp_mem = temp.getMEMcost(start,end,events_per_second);		
 			//System.out.println("Considered: " + temp.toString(3));
-			
 			considered_count++;
 			
-			if (temp_mem > memory_limit) {
-				
-				// Add children to the heap				
-				for (Partitioning child : children) {					
-					if (!heap.contains(child) && !pruned.containsKey(child.id)) 
-						heap.add(child); 
-				} 
-				// Update max heap size
-				if (maxHeapSize < heap.size()) 
-					maxHeapSize = heap.size();
-			} else {
-				// Update solution
+			// Update the solution and prune the descendants
+			if (temp_mem < memory_limit) {
 				if (temp_cpu < minCPU) {
 					bestcutset = temp;
 					minCPU = temp_cpu;
 				}
-				// Prune the children
-				for (Partitioning child : children) {
-					pruned.put(child.id, 1);
-				}
+				for (Integer cut : temp.cutset) 
+					pruned.put(cut, 1);				
+			}		
+			
+			// Put all nearly balanced not pruned nodes from the next level to the heap
+			if (temp.cutset.size() == level) {
+				level++;
+				cutsets = max_partition.getAllNearlyBalncedNotPrunedCutSets(level, pruned, events_per_second);
+				heap.addAll(cutsets);
+				System.out.println("There are " + cutsets.size() + " nearly balanced not pruned nodes at level " + level + "\n");
+				
+				// Update max heap size
+				if (maxHeapSize < heap.size()) maxHeapSize = heap.size();
 			}			
 		}
 		System.out.println("Max heap size: " + maxHeapSize + 
