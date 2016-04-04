@@ -280,7 +280,7 @@ public class Partition extends Graph {
 		int cut_count = 1;		
 			
 		// Add seconds to current partition until the next cut
-		for (int sec=start; sec<=this.end; sec++) {
+		for (int sec=start; sec<=this.end; sec=this.getNextSec(sec)) {
 			
 			if (events_per_second.containsKey(sec)) {
 				
@@ -297,11 +297,12 @@ public class Partition extends Graph {
 					parts.add(p);
 					//System.out.println(p.toString());
 				
-					start = sec+1;
+					int next_sec = this.getNextSec(sec);
+					start = next_sec;
 					vertex_number = 0;
 					edge_number = 0;
 					prev_node_number = 0;
-					if (sec+1<=this.end) first_nodes = events_per_second.get(sec+1);
+					if (next_sec<=this.end) first_nodes = events_per_second.get(next_sec);
 					if (index+1<=cutset.cutset.size()-1) cut = cutset.cutset.get(++index);
 					minPartitionNumber = 0;
 				} else {
@@ -344,12 +345,12 @@ public class Partition extends Graph {
 		boolean isFirstPartition = true;
 			
 		// Add seconds to current partition until the next cut
-		for (int sec=start; sec<=this.end; sec++) {
+		for (int sec=start; sec<=this.end; sec=this.getNextSec(sec)) {
 			
 			if (events_per_second.containsKey(sec)) {
 				
 				ArrayList<Node> nodes = events_per_second.get(sec);
-						
+										
 				if (cut_count == cut) {
 				
 					vertex_number += nodes.size();
@@ -369,12 +370,13 @@ public class Partition extends Graph {
 					parts.add(p);
 					//System.out.println(p.toString());
 				
-					start = sec+1;
+					int next_sec = this.getNextSec(sec);
+					start = next_sec;
 					vertex_number = 0;
 					edge_number = 0;
-					prev_node_number = 0;
-					if (sec+1<=this.end) {
-						first_nodes = events_per_second.get(sec+1);
+					prev_node_number = 0;					
+					if (next_sec<=this.end) {
+						first_nodes = events_per_second.get(next_sec);
 						isFirstPartition = false;
 					}
 					if (index+1<=cutset.cutset.size()-1) cut = cutset.cutset.get(++index);

@@ -25,6 +25,17 @@ public class Graph {
 		minPartitionNumber = 0;
 	}
 	
+	public int getNextSec (int sec) {
+		int result = Integer.MAX_VALUE;
+		Set<Integer> keyset = this.events_per_second.keySet();
+		for (int key : keyset) {
+			if (key > sec && key < result) 
+				result = key;
+		}
+		//System.out.println("sec: " + sec + " result: " + result);
+		return result;
+	}
+	
 	public void connect (Node first, Node second) {
 		if (!first.following.contains(second)) {
 			first.connect(second);

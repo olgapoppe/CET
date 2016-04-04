@@ -28,8 +28,7 @@ public class BnB_topDown extends Partitioner {
 		/*** Level search ***/		
 		// Get number of necessary cuts
 		int level = getMinNumberOfRequiredPartitions_walkDown(batch,memory_limit);
-		System.out.println("Min number of necessary cuts: " + level);
-		
+				
 		/*** Node search ***/
 		// Get the graph and its events per second 
 		Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
@@ -39,6 +38,7 @@ public class BnB_topDown extends Partitioner {
 		// Get all not pruned cut sets, construct nearly balanced partitionings, store them in the respective cut sets and store these cut sets in the heap
 		ArrayList<CutSet> cutsets = max_partition.getAllNotPrunedCutSets(level, pruned);
 		int ideal_partition_size = vertex_number / (level+1);
+		System.out.println("Min number of necessary cuts is " + level + " of size " + ideal_partition_size);
 		int count = 0;
 		for (CutSet cutset : cutsets) {			
 			Partitioning p = max_partition.getNearlyBalancedPartitioning(cutset, ideal_partition_size);
@@ -61,7 +61,7 @@ public class BnB_topDown extends Partitioner {
 			if (temp.isPruned(pruned)) continue;			
 			double temp_cpu = temp.partitioning.getCPUcost(3);
 			double temp_mem = temp.partitioning.getMEMcost(3);		
-			System.out.println("Considered: " + temp.toString() + " " + temp.partitioning.toString(3));
+			//System.out.println("Considered: " + temp.toString() + " " + temp.partitioning.toString(3));
 			considered_count++;
 			
 			// Update the solution and prune the descendants
@@ -73,7 +73,7 @@ public class BnB_topDown extends Partitioner {
 				for (Integer cut : temp.cutset) {
 					if (!pruned.containsKey(cut)) {
 						pruned.put(cut, 1);
-						System.out.println("Pruned cut: " + cut);
+						//System.out.println("Pruned cut: " + cut);
 					}				
 				}
 			}			
