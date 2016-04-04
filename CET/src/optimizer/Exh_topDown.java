@@ -18,8 +18,8 @@ public class Exh_topDown extends Partitioner {
 	public Partitioning getPartitioning (ArrayList<Event> batch, double memory_limit) { // double part_num
 		
 		// Set local variables
-		Partitioning root = Partitioning.getPartitioningWithMaxPartition(batch);
-		System.out.println("Input: " + root.toString(2));
+		Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
+		System.out.println("Input: " + max_partitioning.toString(2));
 		Partitioning solution = new Partitioning(new ArrayList<Partition>());
 		
 		double minCPU = Double.MAX_VALUE;
@@ -29,7 +29,7 @@ public class Exh_topDown extends Partitioner {
 		int algorithm = 2;
 			
 		LinkedList<Partitioning> heap = new LinkedList<Partitioning>();
-		heap.add(root);		
+		heap.add(max_partitioning);		
 				
 		while (!heap.isEmpty()) {
 			
@@ -69,8 +69,9 @@ public class Exh_topDown extends Partitioner {
 				"\nConsidered: " + considered_count +
 				"\nMedian memory cost: " + median);
 		
-		//System.out.println("Chosen: " + solution.toString(windows)); 
-		
-		return solution;		
+		Partitioning result = (solution.partitions.isEmpty()) ? max_partitioning : solution;
+		algorithm = (solution.partitions.isEmpty()) ? 1 : 3;
+		System.out.println("Chosen: " + result.toString(3));
+		return result;		
 	}
 }

@@ -87,15 +87,18 @@ public class Partitioning {
 	 * @param algorithm: 1 for M-CET, 2 for T-CET, 3 for H-CET ***/
 	public double getCPUcost (int algorithm) {
 		
-		if (algorithm == 1) { /*** M-CET ***/
+		/*** M-CET ***/
+		if (algorithm == 1) {
 			int vertex_number = partitions.get(0).vertexNumber;
 			return 2 * Math.pow(3, vertex_number/new Double(3)) * vertex_number;
 		} else {
-		if (algorithm == 2) { /*** T-CET ***/
+		/*** T-CET ***/
+		if (algorithm == 2) {
 			int vertex_number = partitions.get(0).vertexNumber;
 			int edge_number = partitions.get(0).edgeNumber;
 			return edge_number + Math.pow(3, vertex_number/new Double(3));
-		} else { /*** H-CET ***/
+		} else { 
+			/*** H-CET ***/
 			double cost_within = 0;		
 			int v = 0;
 			// CPU cost within partitions
@@ -115,15 +118,18 @@ public class Partitioning {
 	 * @param algorithm: 1 for M-CET, 2 for T-CET, 3 for H-CET ***/
 	public double getMEMcost (int algorithm) {
 		
-		if (algorithm == 1) { /*** M-CET ***/
+		 /*** M-CET ***/
+		if (algorithm == 1) {
 			int vertex_number = partitions.get(0).vertexNumber;
 			return vertex_number;
 		} else {
-		if (algorithm == 2) { /*** T-CET ***/
+		/*** T-CET ***/
+		if (algorithm == 2) { 
 			int vertex_number = partitions.get(0).vertexNumber;
 			double exp = vertex_number/new Double(3);
 			return Math.pow(3, exp) * vertex_number;
-		} else { /*** H-CET ***/
+		} else { 
+			/*** H-CET ***/
 			double cost_within = 0;			
 			int v = 0;
 			// Memory cost within partitions

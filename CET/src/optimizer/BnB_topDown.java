@@ -29,12 +29,13 @@ public class BnB_topDown extends Partitioner {
 		// Get number of necessary cuts
 		int level = getMinNumberOfRequiredPartitions_walkDown(batch,memory_limit);
 				
-		/*** Node search ***/
 		// Get the graph and its events per second 
 		Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
 		Partition max_partition = max_partitioning.partitions.get(0);
-		int vertex_number = max_partition.vertexNumber; 
+		int vertex_number = max_partition.vertexNumber;
+		if (level == vertex_number) return max_partitioning;
 		
+		/*** Node search ***/
 		// Get all not pruned cut sets, construct nearly balanced partitionings, store them in the respective cut sets and store these cut sets in the heap
 		ArrayList<CutSet> cutsets = max_partition.getAllNotPrunedCutSets(level, pruned);
 		int ideal_partition_size = vertex_number / (level+1);
@@ -61,7 +62,7 @@ public class BnB_topDown extends Partitioner {
 			if (temp.isPruned(pruned)) continue;			
 			double temp_cpu = temp.partitioning.getCPUcost(3);
 			double temp_mem = temp.partitioning.getMEMcost(3);		
-			//System.out.println("Considered: " + temp.toString() + " " + temp.partitioning.toString(3));
+			System.out.println("Considered: " + temp.toString() + " " + temp.partitioning.toString(3));
 			considered_count++;
 			
 			// Update the solution and prune the descendants
@@ -100,8 +101,10 @@ public class BnB_topDown extends Partitioner {
 		System.out.println("Max heap size: " + maxHeapSize + 
 				"\nConsidered: " + considered_count);
 		
-		//System.out.println("Chosen: " + solution.toString()); 					
-		return bestcutset.partitioning;		
+		Partitioning result = (bestcutset.cutset.isEmpty()) ? max_partitioning : bestcutset.partitioning; 
+		int algorithm = (bestcutset.cutset.isEmpty()) ? 1 : 3;
+		System.out.println("Chosen: " + result.toString(algorithm));						
+		return result;		
 	}
 	
 	/*** Get minimal number of required partitions walking the search space top down ***/
