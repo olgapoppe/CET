@@ -33,7 +33,10 @@ public class BnB_topDown extends Partitioner {
 		Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
 		Partition max_partition = max_partitioning.partitions.get(0);
 		int vertex_number = max_partition.vertexNumber;
-		if (level == vertex_number) return max_partitioning;
+		if (level == vertex_number) {
+			System.out.println("Chosen: " + max_partitioning.toString(1));
+			return max_partitioning;
+		}
 		
 		/*** Node search ***/
 		// Get all not pruned cut sets, construct nearly balanced partitionings, store them in the respective cut sets and store these cut sets in the heap
