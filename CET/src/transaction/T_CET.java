@@ -1,11 +1,13 @@
 package transaction;
 
 import iogenerator.OutputFileGenerator;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
 import event.*;
 import graph.*;
 
@@ -19,13 +21,28 @@ public class T_CET extends Transaction {
 	
 	public void run() {
 		
+		// Start timer and construct the graph
 		long start =  System.currentTimeMillis();
 		graph = Graph.constructGraph(batch);
-		computeResults(graph.last_nodes);		
+		
+		// Estimated CPU and memory costs
+		int vertex_number = batch.size();
+		int edge_number = graph.edgeNumber;
+		double cpu = edge_number + Math.pow(3, vertex_number/new Double(3));
+		
+		double exp = vertex_number/new Double(3);
+		double mem = Math.pow(3, exp) * vertex_number;
+		System.out.println("CPU: " + cpu + " MEM: " + mem);		
+		
+		// Compute results
+		computeResults(graph.last_nodes);	
+		
+		// Stop timer
 		long end =  System.currentTimeMillis();
 		long processingDuration = end - start;
 		processingTime.set(processingTime.get() + processingDuration);
 		
+		// Output results
 		writeOutput2File();
 		transaction_number.countDown();
 	}

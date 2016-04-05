@@ -1,6 +1,7 @@
 package transaction;
 
 import iogenerator.OutputFileGenerator;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -8,6 +9,7 @@ import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
 import event.Event;
 import graph.*;
 
@@ -24,22 +26,30 @@ public class M_CET extends Transaction {
 	
 	public void run() {
 		
+		// Start timer and construct the graph
 		long start =  System.currentTimeMillis();
 		graph = Graph.constructGraph(batch);	
 		
-		double cpu = 2 * Math.pow(3, Math.floor(batch.size()/3)) * batch.size();
-		double mem = batch.size() + graph.edgeNumber;
+		// Estimated CPU and memory costs
+		int vertex_number = batch.size();
+		double cpu = 2 * Math.pow(3, vertex_number/new Double(3)) * vertex_number;	
+		
+		int mem = vertex_number;
 		System.out.println("CPU: " + cpu + " MEM: " + mem);
 		
+		// Compute results
 		int maxSeqLength = 0;
 		for (Node first : graph.first_nodes) {
 			Stack<Node> current_sequence = new Stack<Node>();
 			maxSeqLength = computeResults(first,current_sequence,maxSeqLength);
 		}
+		
+		// Stop timer
 		long end =  System.currentTimeMillis();
 		long processingDuration = end - start;
 		processingTime.set(processingTime.get() + processingDuration);
 		
+		// Output results
 		writeOutput2File(maxSeqLength);		
 		transaction_number.countDown();
 	}
