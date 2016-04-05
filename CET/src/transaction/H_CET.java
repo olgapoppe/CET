@@ -19,7 +19,7 @@ public class H_CET extends Transaction {
 	
 	Partitioning resulting_partitioning;
 	double memory_limit;
-	int part_num;
+	int partition_number;
 	int search_algorithm;
 	ArrayDeque<Window> windows;
 	Window window; 
@@ -29,7 +29,7 @@ public class H_CET extends Transaction {
 	public H_CET (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW, double ml, int pn, int sa, ArrayDeque<Window> ws, Window w, SharedPartitions sp) {
 		super(b,o,tn,pT,mMPW);	
 		memory_limit = ml;
-		part_num = pn;
+		partition_number = pn;
 		search_algorithm = sa;
 		windows = ws;
 		window = w;
@@ -39,31 +39,31 @@ public class H_CET extends Transaction {
 
 	public void run() {	
 		
-		long start =  System.currentTimeMillis();		
+		//long start =  System.currentTimeMillis();		
 		
 		// Size of the graph
-		/*int event_number = batch.size();
-		int edge_number = input_partitioning.partitions.get(0).edgeNumber;
-		int size_of_the_graph = event_number + edge_number;*/
+		int size_of_the_graph = batch.size() + Graph.constructGraph(batch).edgeNumber;
 		
-		Partitioner partitioner;
-		if (search_algorithm==0) {
-			partitioner = new Exh_topDown(windows);
+		if (search_algorithm<3) {
+			Partitioner partitioner;
+			if (search_algorithm==0) {
+				partitioner = new Exh_topDown(windows);
+			} else {
+			if (search_algorithm==1) {
+				partitioner = new BnB_topDown(windows);
+			} else {
+				partitioner = new Gre_topDown(windows);
+			}}
+			resulting_partitioning = partitioner.getPartitioning(batch, memory_limit);
 		} else {
-		if (search_algorithm==1) {
-			partitioner = new BnB_topDown(windows);
-		} else {
-			partitioner = new Gre_topDown(windows);
-		}}
-									
-		resulting_partitioning = partitioner.getPartitioning(batch, memory_limit);
-		//System.out.println("Result: " + resulting_partitioning.toString(3));		
-			
-		/*if (!resulting_partitioning.partitions.isEmpty()) {
+			resulting_partitioning = Partitioning.getPartitioning(batch, partition_number);
+		}
+					
+		if (!resulting_partitioning.partitions.isEmpty()) {
 			
 			long start =  System.currentTimeMillis();
 			
-			*//*** Compute results per partition ***//*
+			/*** Compute results per partition ***/
 			int cets_within_partitions = 0;
 			for (Partition partition : resulting_partitioning.partitions) {	
 			
@@ -74,22 +74,22 @@ public class H_CET extends Transaction {
 				cets_within_partitions += partition.getCETlength();			
 			}		
 		
-			*//*** Compute results across partition ***//*
+			/*** Compute results across partition ***/
 			int max_cet_across_partitions = 0;
 			for (Node first_node : resulting_partitioning.partitions.get(0).first_nodes) {
 				
 				for (EventTrend event_trend : first_node.results) {				
 					int length = computeResults(event_trend, new Stack<EventTrend>(), max_cet_across_partitions);				
 					if (max_cet_across_partitions < length) max_cet_across_partitions = length;		
-			}}*/
+			}}
 		
 			long end =  System.currentTimeMillis();
 			long processingDuration = end - start;
 			processingTime.set(processingTime.get() + processingDuration);
 		
-			/*int memory = size_of_the_graph + cets_within_partitions + max_cet_across_partitions;
+			int memory = size_of_the_graph + cets_within_partitions + max_cet_across_partitions;
 			writeOutput2File(memory);
-		}*/
+		}
 		transaction_number.countDown();		
 	}
 	
