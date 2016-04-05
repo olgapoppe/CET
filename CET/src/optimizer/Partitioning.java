@@ -1,6 +1,7 @@
 package optimizer;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import event.*;
 import graph.*;
 
@@ -80,6 +81,55 @@ public class Partitioning {
 		Partitioning rootPartitioning = new Partitioning(parts);
 		System.out.println(rootPartitioning.partitions.size() + " minimal partitions.");
 		return rootPartitioning;			
+	}
+	
+	/*** Find an optimal partitioning at a level ***/
+	public static Partitioning getPartitioning (ArrayList<Event> batch, int level) {	
+		
+		// Set local variables
+		LinkedList<CutSet> heap = new LinkedList<CutSet>();
+		CutSet bestcutset = new CutSet(new ArrayList<Integer>());					
+		double minCPU = Double.MAX_VALUE;								
+						
+		// Get the graph and its events per second 
+		Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
+		Partition max_partition = max_partitioning.partitions.get(0);
+		int vertex_number = max_partition.vertexNumber;
+		if (level == vertex_number) {
+			System.out.println("Chosen: " + max_partitioning.toString(1));
+			return max_partitioning;
+		}
+				
+		/*** Node search ***/
+		// Get all not pruned cut sets, construct nearly balanced partitionings, store them in the respective cut sets and store these cut sets in the heap
+		ArrayList<CutSet> cutsets = max_partition.getAllCutSets(level);
+		int ideal_partition_size = vertex_number / (level+1);
+		
+		for (CutSet cutset : cutsets) {			
+			Partitioning p = max_partition.getNearlyBalancedPartitioning(cutset, ideal_partition_size);
+			if (p != null) {
+				cutset.partitioning = p;
+				heap.add(cutset);			
+		}}	
+						
+		// Find optimal solution
+		while (!heap.isEmpty()) {
+					
+			// Get the next node to process, its costs and children 
+			CutSet temp = heap.poll();			
+			double temp_cpu = temp.partitioning.getCPUcost(3);
+			//System.out.println("Considered: " + temp.toString() + " " + temp.partitioning.toString(3));
+						
+			// Update the solution and prune the descendants
+			if (temp_cpu < minCPU) {
+				bestcutset = temp;
+				minCPU = temp_cpu;
+			}
+		}			
+		Partitioning result = (bestcutset.cutset.isEmpty()) ? max_partitioning : bestcutset.partitioning; 
+		int algorithm = (bestcutset.cutset.isEmpty()) ? 1 : 3;
+		System.out.println("Chosen: " + result.toString(algorithm));						
+		return result;	
 	}
 	
 	/*** Get CPU cost of this partitioning 
