@@ -18,7 +18,7 @@ public class Scheduler implements Runnable {
 	ArrayDeque<Window> windows;
 	int algorithm;
 	double memory_limit;
-	int part_num;
+	int cut_number;
 	int search_algorithm;
 		
 	ExecutorService executor;
@@ -43,7 +43,7 @@ public class Scheduler implements Runnable {
 		windows = new ArrayDeque<Window>();
 		algorithm = a;
 		memory_limit = ml;
-		part_num = pn;
+		cut_number = pn;
 		search_algorithm = sa;
 		
 		executor = exe;
@@ -148,7 +148,7 @@ public class Scheduler implements Runnable {
 		if (algorithm == 3) {
 			transaction = new T_CET(window.events,output,transaction_number,processingTime,maxMemoryPerWindow);
 		} else {
-			transaction = new H_CET(window.events,output,transaction_number,processingTime,maxMemoryPerWindow,memory_limit,part_num,search_algorithm,windows,window,shared_partitions);
+			transaction = new H_CET(window.events,output,transaction_number,processingTime,maxMemoryPerWindow,memory_limit,cut_number,search_algorithm,windows,window,shared_partitions);
 		}}}}
 		executor.execute(transaction);	
 	}	

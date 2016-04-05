@@ -27,9 +27,9 @@ public class M_CET extends Transaction {
 		long start =  System.currentTimeMillis();
 		graph = Graph.constructGraph(batch);	
 		
-		/*double cpu = 2 * Math.pow(3, Math.floor(batch.size()/3)) * batch.size();
+		double cpu = 2 * Math.pow(3, Math.floor(batch.size()/3)) * batch.size();
 		double mem = batch.size() + graph.edgeNumber;
-		System.out.println("CPU: " + cpu + " MEM: " + mem);*/
+		System.out.println("CPU: " + cpu + " MEM: " + mem);
 		
 		int maxSeqLength = 0;
 		for (Node first : graph.first_nodes) {

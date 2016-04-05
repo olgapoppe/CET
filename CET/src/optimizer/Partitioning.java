@@ -84,7 +84,7 @@ public class Partitioning {
 	}
 	
 	/*** Find an optimal partitioning at a level ***/
-	public static Partitioning getPartitioning (ArrayList<Event> batch, int level) {	
+	public static Partitioning getPartitioning (ArrayList<Event> batch, int cut_number) {	
 		
 		// Set local variables
 		LinkedList<CutSet> heap = new LinkedList<CutSet>();
@@ -95,15 +95,15 @@ public class Partitioning {
 		Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
 		Partition max_partition = max_partitioning.partitions.get(0);
 		int vertex_number = max_partition.vertexNumber;
-		if (level == vertex_number) {
+		if (cut_number == vertex_number) {
 			System.out.println("Chosen: " + max_partitioning.toString(1));
 			return max_partitioning;
 		}
 				
 		/*** Node search ***/
 		// Get all not pruned cut sets, construct nearly balanced partitionings, store them in the respective cut sets and store these cut sets in the heap
-		ArrayList<CutSet> cutsets = max_partition.getAllCutSets(level);
-		int ideal_partition_size = vertex_number / (level+1);
+		ArrayList<CutSet> cutsets = max_partition.getAllCutSets(cut_number);
+		int ideal_partition_size = vertex_number / (cut_number+1);
 		
 		for (CutSet cutset : cutsets) {			
 			Partitioning p = max_partition.getNearlyBalancedPartitioning(cutset, ideal_partition_size);

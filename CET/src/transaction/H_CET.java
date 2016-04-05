@@ -19,7 +19,7 @@ public class H_CET extends Transaction {
 	
 	Partitioning resulting_partitioning;
 	double memory_limit;
-	int partition_number;
+	int cut_number;
 	int search_algorithm;
 	ArrayDeque<Window> windows;
 	Window window; 
@@ -29,7 +29,7 @@ public class H_CET extends Transaction {
 	public H_CET (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW, double ml, int pn, int sa, ArrayDeque<Window> ws, Window w, SharedPartitions sp) {
 		super(b,o,tn,pT,mMPW);	
 		memory_limit = ml;
-		partition_number = pn;
+		cut_number = pn;
 		search_algorithm = sa;
 		windows = ws;
 		window = w;
@@ -39,7 +39,7 @@ public class H_CET extends Transaction {
 
 	public void run() {	
 		
-		//long start =  System.currentTimeMillis();		
+		long start =  System.currentTimeMillis();		
 		
 		// Size of the graph
 		int size_of_the_graph = batch.size() + Graph.constructGraph(batch).edgeNumber;
@@ -56,12 +56,12 @@ public class H_CET extends Transaction {
 			}}
 			resulting_partitioning = partitioner.getPartitioning(batch, memory_limit);
 		} else {
-			resulting_partitioning = Partitioning.getPartitioning(batch, partition_number);
+			resulting_partitioning = Partitioning.getPartitioning(batch, cut_number);
 		}
 					
 		if (!resulting_partitioning.partitions.isEmpty()) {
 			
-			long start =  System.currentTimeMillis();
+			//long start =  System.currentTimeMillis();
 			
 			/*** Compute results per partition ***/
 			int cets_within_partitions = 0;
