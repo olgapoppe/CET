@@ -17,8 +17,7 @@ public class Gre_topDown extends Partitioner {
 		
 		// Set local variables
 		LinkedList<CutSet> heap = new LinkedList<CutSet>();
-		HashMap<Integer,Integer> pruned = new HashMap<Integer,Integer>();
-				
+						
 		int maxHeapSize = 0;
 		int considered_count = 0;
 		
@@ -37,7 +36,7 @@ public class Gre_topDown extends Partitioner {
 		
 		/*** Node search ***/
 		// Get all not pruned cut sets, construct nearly balanced partitionings, store them in the respective cut sets and store these cut sets in the heap
-		ArrayList<CutSet> cutsets = max_partition.getAllNotPrunedCutSets(level, pruned);
+		ArrayList<CutSet> cutsets = max_partition.getAllCutSets(level);
 		int ideal_partition_size = vertex_number / (level+1);
 		System.out.println("Min number of necessary cuts is " + level + " of size " + ideal_partition_size);
 		int count = 0;
@@ -74,7 +73,7 @@ public class Gre_topDown extends Partitioner {
 			// Put all nearly balanced not pruned nodes from the next level to the heap
 			if (temp.cutset.size() == level) {
 				level++;
-				cutsets = max_partition.getAllNotPrunedCutSets(level, pruned);				
+				cutsets = max_partition.getAllCutSets(level);				
 				ideal_partition_size = vertex_number / (level+1);
 				count = 0;
 				for (CutSet cutset : cutsets) {			
