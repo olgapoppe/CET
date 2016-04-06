@@ -36,11 +36,12 @@ public class Main {
 	    /*** Input and output ***/
 	    // Set default values
 	    String path = "iofiles/";
-		String inputfile = "stream1.txt";
+		String inputfile = "stream.txt";
 		String outputfile = "sequences.txt";		
 		
 		boolean realtime = true;
-		boolean overlap = false;
+		boolean overlap = true;
+		int firstsec = 0;
 	    int lastsec = 0;
 		int window_length = 0;
 		int window_slide = 0;	
@@ -55,7 +56,8 @@ public class Main {
 			if (args[i].equals("-file")) 		inputfile = args[++i];
 			if (args[i].equals("-realtime")) 	realtime = Integer.parseInt(args[++i]) == 1;
 			if (args[i].equals("-overlap")) 	overlap = Integer.parseInt(args[++i]) == 1;
-			if (args[i].equals("-sec")) 		lastsec = Integer.parseInt(args[++i]);
+			if (args[i].equals("-from")) 		firstsec = Integer.parseInt(args[++i]);
+			if (args[i].equals("-to")) 			lastsec = Integer.parseInt(args[++i]);
 			if (args[i].equals("-wl")) 			window_length = Integer.parseInt(args[++i]);
 			if (args[i].equals("-ws")) 			window_slide = Integer.parseInt(args[++i]);
 			if (args[i].equals("-algo")) 		algorithm = Integer.parseInt(args[++i]);
@@ -74,7 +76,7 @@ public class Main {
 	    System.out.println(	"Input file: " + inputfile +
 	    					"\nReal time: " + realtime +
 	    					"\nOverlapping window: " + overlap +
-	    					"\nLast sec: " + lastsec +
+	    					"\nStream from: " + firstsec + " to " + lastsec +
 	    					"\nWindow length: " + window_length + 
 							"\nWindow slide: " + window_slide +
 							"\nAlgorithm: " + algorithm +
@@ -101,7 +103,7 @@ public class Main {
 		 *   Scheduler reads from the event queue and submits event batches to the executor. ***/
 		EventDriver driver = new EventDriver (input, realtime, lastsec, eventqueue, startOfSimulation, driverProgress, eventNumber);				
 				
-		Scheduler scheduler = new Scheduler (eventqueue, lastsec, window_length, window_slide, algorithm, memory_limit, cut_number, search_algorithm, 
+		Scheduler scheduler = new Scheduler (eventqueue, firstsec, lastsec, window_length, window_slide, algorithm, memory_limit, cut_number, search_algorithm, 
 				executor, driverProgress, done, processingTime, maxMemoryPerWindow, output);		
 		
 		Thread prodThread = new Thread(driver);

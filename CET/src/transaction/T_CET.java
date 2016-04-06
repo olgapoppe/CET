@@ -36,7 +36,7 @@ public class T_CET extends Transaction {
 		System.out.println("CPU: " + cpu + " MEM: " + mem);		
 		
 		// Compute results
-		computeResults(graph.last_nodes);	
+		computeResults(graph.last_nodes,false,new ArrayList<EventTrend>());	
 		
 		// Stop timer
 		long end =  System.currentTimeMillis();
@@ -49,7 +49,7 @@ public class T_CET extends Transaction {
 	}
 	
 	// BFS storing intermediate results in all nodes at the current level
-	public static void computeResults (ArrayList<Node> current_level) { 
+	public static ArrayList<EventTrend> computeResults (ArrayList<Node> current_level, boolean writes, ArrayList<EventTrend> partitionResults) { 
 		
 		// Array for recursive call of this method
 		ArrayList<Node> next_level_array = new ArrayList<Node>();
@@ -62,7 +62,7 @@ public class T_CET extends Transaction {
 			/*** Base case: Create the results for the first nodes ***/
 			if (this_node.results.isEmpty()) {
 				EventTrend new_trend = new EventTrend(this_node, this_node, this_node.toString());
-				this_node.results.add(new_trend); 			
+				this_node.results.add(new_trend);			
 			}
 			
 			/*** Recursive case: Copy results from the current node to its previous node and  
@@ -76,7 +76,7 @@ public class T_CET extends Transaction {
 					for (EventTrend old_trend : this_node.results) {
 						String new_seq = next_node.toString() + ";" + old_trend.sequence;
 						EventTrend new_trend = new EventTrend(next_node, old_trend.last_node, new_seq);
-						next_node.results.add(new_trend); 
+						next_node.results.add(new_trend);					
 					}														
 				
 					// Check that following is not in next_level
@@ -87,13 +87,19 @@ public class T_CET extends Transaction {
 				}
 				// Delete intermediate results
 				this_node.results.clear();
-			} /*else {
-				System.out.println(this_node.toString() + ": " + this_node.resultsToString());
-			}*/
+			} else {
+				// Add all results from a first node to the results of this partition
+				if (writes) {
+					partitionResults.addAll(this_node.results);
+					//System.out.println(this_node.toString() + ": " + this_node.resultsToString());
+				}
+			}
 		}
 				
 		// Call this method recursively
-		if (!next_level_array.isEmpty()) computeResults(next_level_array);
+		if (!next_level_array.isEmpty()) computeResults(next_level_array, writes, partitionResults);
+		
+		return partitionResults;
 	}
 	
 	public void writeOutput2File() {

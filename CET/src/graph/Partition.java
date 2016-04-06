@@ -51,15 +51,6 @@ public class Partition extends Graph {
 		return count;
 	}
 	
-	public boolean is2write (ArrayDeque<Window> windows, Window window) {
-		for (Window w : windows) {
-			if (w.contains(this)) {
-				return w.equals(window);  
-			}
-		}
-		return false;
-	}
-	
 	public boolean isShared (ArrayDeque<Window> windows) {
 		return getSharingWindowNumber(windows)>1;
 	}

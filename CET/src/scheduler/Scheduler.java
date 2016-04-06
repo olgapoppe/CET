@@ -12,6 +12,7 @@ import transaction.*;
 public class Scheduler implements Runnable {
 	
 	final EventQueue eventqueue;
+	int firstsec;
 	int lastsec;
 	int window_length;
 	int window_slide;
@@ -33,10 +34,11 @@ public class Scheduler implements Runnable {
 	
 	SharedPartitions shared_partitions;
 	
-	public Scheduler (EventQueue eq, int last, int wl, int ws, int a, double ml, int pn, int sa, 
+	public Scheduler (EventQueue eq, int first, int last, int wl, int ws, int a, double ml, int pn, int sa, 
 			ExecutorService exe, AtomicInteger dp, CountDownLatch d, AtomicLong pT, AtomicInteger mMPW, OutputFileGenerator o) {	
 		
 		eventqueue = eq;
+		firstsec = first;
 		lastsec = last;
 		window_length = wl;
 		window_slide = ws;
@@ -49,7 +51,7 @@ public class Scheduler implements Runnable {
 		executor = exe;
 		
 		drProgress = dp;
-		int window_number = last/ws + 1;
+		int window_number = (last-first)/ws + 1;
 		transaction_number = new CountDownLatch(window_number);
 		done = d;
 		
@@ -67,7 +69,7 @@ public class Scheduler implements Runnable {
 		
 		/*** Create windows ***/	
 		ArrayDeque<Window> windows2iterate = new ArrayDeque<Window>();
-		int start = 0;
+		int start = firstsec;
 		int end = window_length;
 		while (start <= lastsec) {
 			Window window = new Window(start, end);		

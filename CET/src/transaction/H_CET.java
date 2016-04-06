@@ -23,7 +23,7 @@ public class H_CET extends Transaction {
 	int search_algorithm;
 	ArrayDeque<Window> windows;
 	Window window; 
-	SharedPartitions shared_trends;
+	SharedPartitions shared_partitions;
 	ArrayList<String> results;
 	
 	public H_CET (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW, double ml, int pn, int sa, ArrayDeque<Window> ws, Window w, SharedPartitions sp) {
@@ -33,7 +33,7 @@ public class H_CET extends Transaction {
 		search_algorithm = sa;
 		windows = ws;
 		window = w;
-		shared_trends = sp;
+		shared_partitions = sp;
 		results = new ArrayList<String>();
 	}
 
@@ -74,15 +74,29 @@ public class H_CET extends Transaction {
 			
 			//long start =  System.currentTimeMillis();
 			
-			/*** Compute results per partition ***/
+			/*** Compute results within partitions ***/
 			int cets_within_partitions = 0;
 			for (Partition partition : resulting_partitioning.partitions) {	
 			
-				//if (partition.isShared(windows)) System.out.println("Shared partition: " + partition.toString());
-			
-				for (Node first_node : partition.first_nodes) { first_node.isFirst = true; }
-				T_CET.computeResults(partition.last_nodes);
-				cets_within_partitions += partition.getCETlength();			
+				ArrayList<EventTrend> partitionResults = new ArrayList<EventTrend>();
+				boolean writes = window.writes(partition,windows);
+				
+				if (writes) {
+					
+					// If this window writes the results of this partition, compute these results
+					for (Node first_node : partition.first_nodes) { first_node.isFirst = true; }
+				
+					partitionResults = T_CET.computeResults(partition.last_nodes,writes,partitionResults);
+					shared_partitions.add(partition.id, partitionResults);
+					System.out.println("Window " + window.id + " stores " + partitionResults.size() + " results for the partition " + partition.id);
+				
+					cets_within_partitions += partition.getCETlength();
+				} else {
+					
+					// If this window reads the results of this partition, look these results up
+					partitionResults = shared_partitions.get(partition.id);
+					System.out.println("Window " + window.id + " reads " + partitionResults.size() + " results for the partition " + partition.id);					
+				}				
 			}		
 		
 			/*** Compute results across partition ***/

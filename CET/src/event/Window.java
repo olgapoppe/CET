@@ -1,6 +1,8 @@
 package event;
 
 import graph.Partition;
+
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 public class Window {
@@ -34,6 +36,14 @@ public class Window {
 	
 	public boolean contains (Partition p) {
 		return start <= p.start && p.end <= end;
+	}
+	
+	// The first window that contains this partition writes it
+	public boolean writes (Partition partition, ArrayDeque<Window> windows) {
+		for (Window window : windows) {
+			if (window.contains(partition)) return this.equals(window);				
+		}
+		return false;
 	}
 		
 	public String toString() {
