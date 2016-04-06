@@ -28,6 +28,7 @@ public class T_CET extends Transaction {
 		// Estimated CPU and memory costs
 		int vertex_number = batch.size();
 		int edge_number = graph.edgeNumber;
+		//System.out.println("Edge number: " + edge_number);
 		double cpu = edge_number + Math.pow(3, vertex_number/new Double(3));
 		
 		double exp = vertex_number/new Double(3);

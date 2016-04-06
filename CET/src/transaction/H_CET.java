@@ -56,7 +56,18 @@ public class H_CET extends Transaction {
 			}}
 			resulting_partitioning = partitioner.getPartitioning(batch, memory_limit);
 		} else {
-			resulting_partitioning = Partitioning.getPartitioning(batch, cut_number);
+			if (search_algorithm==3) {
+				// Get an optimal partitioning with the given cut number
+				resulting_partitioning = Partitioning.getOptimalPartitioning(batch, cut_number);
+			} else {
+				// Get the partitioning with the given cut
+				Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
+				ArrayList<Integer> cuts = new ArrayList<Integer>();
+				cuts.add(cut_number);
+				CutSet cutset = new CutSet(cuts);
+				resulting_partitioning = max_partitioning.partitions.get(0).getPartitioning(cutset);
+				System.out.println("Chosen: " + resulting_partitioning.toString(3));
+			}
 		}
 					
 		if (!resulting_partitioning.partitions.isEmpty()) {

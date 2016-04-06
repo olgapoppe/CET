@@ -84,7 +84,7 @@ public class Partitioning {
 	}
 	
 	/*** Find an optimal partitioning at a level ***/
-	public static Partitioning getPartitioning (ArrayList<Event> batch, int cut_number) {	
+	public static Partitioning getOptimalPartitioning (ArrayList<Event> batch, int cut_number) {	
 		
 		// Set local variables
 		LinkedList<CutSet> heap = new LinkedList<CutSet>();
