@@ -13,15 +13,15 @@ public abstract class Transaction implements Runnable {
 	ArrayList<Event> batch;		
 	OutputFileGenerator output;
 	public CountDownLatch transaction_number;	
-	AtomicLong processingTime;
-	AtomicInteger maxMemoryPerWindow;
+	AtomicLong total_cpu;
+	AtomicInteger total_mem;
 	
-	public Transaction (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW) {		
+	public Transaction (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
 		batch = b;			
 		output = o; 
 		transaction_number = tn;
-		processingTime = pT;
-		maxMemoryPerWindow = mMPW;
+		total_cpu = time;
+		total_mem = mem;
 	}	
 	
 	public int getEventNumber (String sequence) {

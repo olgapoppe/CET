@@ -90,9 +90,9 @@ public class Main {
 		EventQueue eventqueue = new EventQueue(driverProgress);						
 		CountDownLatch done = new CountDownLatch(1);
 		long startOfSimulation = System.currentTimeMillis();
-		AtomicLong processingTime = new AtomicLong(0);	
 		AtomicInteger eventNumber = new AtomicInteger(0);
-		AtomicInteger maxMemoryPerWindow = new AtomicInteger(0);
+		AtomicLong total_cpu = new AtomicLong(0);	
+		AtomicInteger total_memory = new AtomicInteger(0);
 		
 		/*** EXECUTORS ***/
 		int number_of_executors = 3;
@@ -104,7 +104,7 @@ public class Main {
 		EventDriver driver = new EventDriver (input, realtime, lastsec, eventqueue, startOfSimulation, driverProgress, eventNumber);				
 				
 		Scheduler scheduler = new Scheduler (eventqueue, firstsec, lastsec, window_length, window_slide, algorithm, memory_limit, cut_number, search_algorithm, 
-				executor, driverProgress, done, processingTime, maxMemoryPerWindow, output);		
+				executor, driverProgress, done, total_cpu, total_memory, output);		
 		
 		Thread prodThread = new Thread(driver);
 		prodThread.setPriority(10);
@@ -119,10 +119,11 @@ public class Main {
 		executor.shutdown();	
 		output.file.close();
 		
+		int window_number = (lastsec-firstsec)/window_slide + 1;
 		System.out.println(//"Event number: " + eventNumber.get() +
-				"\nCPU: " + processingTime.get() +
+				"\nAvg CPU: " + total_cpu.get()/window_number +
 				//"\nThroughput: " + eventNumber.get()/processingTime.get() +
-				"\nMEM: " + maxMemoryPerWindow.get() + "\n");
+				"\nAvg MEM: " + total_memory.get()/window_number + "\n");
 				//"\nExecutor is done." +
 				//"\nMain is done.");
 			

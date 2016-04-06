@@ -28,14 +28,14 @@ public class Scheduler implements Runnable {
 	CountDownLatch transaction_number;
 	CountDownLatch done;
 	
-	AtomicLong processingTime;	
-	AtomicInteger maxMemoryPerWindow;
+	AtomicLong total_cpu;	
+	AtomicInteger total_memory;
 	OutputFileGenerator output;
 	
 	SharedPartitions shared_partitions;
 	
 	public Scheduler (EventQueue eq, int first, int last, int wl, int ws, int a, double ml, int pn, int sa, 
-			ExecutorService exe, AtomicInteger dp, CountDownLatch d, AtomicLong pT, AtomicInteger mMPW, OutputFileGenerator o) {	
+			ExecutorService exe, AtomicInteger dp, CountDownLatch d, AtomicLong time, AtomicInteger mem, OutputFileGenerator o) {	
 		
 		eventqueue = eq;
 		firstsec = first;
@@ -55,8 +55,8 @@ public class Scheduler implements Runnable {
 		transaction_number = new CountDownLatch(window_number);
 		done = d;
 		
-		maxMemoryPerWindow = mMPW;
-		processingTime = pT;	
+		total_cpu = time;
+		total_memory = mem;
 		output = o;
 		
 		shared_partitions = new SharedPartitions();
@@ -139,18 +139,18 @@ public class Scheduler implements Runnable {
 	public void execute(Window window) {
 		Transaction transaction;
 		if (algorithm == 0) {
-			transaction = new Sase(window.events,output,transaction_number,processingTime,maxMemoryPerWindow,window.id);
+			transaction = new Sase(window.events,output,transaction_number,total_cpu,total_memory,window.id);
 		} else {
 		if (algorithm == 1) {
-			transaction = new BaseLine(window.events,output,transaction_number,processingTime,maxMemoryPerWindow);		
+			transaction = new BaseLine(window.events,output,transaction_number,total_cpu,total_memory);		
 		} else {
 		if (algorithm == 2) {
-			transaction = new M_CET(window.events,output,transaction_number,processingTime,maxMemoryPerWindow);
+			transaction = new M_CET(window.events,output,transaction_number,total_cpu,total_memory);
 		} else {
 		if (algorithm == 3) {
-			transaction = new T_CET(window.events,output,transaction_number,processingTime,maxMemoryPerWindow);
+			transaction = new T_CET(window.events,output,transaction_number,total_cpu,total_memory);
 		} else {
-			transaction = new H_CET(window.events,output,transaction_number,processingTime,maxMemoryPerWindow,memory_limit,cut_number,search_algorithm,windows,window,shared_partitions);
+			transaction = new H_CET(window.events,output,transaction_number,total_cpu,total_memory,memory_limit,cut_number,search_algorithm,windows,window,shared_partitions);
 		}}}}
 		executor.execute(transaction);	
 	}	

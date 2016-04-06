@@ -15,8 +15,8 @@ public class T_CET extends Transaction {
 	
 	Graph graph;
 	
-	public T_CET (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW) {
-		super(b,o,tn,pT,mMPW);			
+	public T_CET (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {
+		super(b,o,tn,time,mem);			
 	}
 	
 	public void run() {
@@ -29,19 +29,19 @@ public class T_CET extends Transaction {
 		int vertex_number = batch.size();
 		int edge_number = graph.edgeNumber;
 		//System.out.println("Edge number: " + edge_number);
-		double cpu = edge_number + Math.pow(3, vertex_number/new Double(3));
+		double estimated_cpu = edge_number + Math.pow(3, vertex_number/new Double(3));
 		
 		double exp = vertex_number/new Double(3);
-		double mem = Math.pow(3, exp) * vertex_number;
-		System.out.println("CPU: " + cpu + " MEM: " + mem);		
+		double estimated_mem = Math.pow(3, exp) * vertex_number;
+		System.out.println("CPU: " + estimated_cpu + " MEM: " + estimated_mem);		
 		
 		// Compute results
 		computeResults(graph.last_nodes,false,new ArrayList<EventTrend>());	
 		
 		// Stop timer
 		long end =  System.currentTimeMillis();
-		long processingDuration = end - start;
-		processingTime.set(processingTime.get() + processingDuration);
+		long duration = end - start;
+		total_cpu.set(total_cpu.get() + duration);
 		
 		// Output results
 		writeOutput2File();
@@ -114,6 +114,7 @@ public class T_CET extends Transaction {
 		}
 		// Output of statistics
 		int memory = graph.nodes.size() + graph.edgeNumber + memory4results;
-		if (maxMemoryPerWindow.get() < memory) maxMemoryPerWindow.getAndAdd(memory);	
+		total_mem.set(total_mem.get() + memory);
+		//if (total_mem.get() < memory) total_mem.getAndAdd(memory);	
 	}
 }

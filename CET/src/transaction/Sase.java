@@ -1,15 +1,12 @@
 package transaction;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Stack;
-import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import event.Event;
-import graph.Node;
 import iogenerator.OutputFileGenerator;
 
 public class Sase extends Transaction {
@@ -17,8 +14,8 @@ public class Sase extends Transaction {
 	//HashSet<TreeSet<Event>> results;
 	String window_id;
 	
-	public Sase (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW, String wi) {		
-		super(b,o,tn,pT,mMPW);
+	public Sase (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem, String wi) {		
+		super(b,o,tn,time,mem);
 		//results = new HashSet<TreeSet<Event>>();
 		window_id = wi;
 	}
@@ -28,8 +25,8 @@ public class Sase extends Transaction {
 		long start =  System.currentTimeMillis();
 		computeResults();
 		long end =  System.currentTimeMillis();
-		long processingDuration = end - start;
-		processingTime.set(processingTime.get() + processingDuration);
+		long duration = end - start;
+		total_cpu.set(total_cpu.get() + duration);
 		
 		// writeOutput2File();		
 		transaction_number.countDown();
@@ -81,8 +78,9 @@ public class Sase extends Transaction {
 		for (Event lastEvent : newLastEvents) {
 			maxSeqLength = traversePointers(lastEvent, new Stack<Event>(), maxSeqLength);
 		}
-		int memory = stack.size() + pointerCount + maxSeqLength; 
-		if (maxMemoryPerWindow.get() < memory) maxMemoryPerWindow.getAndAdd(memory);
+		int memory = stack.size() + pointerCount + maxSeqLength;
+		total_mem.set(total_mem.get() + memory);
+		//if (total_mem.get() < memory) total_mem.getAndAdd(memory);
 	}
 	
 	// DFS in the stack

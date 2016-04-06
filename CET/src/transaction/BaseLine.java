@@ -16,8 +16,8 @@ public class BaseLine extends Transaction {
 	
 	HashSet<TreeSet<Event>> results;
 	
-	public BaseLine (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW) {		
-		super(b,o,tn,pT,mMPW);
+	public BaseLine (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
+		super(b,o,tn,time,mem);
 		results = new HashSet<TreeSet<Event>>();
 	}
 	
@@ -26,8 +26,8 @@ public class BaseLine extends Transaction {
 		long start =  System.currentTimeMillis();
 		computeResults();
 		long end =  System.currentTimeMillis();
-		long processingDuration = end - start;
-		processingTime.set(processingTime.get() + processingDuration);
+		long duration = end - start;
+		total_cpu.set(total_cpu.get() + duration);
 		
 		writeOutput2File();		
 		transaction_number.countDown();
@@ -134,7 +134,8 @@ public class BaseLine extends Transaction {
 			output.setAvailable();
 		}			
 		// Output of statistics
-		if (maxMemoryPerWindow.get() < memory4results) maxMemoryPerWindow.getAndAdd(memory4results);	
+		total_mem.set(total_mem.get() + memory4results);
+		//if (total_mem.get() < memory4results) total_mem.getAndAdd(memory4results);	
 	}
 	
 	/*public static void main (String args[]) {

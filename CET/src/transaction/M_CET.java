@@ -19,8 +19,8 @@ public class M_CET extends Transaction {
 	// A result is a string of comma separated event ids
 	ArrayList<String> results;
 	
-	public M_CET (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW) {
-		super(b,o,tn,pT,mMPW);	
+	public M_CET (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {
+		super(b,o,tn,time,mem);	
 		results = new ArrayList<String>();
 	}
 	
@@ -32,10 +32,10 @@ public class M_CET extends Transaction {
 		
 		// Estimated CPU and memory costs
 		int vertex_number = batch.size();
-		double cpu = 2 * Math.pow(3, vertex_number/new Double(3)) * vertex_number;	
+		double estimated_cpu = 2 * Math.pow(3, vertex_number/new Double(3)) * vertex_number;	
 		
-		int mem = vertex_number;
-		System.out.println("CPU: " + cpu + " MEM: " + mem);
+		int estimated_mem = vertex_number;
+		System.out.println("CPU: " + estimated_cpu + " MEM: " + estimated_mem);
 		
 		// Compute results
 		int maxSeqLength = 0;
@@ -46,8 +46,8 @@ public class M_CET extends Transaction {
 		
 		// Stop timer
 		long end =  System.currentTimeMillis();
-		long processingDuration = end - start;
-		processingTime.set(processingTime.get() + processingDuration);
+		long duration = end - start;
+		total_cpu.set(total_cpu.get() + duration);
 		
 		// Output results
 		writeOutput2File(maxSeqLength);		
@@ -99,6 +99,7 @@ public class M_CET extends Transaction {
 		}		
 		// Output of statistics
 		int memory = graph.nodes.size() + graph.edgeNumber + maxSeqLength;
-		if (maxMemoryPerWindow.get() < memory) maxMemoryPerWindow.getAndAdd(memory);	
+		total_mem.set(total_mem.get() + memory);
+		//if (total_mem.get() < memory) total_mem.getAndAdd(memory);	
 	}
 }

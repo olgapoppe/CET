@@ -26,8 +26,8 @@ public class H_CET extends Transaction {
 	SharedPartitions shared_partitions;
 	ArrayList<String> results;
 	
-	public H_CET (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong pT, AtomicInteger mMPW, double ml, int pn, int sa, ArrayDeque<Window> ws, Window w, SharedPartitions sp) {
-		super(b,o,tn,pT,mMPW);	
+	public H_CET (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem, double ml, int pn, int sa, ArrayDeque<Window> ws, Window w, SharedPartitions sp) {
+		super(b,o,tn,time,mem);	
 		memory_limit = ml;
 		cut_number = pn;
 		search_algorithm = sa;
@@ -88,7 +88,7 @@ public class H_CET extends Transaction {
 				
 					partitionResults = T_CET.computeResults(partition.last_nodes,writes,partitionResults);
 					shared_partitions.add(partition.id, partitionResults);
-					System.out.println("Window " + window.id + " stores " + partitionResults.size() + " results for the partition " + partition.id);
+					System.out.println("Window " + window.id + " writes " + partitionResults.size() + " results for the partition " + partition.id);
 				
 					cets_within_partitions += partition.getCETlength();
 				} else {
@@ -99,7 +99,7 @@ public class H_CET extends Transaction {
 				}				
 			}		
 		
-			/*** Compute results across partition ***/
+			/*** Compute results across partitions ***/
 			int max_cet_across_partitions = 0;
 			for (Node first_node : resulting_partitioning.partitions.get(0).first_nodes) {
 				
@@ -109,8 +109,8 @@ public class H_CET extends Transaction {
 			}}
 		
 			long end =  System.currentTimeMillis();
-			long processingDuration = end - start;
-			processingTime.set(processingTime.get() + processingDuration);
+			long duration = end - start;
+			total_cpu.set(total_cpu.get() + duration);
 		
 			int memory = size_of_the_graph + cets_within_partitions + max_cet_across_partitions;
 			writeOutput2File(memory);
@@ -168,7 +168,8 @@ public class H_CET extends Transaction {
 			output.setAvailable();
 		}	
 		// Output of statistics
-		if (maxMemoryPerWindow.get() < memory) maxMemoryPerWindow.getAndAdd(memory);			
+		total_mem.set(total_mem.get() + memory);
+		//if (total_mem.get() < memory) total_mem.getAndAdd(memory);			
 	}
 	
 	/*public void run() {	
