@@ -47,7 +47,7 @@ public class Main {
 		int window_slide = 0;	
 		int algorithm = 4;
 		double memory_limit = Double.MAX_VALUE;
-		int cut_number = 1;
+		int cut_number = -1;
 		int search_algorithm = 1;
 				
 		// Read input parameters
@@ -76,7 +76,7 @@ public class Main {
 	    System.out.println(	"Input file: " + inputfile +
 	    					"\nReal time: " + realtime +
 	    					"\nOverlapping window: " + overlap +
-	    					"\nStream from: " + firstsec + " to " + lastsec +
+	    					"\nStream from " + firstsec + " to " + lastsec +
 	    					"\nWindow length: " + window_length + 
 							"\nWindow slide: " + window_slide +
 							"\nAlgorithm: " + algorithm +

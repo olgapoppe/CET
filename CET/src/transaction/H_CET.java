@@ -23,16 +23,19 @@ public class H_CET extends Transaction {
 	int search_algorithm;
 	ArrayDeque<Window> windows;
 	Window window; 
+	int window_slide;
 	SharedPartitions shared_partitions;
 	ArrayList<String> results;
 	
-	public H_CET (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem, double ml, int pn, int sa, ArrayDeque<Window> ws, Window w, SharedPartitions sp) {
+	public H_CET (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem, double ml, int pn, int sa, 
+			ArrayDeque<Window> ws, Window w, int wsl, SharedPartitions sp) {
 		super(b,o,tn,time,mem);	
 		memory_limit = ml;
 		cut_number = pn;
 		search_algorithm = sa;
 		windows = ws;
 		window = w;
+		window_slide = wsl;
 		shared_partitions = sp;
 		results = new ArrayList<String>();
 	}
@@ -42,7 +45,7 @@ public class H_CET extends Transaction {
 		long start =  System.currentTimeMillis();		
 		
 		// Size of the graph
-		int size_of_the_graph = batch.size() + Graph.constructGraph(batch).edgeNumber;
+		int size_of_the_graph = batch.size();// + Graph.constructGraph(batch).edgeNumber;
 		
 		if (search_algorithm<3) {
 			Partitioner partitioner;
@@ -60,6 +63,8 @@ public class H_CET extends Transaction {
 				// Get an optimal partitioning with the given cut number
 				resulting_partitioning = Partitioning.getOptimalPartitioning(batch, cut_number);
 			} else {
+			if (search_algorithm==4) {
+				
 				// Get the partitioning with the given cut
 				Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
 				ArrayList<Integer> cuts = new ArrayList<Integer>();
@@ -67,8 +72,23 @@ public class H_CET extends Transaction {
 				CutSet cutset = new CutSet(cuts);
 				resulting_partitioning = max_partitioning.partitions.get(0).getPartitioning(cutset);
 				System.out.println("Chosen: " + resulting_partitioning.toString(3));
-			}
-		}
+								
+			} else {
+				
+				Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
+				
+				// Get the partitioning of the first window depending on window overlap
+				ArrayList<Integer> cuts = new ArrayList<Integer>();
+				for (int cut=window_slide; cut+window.start<=window.end; cut+=window_slide) { cuts.add(cut); }		
+					
+				if (cuts.isEmpty()) {
+					resulting_partitioning = max_partitioning;
+					System.out.println("Chosen: " + resulting_partitioning.toString(2));						
+				} else {
+					CutSet cutset = new CutSet(cuts);
+					resulting_partitioning = max_partitioning.partitions.get(0).getPartitioning(cutset);
+					System.out.println("Chosen: " + resulting_partitioning.toString(3));
+		}}}}
 					
 		if (!resulting_partitioning.partitions.isEmpty()) {
 			

@@ -150,7 +150,7 @@ public class Scheduler implements Runnable {
 		if (algorithm == 3) {
 			transaction = new T_CET(window.events,output,transaction_number,total_cpu,total_memory);
 		} else {
-			transaction = new H_CET(window.events,output,transaction_number,total_cpu,total_memory,memory_limit,cut_number,search_algorithm,windows,window,shared_partitions);
+			transaction = new H_CET(window.events,output,transaction_number,total_cpu,total_memory,memory_limit,cut_number,search_algorithm,windows,window,window_slide,shared_partitions);
 		}}}}
 		executor.execute(transaction);	
 	}	
