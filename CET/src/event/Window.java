@@ -38,10 +38,18 @@ public class Window {
 		return start <= p.start && p.end <= end;
 	}
 	
+	public boolean contains (String pid) {
+		
+		String[] array = pid.split(" ");
+		int s = Integer.parseInt(array[0]);
+		int e = Integer.parseInt(array[1]);
+		return start <= s && e <= end;
+	}
+	
 	// The first window that contains this partition writes it
-	public boolean writes (Partition partition, ArrayDeque<Window> windows) {
+	public boolean writes (String pid, ArrayDeque<Window> windows) {
 		for (Window window : windows) {
-			if (window.contains(partition)) return this.equals(window);				
+			if (window.contains(pid)) return this.equals(window);				
 		}
 		return false;
 	}

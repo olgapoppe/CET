@@ -13,6 +13,7 @@ public class Partition extends Graph {
 	public int start;
 	public int end;
 	public int vertexNumber;	
+	public ArrayList<EventTrend> results; 
 		
 	public Partition (int s, int e, int vn, int en, ArrayList<Node> fn, ArrayList<Node> ln) {
 		id = s + " " + e;
@@ -24,6 +25,8 @@ public class Partition extends Graph {
 		
 		first_nodes = fn;
 		last_nodes = ln;		
+		
+		results = new ArrayList<EventTrend>();
 	}
 	
 	public boolean equals (Object o) {

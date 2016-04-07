@@ -75,20 +75,41 @@ public class H_CET extends Transaction {
 								
 			} else {
 				
-				Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
-				
-				// Get the partitioning of the first window depending on window overlap
+				// Get the cuts and partition identifiers of this window
 				ArrayList<Integer> cuts = new ArrayList<Integer>();
-				for (int cut=window_slide; cut+window.start<=window.end; cut+=window_slide) { cuts.add(cut); }		
+				ArrayList<String> partition_ids = new ArrayList<String>();
+				int partition_start = window.start;
+				for (int cut=window_slide; cut+window.start<=window.end; cut+=window_slide) { 
+					cuts.add(cut); 
+					String partition_id = partition_start + " " + (cut+window.start-1);
+					partition_ids.add(partition_id);
+					partition_start = cut+window.start;				
+				}
+				String partition_id = partition_start + " " + window.end;
+				partition_ids.add(partition_id);
+				
+				// Compute a partition that is not stored
+				ArrayList<Partition> parts = new ArrayList<Partition>();
+				for (String pid : partition_ids) {		
 					
-				if (cuts.isEmpty()) {
-					resulting_partitioning = max_partitioning;
-					System.out.println("Chosen: " + resulting_partitioning.toString(2));						
+					boolean writes = window.writes(pid,windows);
+					if (!writes) parts.add(shared_partitions.get(pid));					
+				}
+				if (!parts.isEmpty()) {
+					resulting_partitioning = new Partitioning(parts);
+					System.out.println("Looked up: " + resulting_partitioning.toString(3));
 				} else {
-					CutSet cutset = new CutSet(cuts);
-					resulting_partitioning = max_partitioning.partitions.get(0).getPartitioning(cutset);
-					System.out.println("Chosen: " + resulting_partitioning.toString(3));
-		}}}}
+					Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);				
+					if (cuts.isEmpty()) {
+						resulting_partitioning = max_partitioning;
+						System.out.println("Computed: " + resulting_partitioning.toString(2));						
+					} else {
+						CutSet cutset = new CutSet(cuts);
+						resulting_partitioning = max_partitioning.partitions.get(0).getPartitioning(cutset);
+						System.out.println("Computed: " + resulting_partitioning.toString(3));
+					}	
+				}
+		}}}
 					
 		if (!resulting_partitioning.partitions.isEmpty()) {
 			
@@ -99,24 +120,17 @@ public class H_CET extends Transaction {
 			for (Partition partition : resulting_partitioning.partitions) {	
 			
 				ArrayList<EventTrend> partitionResults = new ArrayList<EventTrend>();
-				boolean writes = window.writes(partition,windows);
+				boolean writes = window.writes(partition.id,windows);
 				
 				if (writes) {
 					
 					// If this window writes the results of this partition, compute these results
 					for (Node first_node : partition.first_nodes) { first_node.isFirst = true; }
-				
-					partitionResults = T_CET.computeResults(partition.last_nodes,writes,partitionResults);
-					shared_partitions.add(partition.id, partitionResults);
+					partition.results = T_CET.computeResults(partition.last_nodes,writes,partitionResults);
+					shared_partitions.add(partition.id, partition);
 					System.out.println("Window " + window.id + " writes " + partitionResults.size() + " results for the partition " + partition.id);
-				
 					cets_within_partitions += partition.getCETlength();
-				} else {
-					
-					// If this window reads the results of this partition, look these results up
-					partitionResults = shared_partitions.get(partition.id);
-					System.out.println("Window " + window.id + " reads " + partitionResults.size() + " results for the partition " + partition.id);					
-				}				
+				} 			
 			}		
 		
 			/*** Compute results across partitions ***/
@@ -127,7 +141,7 @@ public class H_CET extends Transaction {
 					int length = computeResults(event_trend, new Stack<EventTrend>(), max_cet_across_partitions);				
 					if (max_cet_across_partitions < length) max_cet_across_partitions = length;		
 			}}
-		
+					
 			long end =  System.currentTimeMillis();
 			long duration = end - start;
 			total_cpu.set(total_cpu.get() + duration);
@@ -156,8 +170,8 @@ public class H_CET extends Transaction {
 	       	}
 	       	if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;	
 	       	String s = (!result.isEmpty()) ? result : event_trend.sequence;
-	       	// results.add(s);  
-	       	// System.out.println("result " + result);
+	       	results.add(s);  
+	       	//System.out.println("result " + result);
 	   } else {
 	   /*** Recursive case: Traverse the following nodes. ***/        	
 	       	for(Node first_in_next_partition : event_trend.last_node.following) {        		
@@ -177,6 +191,8 @@ public class H_CET extends Transaction {
 	public void writeOutput2File(int memory) {
 		
 		int maxSeqLength = 0;
+		
+		System.out.println("Window " + window.id + " has " + results.size() + " results.");
 				
 		if (output.isAvailable()) {					
 				

@@ -93,8 +93,8 @@ public class Graph {
 							}
 						}							 
 						/*** Case I: This event is compatible with no previous event. Add this event to the last nodes. ***/
-						if (first) {
-							graph.first_nodes.add(node);
+						if (first && !graph.first_nodes.contains(node)) {
+							graph.first_nodes.add(node);							
 							node.isFirst = true;
 							//System.out.println(event.id + " starts a new sequence.");
 						}
