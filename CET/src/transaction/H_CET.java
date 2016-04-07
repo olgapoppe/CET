@@ -88,10 +88,9 @@ public class H_CET extends Transaction {
 				String partition_id = partition_start + " " + window.end;
 				partition_ids.add(partition_id);
 				
-				// Compute a partition that is not stored
+				// Look up a stored partition
 				ArrayList<Partition> parts = new ArrayList<Partition>();
-				for (String pid : partition_ids) {		
-					
+				for (String pid : partition_ids) {					
 					boolean writes = window.writes(pid,windows);
 					if (!writes) parts.add(shared_partitions.get(pid));					
 				}
@@ -99,6 +98,7 @@ public class H_CET extends Transaction {
 					resulting_partitioning = new Partitioning(parts);
 					System.out.println("Looked up: " + resulting_partitioning.toString(3));
 				} else {
+				// Compute a new partition
 					Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);				
 					if (cuts.isEmpty()) {
 						resulting_partitioning = max_partitioning;
