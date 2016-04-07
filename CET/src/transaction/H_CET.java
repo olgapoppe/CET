@@ -96,17 +96,17 @@ public class H_CET extends Transaction {
 				}
 				if (!parts.isEmpty()) {
 					resulting_partitioning = new Partitioning(parts);
-					System.out.println("Looked up: " + resulting_partitioning.toString(3));
+					//System.out.println("Looked up: " + resulting_partitioning.toString(3));
 				} else {
 				// Compute a new partition
 					Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);				
 					if (cuts.isEmpty()) {
 						resulting_partitioning = max_partitioning;
-						System.out.println("Computed: " + resulting_partitioning.toString(2));						
+						//System.out.println("Computed: " + resulting_partitioning.toString(2));						
 					} else {
 						CutSet cutset = new CutSet(cuts);
 						resulting_partitioning = max_partitioning.partitions.get(0).getPartitioning(cutset);
-						System.out.println("Computed: " + resulting_partitioning.toString(3));
+						//System.out.println("Computed: " + resulting_partitioning.toString(3));
 					}	
 				}
 		}}}
@@ -128,7 +128,7 @@ public class H_CET extends Transaction {
 					for (Node first_node : partition.first_nodes) { first_node.isFirst = true; }
 					partition.results = T_CET.computeResults(partition.last_nodes,writes,partitionResults);
 					shared_partitions.add(partition.id, partition);
-					System.out.println("Window " + window.id + " writes " + partitionResults.size() + " results for the partition " + partition.id);
+					//System.out.println("Window " + window.id + " writes " + partitionResults.size() + " results for the partition " + partition.id);
 					cets_within_partitions += partition.getCETlength();
 				} 			
 			}		
