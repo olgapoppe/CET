@@ -1,23 +1,25 @@
 package transaction;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import event.Event;
-import iogenerator.OutputFileGenerator;
+
+import event.*;
+import iogenerator.*;
 
 public class Sase extends Transaction {
 	
-	//HashSet<TreeSet<Event>> results;
-	String window_id;
+	HashSet<String> results;
+	Window window;
 	
-	public Sase (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem, String wi) {		
+	public Sase (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem, Window w) {		
 		super(b,o,tn,time,mem);
-		//results = new HashSet<TreeSet<Event>>();
-		window_id = wi;
+		results = new HashSet<String>();
+		window = w;
 	}
 	
 	public void run () {
@@ -28,7 +30,8 @@ public class Sase extends Transaction {
 		long duration = end - start;
 		total_cpu.set(total_cpu.get() + duration);
 		
-		// writeOutput2File();		
+		System.out.println("Window " + window.id + " has " + results.size() + " results.");		
+		//writeOutput2File();		
 		transaction_number.countDown();
 	}
 	
@@ -43,11 +46,11 @@ public class Sase extends Transaction {
 		
 		for (Event event: batch) {
 			
-			if (!event.pointers.containsKey(window_id)) {
+			if (!event.pointers.containsKey(window.id)) {
 				ArrayList<Event> new_pointers = new ArrayList<Event>();
-				event.pointers.put(window_id, new_pointers);
+				event.pointers.put(window.id, new_pointers);
 			}
-			ArrayList<Event> pointers = event.pointers.get(window_id);
+			ArrayList<Event> pointers = event.pointers.get(window.id);
 									
 			// Store pointers to its predecessors
 			if (event.sec == curr_sec) {
@@ -89,7 +92,7 @@ public class Sase extends Transaction {
 		current_sequence.push(event);
 		//System.out.println("pushed " + node.event.id);
 		
-		ArrayList<Event> pointers = event.pointers.get(window_id);
+		ArrayList<Event> pointers = event.pointers.get(window.id);
 	        
 		/*** Base case: We hit the end of the graph. Output the current CET. ***/
 	    if (pointers.isEmpty()) {   
@@ -101,7 +104,7 @@ public class Sase extends Transaction {
 	       	}
 	       	int eventNumber = getEventNumber(result);
 			if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;	
-	       	//results.add(result);  
+	       	results.add(result);  
 	        
 			//System.out.println("result " + result);
 				

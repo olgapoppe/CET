@@ -15,10 +15,12 @@ import iogenerator.*;
 public class BaseLine extends Transaction {	
 	
 	HashSet<TreeSet<Event>> results;
+	Window window; 
 	
-	public BaseLine (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
+	public BaseLine (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem, Window w) {		
 		super(b,o,tn,time,mem);
 		results = new HashSet<TreeSet<Event>>();
+		window = w;
 	}
 	
 	public void run () {
@@ -120,6 +122,8 @@ public class BaseLine extends Transaction {
 	public void writeOutput2File() {
 		
 		int memory4results = 0;
+		
+		System.out.println("Window " + window.id + " has " + results.size() + " results.");
 				
 		if (output.isAvailable()) {
 			for(TreeSet<Event> sequence : results) { 

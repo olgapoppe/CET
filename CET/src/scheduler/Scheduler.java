@@ -139,10 +139,10 @@ public class Scheduler implements Runnable {
 	public void execute(Window window) {
 		Transaction transaction;
 		if (algorithm == 0) {
-			transaction = new Sase(window.events,output,transaction_number,total_cpu,total_memory,window.id);
+			transaction = new Sase(window.events,output,transaction_number,total_cpu,total_memory,window);
 		} else {
 		if (algorithm == 1) {
-			transaction = new BaseLine(window.events,output,transaction_number,total_cpu,total_memory);		
+			transaction = new BaseLine(window.events,output,transaction_number,total_cpu,total_memory,window);		
 		} else {
 		if (algorithm == 2) {
 			transaction = new M_CET(window.events,output,transaction_number,total_cpu,total_memory);
