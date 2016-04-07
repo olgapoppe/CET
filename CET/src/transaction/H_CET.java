@@ -190,11 +190,11 @@ public class H_CET extends Transaction {
 	
 	public void writeOutput2File(int memory) {
 		
-		int maxSeqLength = 0;
+		//int maxSeqLength = 0;
 		
 		System.out.println("Window " + window.id + " has " + results.size() + " results.");
 				
-		if (output.isAvailable()) {					
+		/*if (output.isAvailable()) {					
 				
 			for(String sequence : results) {							 				
 				try { output.file.append(sequence + "\n"); } catch (IOException e) { e.printStackTrace(); }
@@ -202,7 +202,7 @@ public class H_CET extends Transaction {
 				if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;			
 			}
 			output.setAvailable();
-		}	
+		}*/	
 		// Output of statistics
 		total_mem.set(total_mem.get() + memory);
 		//if (total_mem.get() < memory) total_mem.getAndAdd(memory);			

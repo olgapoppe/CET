@@ -55,6 +55,9 @@ public class Sase extends Transaction {
 			// Store pointers to its predecessors
 			if (event.sec == curr_sec) {
 				for (Event last : lastEvents) {
+					
+					if (pointers == null) System.out.println("Pointers null");
+					
 					if (!pointers.contains(last)) {
 						pointers.add(last);
 						pointerCount++;

@@ -125,18 +125,18 @@ public class BaseLine extends Transaction {
 		
 		System.out.println("Window " + window.id + " has " + results.size() + " results.");
 				
-		if (output.isAvailable()) {
+		//if (output.isAvailable()) {
 			for(TreeSet<Event> sequence : results) { 
-				try { 
+				/*try { 
 					for (Event event : sequence) {
 						output.file.append(event.id + ",");					
 					}
 					output.file.append("\n");
-				} catch (IOException e) { e.printStackTrace(); }
+				} catch (IOException e) { e.printStackTrace(); }*/
 				memory4results += sequence.size();	
 			}
-			output.setAvailable();
-		}			
+			//output.setAvailable();
+		//}			
 		// Output of statistics
 		total_mem.set(total_mem.get() + memory4results);
 		//if (total_mem.get() < memory4results) total_mem.getAndAdd(memory4results);	
