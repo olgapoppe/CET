@@ -46,14 +46,6 @@ public class Window {
 		return start <= s && e <= end;
 	}
 	
-	// The first window that contains this partition writes it
-	/*public boolean writes (String pid, ArrayDeque<Window> windows) {
-		for (Window window : windows) {
-			if (window.contains(pid)) return this.equals(window);				
-		}
-		return false;
-	}*/
-	
 	// The window that starts with this partition writes it
 	public boolean writes (int s) {
 		return this.start == s;
