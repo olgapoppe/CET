@@ -5,6 +5,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
 import event.*;
 import iogenerator.*;
 import transaction.*;
@@ -151,7 +152,7 @@ public class Scheduler implements Runnable {
 			transaction = new T_CET(window.events,output,transaction_number,total_cpu,total_memory);
 		} else {
 			transaction = new H_CET(window.events,output,transaction_number,total_cpu,total_memory,memory_limit,cut_number,search_algorithm,windows,window,window_slide,shared_partitions);
-		}}}}
+		}}}}		
 		executor.execute(transaction);	
 	}	
 }

@@ -2,7 +2,6 @@ package transaction;
 
 import iogenerator.OutputFileGenerator;
 
-import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -42,7 +41,7 @@ public class H_CET extends Transaction {
 
 	public void run() {	
 		
-		long start =  System.currentTimeMillis();		
+		long start =  System.currentTimeMillis();	
 		
 		// Size of the graph
 		int size_of_the_graph = batch.size();// + Graph.constructGraph(batch).edgeNumber;
@@ -75,40 +74,52 @@ public class H_CET extends Transaction {
 								
 			} else {
 				
-				// Get the cuts and partition identifiers of this window
-				ArrayList<Integer> cuts = new ArrayList<Integer>();
+				// Get partition identifiers of this window
 				ArrayList<String> partition_ids = new ArrayList<String>();
 				int partition_start = window.start;
 				for (int cut=window_slide; cut+window.start<=window.end; cut+=window_slide) { 
-					cuts.add(cut); 
 					String partition_id = partition_start + " " + (cut+window.start-1);
 					partition_ids.add(partition_id);
 					partition_start = cut+window.start;				
 				}
 				String partition_id = partition_start + " " + window.end;
 				partition_ids.add(partition_id);
+				//System.out.println("Partitions: " + partition_ids.toString());
 				
-				// Look up a stored partition
+				// Write a new partition or read a stored partition
 				ArrayList<Partition> parts = new ArrayList<Partition>();
-				for (String pid : partition_ids) {					
-					boolean writes = window.writes(pid,windows);
-					if (!writes) parts.add(shared_partitions.get(pid));					
-				}
-				if (!parts.isEmpty()) {
-					resulting_partitioning = new Partitioning(parts);
-					//System.out.println("Looked up: " + resulting_partitioning.toString(3));
-				} else {
-				// Compute a new partition
-					Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);				
-					if (cuts.isEmpty()) {
-						resulting_partitioning = max_partitioning;
-						//System.out.println("Computed: " + resulting_partitioning.toString(2));						
+				for (String pid : partition_ids) {	
+					
+					// Get start and end of the window
+					String[] array = pid.split(" ");
+					int s = Integer.parseInt(array[0]);
+					int e = Integer.parseInt(array[1]);
+										
+					boolean writes = window.writes(s);
+					if (writes) {
+						
+						// Select events from the batch
+						ArrayList<Event> selected_events = new ArrayList<Event>();
+						for (Event event : batch) {
+							if (event.sec >= s && event.sec <= e) selected_events.add(event);
+							if (event.sec > e) break;
+						}						
+						// Construct a partition from these events
+						Graph g = Graph.constructGraph(selected_events);						
+						Partition part = new Partition(s,e,selected_events.size(),g.edgeNumber,g.first_nodes,g.last_nodes);
+						parts.add(part);
+						//System.out.println("Graph written: " + part.id);			
+						
 					} else {
-						CutSet cutset = new CutSet(cuts);
-						resulting_partitioning = max_partitioning.partitions.get(0).getPartitioning(cutset);
-						//System.out.println("Computed: " + resulting_partitioning.toString(3));
-					}	
+						
+						// Read a stored partition
+						Partition part = shared_partitions.get(pid); 
+						parts.add(part);
+						//System.out.println("Graph read: " + part.id);
+					}
 				}
+				resulting_partitioning = new Partitioning(parts);
+				//System.out.println("Resulting partitioning: " + resulting_partitioning.toString(3));				
 		}}}
 					
 		if (!resulting_partitioning.partitions.isEmpty()) {
@@ -120,7 +131,7 @@ public class H_CET extends Transaction {
 			for (Partition partition : resulting_partitioning.partitions) {	
 			
 				ArrayList<EventTrend> partitionResults = new ArrayList<EventTrend>();
-				boolean writes = window.writes(partition.id,windows);
+				boolean writes = window.writes(partition.start);
 				
 				if (writes) {
 					
@@ -128,8 +139,8 @@ public class H_CET extends Transaction {
 					for (Node first_node : partition.first_nodes) { first_node.isFirst = true; }
 					partition.results = T_CET.computeResults(partition.last_nodes,writes,partitionResults);
 					shared_partitions.add(partition.id, partition);
-					//System.out.println("Window " + window.id + " writes " + partitionResults.size() + " results for the partition " + partition.id);
 					cets_within_partitions += partition.getCETlength();
+					//System.out.println("Results written: " + partition.id);
 				} 			
 			}		
 		

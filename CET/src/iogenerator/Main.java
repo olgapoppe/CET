@@ -95,8 +95,8 @@ public class Main {
 		AtomicInteger total_memory = new AtomicInteger(0);
 		
 		/*** EXECUTORS ***/
-		int number_of_executors = 3;
-		ExecutorService executor = Executors.newFixedThreadPool(number_of_executors);
+		int window_number = (lastsec-firstsec)/window_slide + 1;
+		ExecutorService executor = Executors.newFixedThreadPool(window_number);
 			
 		/*** Create and start the event driver and the scheduler threads.
 		 *   Driver reads from the file and writes into the event queue.
@@ -119,7 +119,6 @@ public class Main {
 		executor.shutdown();	
 		output.file.close();
 		
-		int window_number = (lastsec-firstsec)/window_slide + 1;
 		System.out.println(//"Event number: " + eventNumber.get() +
 				"\nAvg CPU: " + total_cpu.get()/window_number +
 				//"\nThroughput: " + eventNumber.get()/processingTime.get() +
