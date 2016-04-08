@@ -91,12 +91,12 @@ public class CutSet {
 		return true;
 	}
 	
-	public boolean isPruned (HashMap<Integer,Integer> pruned) {
-		for (Integer cut : cutset) {
-			if (pruned.containsKey(cut)) return true;
+	public boolean isPruned (ArrayList<CutSet> pruned) {
+		for (CutSet p : pruned) {
+			if (this.cutset.containsAll(p.cutset)) return true;
 		}
 		return false;
-	}
+	}	
 
 	public String toString() {
 		return cutset.toString();

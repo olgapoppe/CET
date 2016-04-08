@@ -195,12 +195,39 @@ public class Partition extends Graph {
 			int data[] = new int[n];		
 
 			// Get all combinations using temporary array 'data[]'
-			results = getAllCutSetsAux(arr, data, 0, arr.length-1, 0, n, results);
+			results = getAllCutSetsAux(arr, data, 0, arr.length-1, 0, n, results, new ArrayList<CutSet>());
 		}
 		return results;
 	}
 	
-	public ArrayList<CutSet> getAllCutSetsAux (int arr[], int data[], int start, int end, int index, int r, ArrayList<CutSet> results) {
+	/*** Get all combinations of numbers from 1 to max of length n  ***/
+	public ArrayList<CutSet> getAllNotPrunedCutSets (int n, ArrayList<CutSet> pruned) {	
+		
+		// Result accumulator
+		ArrayList<CutSet> results = new ArrayList<CutSet>();
+			
+		// Fill input array with numbers
+		int max = this.minPartitionNumber-1;
+		//System.out.println("Max: " + max);
+		
+		if (max>0) {
+		
+			int arr[] = new int[max];		
+			for (int i=1; i<=max; i++) {
+				arr[i-1] = i;
+			}	
+				
+			// A temporary array to store all combination one by one
+			int data[] = new int[n];		
+
+			// Get all combinations using temporary array 'data[]'
+			results = getAllCutSetsAux(arr, data, 0, arr.length-1, 0, n, results, pruned);
+		}
+		return results;
+	}
+	
+	public ArrayList<CutSet> getAllCutSetsAux (int arr[], int data[], int start, int end, int index, int r, 
+			ArrayList<CutSet> results, ArrayList<CutSet> pruned) {
 		
 		// Current combination is done, save it in results
 		if (index == r) {
@@ -211,7 +238,7 @@ public class Partition extends Graph {
 			}
 			//System.out.println("");
 			
-			if (!result.cutset.contains(0)) results.add(result);						
+			if (!result.cutset.contains(0) && !result.isPruned(pruned)) results.add(result);						
 			return results;
 		}
 
@@ -221,37 +248,7 @@ public class Partition extends Graph {
 		// at remaining positions
 		for (int i=start; i<=end && end-i+1 >= r-index; i++) {
 			data[index] = arr[i];
-			results = getAllCutSetsAux(arr, data, i+1, end, index+1, r, results);
-		}
-		return results;
-	}
-	
-	/*** Get all combinations of numbers from 1 to max of length n excluding pruned  ***/
-	public ArrayList<CutSet> getAllNotPrunedCutSets (int n, HashMap<Integer,Integer> pruned) {	
-		
-		// Result accumulator
-		ArrayList<CutSet> results = new ArrayList<CutSet>();
-			
-		// Fill input array with numbers excluding pruned
-		int max = this.minPartitionNumber-1;
-		//System.out.println("Max: " + max);
-		
-		if (max>0) {
-		
-			int arr[] = new int[max];	
-			int index = 0;
-			for (int i=1; i<=max; i++) {
-				if (!pruned.containsKey(i)) {
-					arr[index] = i;
-					index++;
-				}
-			}	
-				
-			// A temporary array to store all combination one by one
-			int data[] = new int[n];		
-
-			// Get all combinations using temporary array 'data[]'
-			results = getAllCutSetsAux(arr, data, 0, arr.length-1, 0, n, results);
+			results = getAllCutSetsAux(arr, data, i+1, end, index+1, r, results, pruned);
 		}
 		return results;
 	}
