@@ -2,9 +2,7 @@ package optimizer;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
-
 import event.*;
 import graph.*;
 
@@ -65,7 +63,7 @@ public class BnB_topDown extends Partitioner {
 			if (temp.isPruned(pruned)) continue;			
 			double temp_cpu = temp.partitioning.getCPUcost(3);
 			double temp_mem = temp.partitioning.getMEMcost(3);		
-			System.out.println("\nConsidered: " + temp.toString() + " " + temp.partitioning.toString(3));
+			System.out.println("\nConsidered: " + temp.toString());
 			considered_count++;
 			
 			// Update the solution and prune the descendants
@@ -76,7 +74,7 @@ public class BnB_topDown extends Partitioner {
 				}
 				if (!pruned.contains(temp)) {
 					pruned.add(temp);
-					System.out.println("Pruned cut: " + temp.toString());
+					System.out.println("Pruned: " + temp.toString());
 				}				
 			}			
 			// Put all nearly balanced not pruned nodes from the next level to the heap
