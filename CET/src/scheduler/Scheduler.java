@@ -93,7 +93,7 @@ public class Scheduler implements Runnable {
 			while (event != null && event.sec <= progress) { 
 					
 				Event e = eventqueue.contents.poll();
-				
+								
 				/*** Fill windows with events ***/
 				for (Window window : windows2iterate) {
 					if (window.relevant(e)) window.events.add(e); 
@@ -134,7 +134,7 @@ public class Scheduler implements Runnable {
 		/*** Terminate ***/
 		try { transaction_number.await(); } catch (InterruptedException e) { e.printStackTrace(); }
 		done.countDown();	
-		//System.out.println("Scheduler is done.");
+		System.out.println("Scheduler is done.");
 	}	
 	
 	public void execute(Window window) {
