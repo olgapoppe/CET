@@ -3,7 +3,6 @@ package graph;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
-
 import event.*;
 
 public class Graph {
