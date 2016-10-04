@@ -39,8 +39,8 @@ public class Main {
 		String inputfile = "stream1.txt";
 		String outputfile = "sequences.txt";		
 		
-		boolean realtime = true;
-		boolean overlap = true;
+		boolean realtime = false;
+		boolean overlap = false;
 		int firstsec = 0;
 	    int lastsec = 0;
 		int window_length = 0;
@@ -67,7 +67,7 @@ public class Main {
 		}
 	    String input = path + inputfile;
 	    OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
-	    if (!overlap) {
+	    if (window_length == 0 && window_slide == 0) {
 	    	window_length = lastsec+1;
 	    	window_slide = lastsec+1;
 	    }
@@ -119,13 +119,9 @@ public class Main {
 		executor.shutdown();	
 		output.file.close();
 		
-		System.out.println(//"Event number: " + eventNumber.get() +
-				"\nAvg CPU: " + total_cpu.get()/window_number +
-				//"\nThroughput: " + eventNumber.get()/processingTime.get() +
-				"\nAvg MEM: " + total_memory.get()/window_number + "\n");
-				//"\nExecutor is done." +
-				//"\nMain is done.");
-			
+		System.out.println(	"\nAvg CPU: " + total_cpu.get()/window_number +				
+							"\nAvg MEM: " + total_memory.get()/window_number + "\n");
+				
 		} catch (InterruptedException e) { e.printStackTrace(); }
 		  catch (IOException e1) { e1.printStackTrace(); }
 	}	
