@@ -1,8 +1,6 @@
 package event;
 
 import graph.Partition;
-
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 public class Window {

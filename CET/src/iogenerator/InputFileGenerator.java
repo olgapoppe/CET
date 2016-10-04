@@ -49,7 +49,7 @@ public class InputFileGenerator {
 		/*** Parse input event stream and count events per second ***/
 		if (action == 1) {
 						
-			String input_file_name = "CET\\src\\iofiles\\114.dat";
+			String input_file_name = "CET\\src\\iofiles\\105.dat";
 			File input_file = new File(input_file_name);
 			Scanner input = new Scanner(input_file);   
 			countEvents(input);
@@ -81,18 +81,18 @@ public class InputFileGenerator {
 		int sec = 0;
 		int count = 0; 
 				
-		while (input.hasNextLine() && sec <= 600) {         	
+		while (input.hasNextLine()) {         	
         			
 			eventString = input.nextLine();
 			Event event = Event.parseReal(eventString);	
-			if (event.id > 0) {
+			//if (event.id > 0) {
 				if (event.sec > sec) {
 					System.out.println("Sec: " + sec + " Count: " + count);
 					sec = event.sec;
 					count = 1;
 				} else {
 					count++;
-		}}}		
+		}}//}		
 	}
 	
 	public static void selectEvents (Scanner input, BufferedWriter output) {

@@ -36,7 +36,7 @@ public class Main {
 	    /*** Input and output ***/
 	    // Set default values
 	    String path = "iofiles/";
-		String inputfile = "stream.txt";
+		String inputfile = "stream1.txt";
 		String outputfile = "sequences.txt";		
 		
 		boolean realtime = true;

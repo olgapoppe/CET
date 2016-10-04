@@ -86,7 +86,7 @@ public class EventDriver implements Runnable {
 	 			/*** Set distributor progress ***/		 					
 	 			eventqueue.setDriverProgress(batch.end);					
 	 			curr_sec = batch.end;
-	 			
+	 				 			
 				if (batch.end < lastsec) { 			
  				
 					/*** Sleep if now is smaller than batch_limit ms ***/
@@ -106,7 +106,7 @@ public class EventDriver implements Runnable {
 					int new_end = batch.end + random.nextInt(max - min + 1) + min + new Double(driver_wakeup_time).intValue();
 					batch = new Window(new_start, new_end);
 					if (batch.end > lastsec) batch.end = lastsec;
-					//System.out.println("-------------------------\nBatch end: " + batch.end);
+					System.out.println("-------------------------\nBatch end: " + batch.end);
  				
 					if (driver_wakeup_time > 1) {
 						System.out.println(	"Distributor wakeup time is " + driver_wakeup_time + 
