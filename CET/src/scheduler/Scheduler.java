@@ -134,24 +134,24 @@ public class Scheduler implements Runnable {
 		/*** Terminate ***/
 		try { transaction_number.await(); } catch (InterruptedException e) { e.printStackTrace(); }
 		done.countDown();	
-		System.out.println("Scheduler is done.");
+		//System.out.println("Scheduler is done.");
 	}	
 	
 	public void execute(Window window) {
 		Transaction transaction;
 		if (algorithm.equals("sase")) {
-			transaction = new Sase(window.events,output,transaction_number,total_cpu,total_memory,window);
+			transaction = new Sase(window,output,transaction_number,total_cpu,total_memory);
 		} else {
 		if (algorithm.equals("bl")) {
-			transaction = new BaseLine(window.events,output,transaction_number,total_cpu,total_memory,window);		
+			transaction = new BaseLine(window,output,transaction_number,total_cpu,total_memory);		
 		} else {
 		if (algorithm.equals("mcet")) {
-			transaction = new M_CET(window.events,output,transaction_number,total_cpu,total_memory);
+			transaction = new M_CET(window,output,transaction_number,total_cpu,total_memory);
 		} else {
 		if (algorithm.equals("tcet")) {
-			transaction = new T_CET(window.events,output,transaction_number,total_cpu,total_memory);
+			transaction = new T_CET(window,output,transaction_number,total_cpu,total_memory);
 		} else {
-			transaction = new H_CET(window.events,output,transaction_number,total_cpu,total_memory,memory_limit,cut_number,search_algorithm,windows,window,window_slide,shared_partitions);
+			transaction = new H_CET(window,output,transaction_number,total_cpu,total_memory,memory_limit,cut_number,search_algorithm,windows,window_slide,shared_partitions);
 		}}}}		
 		executor.execute(transaction);	
 	}	

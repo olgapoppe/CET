@@ -10,15 +10,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
 import event.*;
 import scheduler.*;
  
 public class Main {
 	
 	/**
-	 * Create and call the chain: Input file -> Driver -> Scheduler -> Executor -> Output files 
-	 * @param args: 
+	 * Example parameters: 
+	 * -type check -path src/iofiles/ -file stream.txt -to 120 -algo sase
 	 */
 	public static void main (String[] args) { 
 		
@@ -29,9 +28,9 @@ public class Main {
 	    SimpleDateFormat ft = new SimpleDateFormat ("E yyyy.MM.dd 'at' hh:mm:ss a zzz");
 	    System.out.println("----------------------------------\nCurrent Date: " + ft.format(dNow));
 	    
-	    Path currentRelativePath = Paths.get("");
+	    /* Path currentRelativePath = Paths.get("");
 	    String s = currentRelativePath.toAbsolutePath().toString();
-	    System.out.println("Current relative path is: " + s);
+	    System.out.println("Current relative path is: " + s); */
 	    
 	    /*** Input and output ***/
 	    // Set default values
@@ -75,14 +74,14 @@ public class Main {
 	    }
 	    
 	    // Print input parameters
-	    System.out.println(	"Input file: " + inputfile +
+	    System.out.println(	"Algorithm: " + algorithm +
+	    					"\nInput file: " + inputfile +
 	    					"\nType: " + type +
 	    					"\nReal time: " + realtime +
 	    					"\nOverlapping window: " + overlap +
 	    					"\nStream from " + firstsec + " to " + lastsec +
 	    					"\nWindow length: " + window_length + 
 							"\nWindow slide: " + window_slide +
-							"\nAlgorithm: " + algorithm +
 							"\nMemory limit: " + memory_limit +
 							"\nCut number: " + cut_number +
 							"\nSearch algorithm: " + search_algorithm +

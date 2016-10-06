@@ -15,17 +15,17 @@ public class T_CET extends Transaction {
 	
 	Graph graph;
 	
-	public T_CET (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {
-		super(b,o,tn,time,mem);			
+	public T_CET (Window w, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {
+		super(w,o,tn,time,mem);			
 	}
 	
 	public void run() {
 		
 		// Start timer and construct the graph
 		long start =  System.currentTimeMillis();
-		graph = Graph.constructGraph(batch);
+		graph = Graph.constructGraph(window.events);
 		
-		// Estimated CPU and memory costs
+		/*// Estimated CPU and memory costs
 		int vertex_number = batch.size();
 		int edge_number = graph.edgeNumber;
 		//System.out.println("Edge number: " + edge_number);
@@ -33,7 +33,7 @@ public class T_CET extends Transaction {
 		
 		double exp = vertex_number/new Double(3);
 		double estimated_mem = Math.pow(3, exp) * vertex_number;
-		System.out.println("CPU: " + estimated_cpu + " MEM: " + estimated_mem);		
+		System.out.println("CPU: " + estimated_cpu + " MEM: " + estimated_mem);*/		
 		
 		// Compute results
 		computeResults(graph.last_nodes,false,new ArrayList<EventTrend>());	
@@ -105,10 +105,12 @@ public class T_CET extends Transaction {
 	public void writeOutput2File() {
 		
 		int memory4results = 0;
+		int count = 0;
 				
 		if (output.isAvailable()) {
 			for (Node first : graph.first_nodes) {
 				memory4results += first.printResults(output);
+				count += first.results.size();
 			}
 			output.setAvailable();
 		}
@@ -116,5 +118,7 @@ public class T_CET extends Transaction {
 		int memory = graph.nodes.size() + graph.edgeNumber + memory4results;
 		total_mem.set(total_mem.get() + memory);
 		//if (total_mem.get() < memory) total_mem.getAndAdd(memory);	
+		
+		System.out.println("Window " + window.id + " has " + count + " results.");
 	}
 }

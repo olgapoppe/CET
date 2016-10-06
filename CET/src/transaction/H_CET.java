@@ -19,19 +19,17 @@ public class H_CET extends Transaction {
 	int cut_number;
 	int search_algorithm;
 	ArrayDeque<Window> windows;
-	Window window; 
 	int window_slide;
 	SharedPartitions shared_partitions;
 	ArrayList<String> results;
 	
-	public H_CET (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem, double ml, int pn, int sa, 
-			ArrayDeque<Window> ws, Window w, int wsl, SharedPartitions sp) {
-		super(b,o,tn,time,mem);	
+	public H_CET (Window w, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem, double ml, int pn, int sa, 
+			ArrayDeque<Window> ws, int wsl, SharedPartitions sp) {
+		super(w,o,tn,time,mem);	
 		memory_limit = ml;
 		cut_number = pn;
 		search_algorithm = sa;
 		windows = ws;
-		window = w;
 		window_slide = wsl;
 		shared_partitions = sp;
 		results = new ArrayList<String>();
@@ -42,7 +40,7 @@ public class H_CET extends Transaction {
 		long start =  System.currentTimeMillis();	
 		
 		// Size of the graph
-		int size_of_the_graph = batch.size();// + Graph.constructGraph(batch).edgeNumber;
+		int size_of_the_graph = window.events.size();// + Graph.constructGraph(batch).edgeNumber;
 		
 		if (search_algorithm<3) {
 			Partitioner partitioner;
@@ -54,16 +52,16 @@ public class H_CET extends Transaction {
 			} else {
 				partitioner = new Gre_topDown(windows);
 			}}
-			resulting_partitioning = partitioner.getPartitioning(batch, memory_limit);
+			resulting_partitioning = partitioner.getPartitioning(window.events, memory_limit);
 		} else {
 			if (search_algorithm==3) {
 				// Get an optimal partitioning with the given cut number
-				resulting_partitioning = Partitioning.getOptimalPartitioning(batch, cut_number);
+				resulting_partitioning = Partitioning.getOptimalPartitioning(window.events, cut_number);
 			} else {
 			if (search_algorithm==4) {
 				
 				// Get the partitioning with the given cut
-				Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
+				Partitioning max_partitioning = Partitioning.getPartitioningWithMaxPartition(window.events);
 				ArrayList<Integer> cuts = new ArrayList<Integer>();
 				cuts.add(cut_number);
 				CutSet cutset = new CutSet(cuts);
@@ -98,7 +96,7 @@ public class H_CET extends Transaction {
 						
 						// Select events from the batch
 						ArrayList<Event> selected_events = new ArrayList<Event>();
-						for (Event event : batch) {
+						for (Event event : window.events) {
 							if (event.sec >= s && event.sec <= e) selected_events.add(event);
 							if (event.sec > e) break;
 						}						

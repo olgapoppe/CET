@@ -13,12 +13,10 @@ import iogenerator.*;
 public class BaseLine extends Transaction {	
 	
 	HashSet<TreeSet<Event>> results;
-	Window window; 
 	
-	public BaseLine (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem, Window w) {		
-		super(b,o,tn,time,mem);
+	public BaseLine (Window w, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
+		super(w,o,tn,time,mem);
 		results = new HashSet<TreeSet<Event>>();
-		window = w;
 	}
 	
 	public void run () {
@@ -38,7 +36,7 @@ public class BaseLine extends Transaction {
 		//HashSet<TreeSet<Event>> new_results = new HashSet<TreeSet<Event>>();
 		HashSet<TreeSet<Event>> prefixes = new HashSet<TreeSet<Event>>();					
 				
-		for (Event event: batch) {
+		for (Event event: window.events) {
 			//System.out.println(node);
 			prefixes = new HashSet<TreeSet<Event>>();
 			/*** CASE I: Create a new CET ***/

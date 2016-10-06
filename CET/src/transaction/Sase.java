@@ -14,12 +14,10 @@ import iogenerator.*;
 public class Sase extends Transaction {
 	
 	HashSet<String> results;
-	Window window;
 	
-	public Sase (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem, Window w) {		
-		super(b,o,tn,time,mem);
+	public Sase (Window w, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
+		super(w,o,tn,time,mem);
 		results = new HashSet<String>();
-		window = w;
 	}
 	
 	public void run () {
@@ -44,7 +42,7 @@ public class Sase extends Transaction {
 		int curr_sec = -1;
 		int pointerCount = 0;
 		
-		for (Event event: batch) {
+		for (Event event: window.events) {
 			
 			if (!event.pointers.containsKey(window.id)) {
 				ArrayList<Event> new_pointers = new ArrayList<Event>();

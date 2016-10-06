@@ -1,7 +1,6 @@
 package transaction;
 
 import iogenerator.OutputFileGenerator;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -9,8 +8,7 @@ import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
-import event.Event;
+import event.*;
 import graph.*;
 
 public class M_CET extends Transaction {
@@ -19,8 +17,8 @@ public class M_CET extends Transaction {
 	// A result is a string of comma separated event ids
 	ArrayList<String> results;
 	
-	public M_CET (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {
-		super(b,o,tn,time,mem);	
+	public M_CET (Window w, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {
+		super(w,o,tn,time,mem);	
 		results = new ArrayList<String>();
 	}
 	
@@ -28,10 +26,10 @@ public class M_CET extends Transaction {
 		
 		// Start timer and construct the graph
 		long start =  System.currentTimeMillis();
-		graph = Graph.constructGraph(batch);	
+		graph = Graph.constructGraph(window.events);	
 		
 		// Estimated CPU and memory costs
-		int vertex_number = batch.size();
+		int vertex_number = window.events.size();
 		double estimated_cpu = 2 * Math.pow(3, vertex_number/new Double(3)) * vertex_number;	
 		
 		int estimated_mem = vertex_number;
