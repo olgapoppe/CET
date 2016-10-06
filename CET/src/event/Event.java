@@ -8,7 +8,7 @@ public class Event implements Comparable<Event> {
 	public int sec;
 	public int id;
 	public int value;
-	// Mapping of window identifier to the pointers of this event within this window
+	// Mapping of window identifier to the pointers of this event within this window     
 	public HashMap<String,ArrayList<Event>> pointers;
 	
 	public Event (int s, int i, int v) {
