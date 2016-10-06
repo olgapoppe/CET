@@ -3,45 +3,36 @@ package event;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Event implements Comparable<Event> {
+public abstract class Event implements Comparable<Event> {
 	
 	public int sec;
 	public int id;
-	public int value;
+	public double value;
 	// Mapping of window identifier to the pointers of this event within this window     
 	public HashMap<String,ArrayList<Event>> pointers;
 	
-	public Event (int s, int i, int v) {
+	public Event (int s, int i, double v) {
 		sec = s;
 		id = i;
 		value = v;
 		pointers = new HashMap<String,ArrayList<Event>>();
-	}
+	}	
 	
-	public static Event parse (String line) {
-		
-		String[] values = line.split(",");
-		
-		int s = Integer.parseInt(values[0]);
-        int i = Integer.parseInt(values[1]);
-        int v = Integer.parseInt(values[2]);          	
-    	    	    	
-    	Event event = new Event(s,i,v);    	
-    	//System.out.println(event.toString());    	
-        return event;
-	}
-	
-	public static Event parseReal (String line) {
-		
-		String[] values = line.split(",");
-		
-		int s = Integer.parseInt(values[1]);
-        int i = Integer.parseInt(values[3]);
-        int v = Integer.parseInt(values[2]);          	
-    	    	    	
-    	Event event = new Event(s,i,v);    	
-    	//System.out.println(event.toString());    	
-        return event;
+	public static Event parse (String line, String type) {
+		Event event;
+		if (type.equals("check")) { 
+			event = CheckEvent.parse(line); 
+		} else {
+		if (type.equals("activity")) { 
+			event = ActivityEvent.parse(line); 
+		} else {
+		if (type.equals("stock")) {
+			event = StockEvent.parse(line); 
+		} else {
+			event = null;
+			System.err.println("Unexpected event type");
+		}}}
+		return event;
 	}
 	
 	public int compareTo(Event other) {
@@ -62,7 +53,7 @@ public class Event implements Comparable<Event> {
 	
 	/** Print this event to console */
 	public String toString() {
-		return "sec: " + sec + " id: " + id + " value: " + value;
+		return "" + id;
 	}	
 	
 	/** Print this event with pointers to console */

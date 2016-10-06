@@ -38,6 +38,7 @@ public class Main {
 	    String path = "iofiles/";
 		String inputfile = "stream1.txt";
 		String outputfile = "sequences.txt";		
+		String type = "stock";
 		
 		boolean realtime = false;
 		boolean overlap = false;
@@ -45,13 +46,14 @@ public class Main {
 	    int lastsec = 0;
 		int window_length = 0;
 		int window_slide = 0;	
-		int algorithm = 4;
+		String algorithm = "";
 		double memory_limit = Double.MAX_VALUE;
 		int cut_number = -1;
-		int search_algorithm = 1;
+		int search_algorithm = 0;
 				
 		// Read input parameters
 	    for (int i=0; i<args.length; i++){
+	    	if (args[i].equals("-type")) 		type = args[++i];
 			if (args[i].equals("-path")) 		path = args[++i];
 			if (args[i].equals("-file")) 		inputfile = args[++i];
 			if (args[i].equals("-realtime")) 	realtime = Integer.parseInt(args[++i]) == 1;
@@ -60,7 +62,7 @@ public class Main {
 			if (args[i].equals("-to")) 			lastsec = Integer.parseInt(args[++i]);
 			if (args[i].equals("-wl")) 			window_length = Integer.parseInt(args[++i]);
 			if (args[i].equals("-ws")) 			window_slide = Integer.parseInt(args[++i]);
-			if (args[i].equals("-algo")) 		algorithm = Integer.parseInt(args[++i]);
+			if (args[i].equals("-algo")) 		algorithm = args[++i];
 			if (args[i].equals("-mem")) 		memory_limit = Double.parseDouble(args[++i]);
 			if (args[i].equals("-cut")) 		cut_number = Integer.parseInt(args[++i]);
 			if (args[i].equals("-search")) 		search_algorithm = Integer.parseInt(args[++i]);
@@ -74,6 +76,7 @@ public class Main {
 	    
 	    // Print input parameters
 	    System.out.println(	"Input file: " + inputfile +
+	    					"\nType: " + type +
 	    					"\nReal time: " + realtime +
 	    					"\nOverlapping window: " + overlap +
 	    					"\nStream from " + firstsec + " to " + lastsec +
@@ -96,12 +99,12 @@ public class Main {
 		
 		/*** EXECUTORS ***/
 		int window_number = (lastsec-firstsec)/window_slide + 1;
-		ExecutorService executor = Executors.newFixedThreadPool(window_number);
+		ExecutorService executor = Executors.newFixedThreadPool(10);
 			
 		/*** Create and start the event driver and the scheduler threads.
 		 *   Driver reads from the file and writes into the event queue.
 		 *   Scheduler reads from the event queue and submits event batches to the executor. ***/
-		EventDriver driver = new EventDriver (input, realtime, lastsec, eventqueue, startOfSimulation, driverProgress, eventNumber);				
+		EventDriver driver = new EventDriver (input, type, realtime, lastsec, eventqueue, startOfSimulation, driverProgress, eventNumber);				
 				
 		Scheduler scheduler = new Scheduler (eventqueue, firstsec, lastsec, window_length, window_slide, algorithm, memory_limit, cut_number, search_algorithm, 
 				executor, driverProgress, done, total_cpu, total_memory, output);		

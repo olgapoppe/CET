@@ -1,7 +1,6 @@
 package transaction;
 
 import iogenerator.OutputFileGenerator;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -9,7 +8,6 @@ import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
 import event.*;
 import graph.*;
 import optimizer.*;
@@ -122,11 +120,11 @@ public class H_CET extends Transaction {
 				//System.out.println("Resulting partitioning: " + resulting_partitioning.toString(3));				
 		}}}
 					
-		/*if (!resulting_partitioning.partitions.isEmpty()) {
+		if (!resulting_partitioning.partitions.isEmpty()) {
 			
 			//long start =  System.currentTimeMillis();
 			
-			*//*** Compute results within partitions ***//*
+			/*** Compute results within partitions ***/
 			int cets_within_partitions = 0;
 			for (Partition partition : resulting_partitioning.partitions) {	
 			
@@ -144,22 +142,22 @@ public class H_CET extends Transaction {
 				} 			
 			}		
 		
-			*//*** Compute results across partitions ***//*
+			/*** Compute results across partitions ***/
 			int max_cet_across_partitions = 0;
 			for (Node first_node : resulting_partitioning.partitions.get(0).first_nodes) {
 				
 				for (EventTrend event_trend : first_node.results) {				
 					int length = computeResults(event_trend, new Stack<EventTrend>(), max_cet_across_partitions);				
 					if (max_cet_across_partitions < length) max_cet_across_partitions = length;		
-			}}*/
+			}}
 					
 			long end =  System.currentTimeMillis();
 			long duration = end - start;
 			total_cpu.set(total_cpu.get() + duration);
 		
-			//int memory = size_of_the_graph + cets_within_partitions + max_cet_across_partitions;
-			//writeOutput2File(memory);
-		//}
+			int memory = size_of_the_graph + cets_within_partitions + max_cet_across_partitions;
+			writeOutput2File(memory);
+		}
 		transaction_number.countDown();		
 	}
 	

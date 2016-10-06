@@ -18,7 +18,7 @@ public class Scheduler implements Runnable {
 	int window_length;
 	int window_slide;
 	ArrayDeque<Window> windows;
-	int algorithm;
+	String algorithm;
 	double memory_limit;
 	int cut_number;
 	int search_algorithm;
@@ -35,7 +35,7 @@ public class Scheduler implements Runnable {
 	
 	SharedPartitions shared_partitions;
 	
-	public Scheduler (EventQueue eq, int first, int last, int wl, int ws, int a, double ml, int pn, int sa, 
+	public Scheduler (EventQueue eq, int first, int last, int wl, int ws, String a, double ml, int pn, int sa, 
 			ExecutorService exe, AtomicInteger dp, CountDownLatch d, AtomicLong time, AtomicInteger mem, OutputFileGenerator o) {	
 		
 		eventqueue = eq;
@@ -139,16 +139,16 @@ public class Scheduler implements Runnable {
 	
 	public void execute(Window window) {
 		Transaction transaction;
-		if (algorithm == 0) {
+		if (algorithm.equals("sase")) {
 			transaction = new Sase(window.events,output,transaction_number,total_cpu,total_memory,window);
 		} else {
-		if (algorithm == 1) {
+		if (algorithm.equals("bl")) {
 			transaction = new BaseLine(window.events,output,transaction_number,total_cpu,total_memory,window);		
 		} else {
-		if (algorithm == 2) {
+		if (algorithm.equals("mcet")) {
 			transaction = new M_CET(window.events,output,transaction_number,total_cpu,total_memory);
 		} else {
-		if (algorithm == 3) {
+		if (algorithm.equals("tcet")) {
 			transaction = new T_CET(window.events,output,transaction_number,total_cpu,total_memory);
 		} else {
 			transaction = new H_CET(window.events,output,transaction_number,total_cpu,total_memory,memory_limit,cut_number,search_algorithm,windows,window,window_slide,shared_partitions);

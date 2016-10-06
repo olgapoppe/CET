@@ -84,7 +84,7 @@ public class InputFileGenerator {
 		while (input.hasNextLine()) {         	
         			
 			eventString = input.nextLine();
-			Event event = Event.parseReal(eventString);	
+			Event event = Event.parse(eventString,"check");	
 			//if (event.id > 0) {
 				if (event.sec > sec) {
 					System.out.println("Sec: " + sec + " Count: " + count);
@@ -103,7 +103,7 @@ public class InputFileGenerator {
 			while (input.hasNextLine()) {         	
         			
 				eventString = input.nextLine();
-				Event event = Event.parseReal(eventString);				
+				Event event = Event.parse(eventString,"check");				
 				if (event.id > 0) {					
 					count++;
 					event.id = count;
@@ -150,7 +150,7 @@ public class InputFileGenerator {
 			event_id += event_number_per_window;
 		}	
 		// Generate the last event to know the last second in the input stream
-		Event last_event = new Event(last_sec,event_id,1);
+		Event last_event = new CheckEvent(last_sec,event_id,1);
 		try { output.append(last_event.print2file()); } catch (IOException e) { e.printStackTrace(); }
 		System.out.println("Average sequence number is " + total_sequence_number/windows.size());
 	}	
@@ -161,7 +161,7 @@ public class InputFileGenerator {
 				
 		// First event
 		int sec = window.start;
-		Event e1 = new Event(sec,event_id,1);
+		Event e1 = new CheckEvent(sec,event_id,1);
 		events.add(e1);
 		event_id++;
 		
@@ -179,7 +179,7 @@ public class InputFileGenerator {
 			if (event_number+comp>event_number_per_window) comp = event_number_per_window - event_number;
 			// Following events
 			for (int i=1; i<=comp; i++) {
-				Event e2 = new Event(sec,event_id,1);
+				Event e2 = new CheckEvent(sec,event_id,1);
 				events.add(e2);
 				event_id++;
 				event_number++;
@@ -236,7 +236,7 @@ public class InputFileGenerator {
 			
 				// First event in a sequence
 				sec = random.nextInt(max_time_progress);
-				Event e1 = new Event(sec+offset,event_id,value);	
+				Event e1 = new CheckEvent(sec+offset,event_id,value);	
 				events_with_same_value.add(e1);				
 				event_id++;
 				comp = random.nextInt(max_comp + 1) + 1;
@@ -247,7 +247,7 @@ public class InputFileGenerator {
 					sec = sec + random.nextInt(max_time_progress) + 1;
 					if (sec>batch_size) break;
 					for (int i=0; i<comp; i++) {
-						Event e2 = new Event(sec+offset,event_id,value);
+						Event e2 = new CheckEvent(sec+offset,event_id,value);
 						events_with_same_value.add(e2);
 						event_id++;
 					}
