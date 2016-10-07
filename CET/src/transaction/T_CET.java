@@ -62,7 +62,7 @@ public class T_CET extends Transaction {
 			/*** Base case: Create the results for the first nodes ***/
 			if (this_node.results.isEmpty()) {
 				EventTrend new_trend = new EventTrend(this_node, this_node, this_node.toString());
-				this_node.results.add(new_trend);			
+				this_node.results.add(new_trend);				
 			}
 			
 			/*** Recursive case: Copy results from the current node to its previous node and  

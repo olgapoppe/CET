@@ -63,7 +63,7 @@ public class BaseLine extends Transaction {
 							new_result.addAll(previous_result);
 							new_result.remove(previous_result.size()-1);
 							new_result.add(event);
-							new_results.add(new_result);
+							if (!new_results.contains(new_result) && !results.contains(new_result)) new_results.add(new_result);
 							added = true;
 						}
 					}

@@ -39,6 +39,7 @@ public class Sase extends Transaction {
 		Stack<Event> stack = new Stack<Event>();
 		ArrayList<Event> lastEvents = new ArrayList<Event>();
 		ArrayList<Event> newLastEvents = new ArrayList<Event>();
+		ArrayList<Event> oldLastEvents = new ArrayList<Event>();
 		int curr_sec = -1;
 		int pointerCount = 0;
 		
@@ -52,24 +53,29 @@ public class Sase extends Transaction {
 									
 			// Store pointers to its predecessors
 			if (event.sec == curr_sec) {
+				
 				for (Event last : lastEvents) {
 					
-					if (pointers == null) System.out.println("Pointers null");
+					if (pointers == null) System.out.println("Pointers null");					
 					
 					if (!pointers.contains(last) && last.isCompatible(event)) {
 						pointers.add(last);
 						pointerCount++;
+						oldLastEvents.add(last);
 				}}
 				newLastEvents.add(event);
+				
 			} else {
-				lastEvents.clear();
+				lastEvents.removeAll(oldLastEvents);
 				lastEvents.addAll(newLastEvents);
+				oldLastEvents.clear();
+				newLastEvents.clear();
 				for (Event last : lastEvents) {
 					if (!pointers.contains(last) && last.isCompatible(event)) {
 						pointers.add(last);
 						pointerCount++;
+						oldLastEvents.add(last);
 				}}
-				newLastEvents.clear();
 				newLastEvents.add(event);
 				curr_sec = event.sec;
 			}			
@@ -78,8 +84,10 @@ public class Sase extends Transaction {
 			//System.out.println(window_id + " " + event.toStringWithPointers(window_id));
 		}		
 		// For each new last event, traverse the pointers to extract CETs
+		lastEvents.removeAll(oldLastEvents);
+		lastEvents.addAll(newLastEvents);
 		int maxSeqLength = 0;
-		for (Event lastEvent : newLastEvents) {
+		for (Event lastEvent : lastEvents) {
 			maxSeqLength = traversePointers(lastEvent, new Stack<Event>(), maxSeqLength);
 		}
 		int memory = stack.size() + pointerCount + maxSeqLength;
@@ -91,7 +99,7 @@ public class Sase extends Transaction {
 	public int traversePointers (Event event, Stack<Event> current_sequence, int maxSeqLength) {       
 			
 		current_sequence.push(event);
-		//System.out.println("pushed " + node.event.id);
+		//System.out.println("pushed " + event.id);
 		
 		ArrayList<Event> pointers = event.pointers.get(window.id);
 	        
@@ -117,7 +125,7 @@ public class Sase extends Transaction {
 	       	}        	
 	    }
 	    Event top = current_sequence.pop();
-	    //System.out.println("popped " + top.event.id);
+	    //System.out.println("popped " + top.id);
 	    	    
 	    return maxSeqLength;
 	}
