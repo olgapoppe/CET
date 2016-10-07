@@ -19,6 +19,7 @@ public class H_CET extends Transaction {
 	int cut_number;
 	int search_algorithm;
 	ArrayDeque<Window> windows;
+	int window_number;
 	int window_slide;
 	SharedPartitions shared_partitions;
 	ArrayList<String> results;
@@ -30,6 +31,7 @@ public class H_CET extends Transaction {
 		cut_number = pn;
 		search_algorithm = sa;
 		windows = ws;
+		window_number = ws.size();
 		window_slide = wsl;
 		shared_partitions = sp;
 		results = new ArrayList<String>();
@@ -37,7 +39,7 @@ public class H_CET extends Transaction {
 
 	public void run() {	
 		
-		long start =  System.currentTimeMillis();	
+		// long start =  System.currentTimeMillis();	
 		
 		// Size of the graph
 		int size_of_the_graph = window.events.size();// + Graph.constructGraph(batch).edgeNumber;
@@ -91,7 +93,7 @@ public class H_CET extends Transaction {
 					int s = Integer.parseInt(array[0]);
 					int e = Integer.parseInt(array[1]);
 										
-					boolean writes = window.writes(s);
+					boolean writes = window.writes(s,window_number);
 					if (writes) {
 						
 						// Select events from the batch
@@ -120,14 +122,14 @@ public class H_CET extends Transaction {
 					
 		if (!resulting_partitioning.partitions.isEmpty()) {
 			
-			//long start =  System.currentTimeMillis();
+			long start =  System.currentTimeMillis();
 			
 			/*** Compute results within partitions ***/
 			int cets_within_partitions = 0;
 			for (Partition partition : resulting_partitioning.partitions) {	
 			
 				ArrayList<EventTrend> partitionResults = new ArrayList<EventTrend>();
-				boolean writes = window.writes(partition.start);
+				boolean writes = window.writes(partition.start,window_number);
 				
 				if (writes) {
 					
@@ -144,7 +146,8 @@ public class H_CET extends Transaction {
 			int max_cet_across_partitions = 0;
 			for (Node first_node : resulting_partitioning.partitions.get(0).first_nodes) {
 				
-				for (EventTrend event_trend : first_node.results) {				
+				for (EventTrend event_trend : first_node.results) {
+					
 					int length = computeResults(event_trend, new Stack<EventTrend>(), max_cet_across_partitions);				
 					if (max_cet_across_partitions < length) max_cet_across_partitions = length;		
 			}}
@@ -178,13 +181,11 @@ public class H_CET extends Transaction {
 	       	if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;	
 	       	String s = (!result.isEmpty()) ? result : event_trend.sequence;
 	       	results.add(s);  
-	       	//System.out.println("result " + result);
+	       	//System.out.println("result " + s);
 	   } else {
 	   /*** Recursive case: Traverse the following nodes. ***/        	
-	       	for(Node first_in_next_partition : event_trend.last_node.following) {        		
-	       		// System.out.println("following of " + node.event.id + " is " + following.event.id);
-	       		
-	       		for (EventTrend next_event_trend : first_in_next_partition.results) {	       			
+	       	for(Node first_in_next_partition : event_trend.last_node.following) {    
+	       		for (EventTrend next_event_trend : first_in_next_partition.results) {       			
 	       			maxSeqLength = computeResults(next_event_trend, current_cet, maxSeqLength);       			
 	       		}	       		       		
 	       	}        	

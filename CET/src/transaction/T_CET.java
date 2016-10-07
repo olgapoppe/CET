@@ -91,7 +91,7 @@ public class T_CET extends Transaction {
 				// Add all results from a first node to the results of this partition
 				if (writes) {
 					partitionResults.addAll(this_node.results);
-					System.out.println(this_node.toString() + ": " + this_node.resultsToString());
+					//System.out.println(this_node.toString() + ": " + this_node.resultsToString());
 				}
 			}
 		}
