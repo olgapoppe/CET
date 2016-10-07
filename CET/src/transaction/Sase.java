@@ -115,7 +115,7 @@ public class Sase extends Transaction {
 			if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;	
 	       	results.add(result);  
 	        
-			System.out.println("result " + result);
+			//System.out.println("result " + result);
 				
 	    } else {
 	    /*** Recursive case: Traverse the following nodes. ***/     	
