@@ -12,11 +12,11 @@ import iogenerator.*;
 
 public class BaseLine extends Transaction {	
 	
-	HashSet<TreeSet<Event>> results;
+	ArrayList<ArrayList<Event>> results;
 	
 	public BaseLine (Window w, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
 		super(w,o,tn,time,mem);
-		results = new HashSet<TreeSet<Event>>();
+		results = new ArrayList<ArrayList<Event>>();
 	}
 	
 	public void run () {
@@ -31,91 +31,51 @@ public class BaseLine extends Transaction {
 		transaction_number.countDown();
 	}
 	
-	public void computeResults() {
-		
-		HashSet<TreeSet<Event>> prefixes = new HashSet<TreeSet<Event>>();					
+	public void computeResults() {						
 				
-		for (Event event: window.events) {
-			
-			prefixes = new HashSet<TreeSet<Event>>();
+		for (Event event: window.events) {		
 			
 			/*** CASE I: Create a new CET ***/
-			if (results.isEmpty()) {
+			if (results.isEmpty()) {			
 				
-				TreeSet<Event> newSeq = new TreeSet<Event>();
-				newSeq.add(event);		
-				results.add(newSeq);
+				ArrayList<Event> new_result = new ArrayList<Event>();
+				new_result.add(event);
+				results.add(new_result);
 				
-				System.out.println("new CET : " + newSeq);				
+			} else {	
 				
-			} else {
-				boolean isAdded=false;
-				for (TreeSet<Event> seq : results) {
+				boolean added = false;
+				ArrayList<ArrayList<Event>> new_results = new ArrayList<ArrayList<Event>>();
+				
+				for (ArrayList<Event> previous_result : results) {
 					
-					TreeSet<Event> prefix = (TreeSet<Event>) seq.headSet(event); // !!!
+					Event last = previous_result.get(previous_result.size()-1);
+					Event before_last = (previous_result.size()-2>=0) ? previous_result.get(previous_result.size()-2) : null;
 					
-					if (!prefix.isEmpty() && prefix.size() > 0) {
-						isAdded=true;
-						
-						/*** CASE II: Append to a CET ***/
-						if(prefix.size()==seq.size()) {
-							seq.add(event);
-							
-							System.out.println("added to CET : " + seq);
-							
-						} else {	
-							/*** Duplicate elimination ***/
-							TreeSet<Event> newSeq = (prefix.size()>0) ? (TreeSet<Event>)prefix.clone() : new TreeSet<Event>();
-							boolean duplicate=true;
-							
-							for(TreeSet<Event> oldPrefix : prefixes) {
-								
-								if(oldPrefix.size()==newSeq.size()) {
-									
-									Iterator<Event> oldIterator=oldPrefix.iterator();
-									Iterator<Event> newIterator=newSeq.iterator();
-									
-									duplicate=true;
-									
-									while(oldIterator.hasNext()) {
-										if(!(oldIterator.next().equals(newIterator.next()))) {
-											//System.out.println("duplicate prefix : " + newSeq);
-											duplicate=false;
-											break;												
-										}
-									}
-									if(duplicate) {
-										
-										break;
-									}
-								}
-							}
-							if(!duplicate) prefixes.add(newSeq);								
+					/*** CASE II: Append to a CET ***/
+					if (last.isCompatible(event)) {
+						previous_result.add(event);
+						added = true;
+					} else {
+						/*** CASE III: Append to a prefix of a CET ***/
+						if (before_last!=null && before_last.isCompatible(event)) {
+							ArrayList<Event> new_result = new ArrayList<Event>();
+							new_result.addAll(previous_result);
+							new_result.remove(previous_result.size()-1);
+							new_result.add(event);
+							new_results.add(new_result);
+							added = true;
 						}
 					}
 				}
+				results.addAll(new_results);
 				
 				/*** CASE I: Create a new CET ***/
-				if(prefixes.isEmpty()) {
-					if(!isAdded) {
-						
-						TreeSet<Event> newSeq = new TreeSet<Event>();
-						newSeq.add(event);
-						results.add(newSeq);
-						
-						System.out.println("new CET : " + newSeq);						
-					}						
-				} else {
-					/*** CASE III: Append to a compatible CET ***/
-					for(TreeSet<Event> prefix : prefixes) {
-						
-						prefix.add(event);
-						results.add(prefix);
-						
-						System.out.println("added to prefix : " + prefix);
-											
-					}
-				}					
+				if (!added) {
+					ArrayList<Event> new_result = new ArrayList<Event>();
+					new_result.add(event);
+					results.add(new_result);					
+				}						
 			}					
 		}		
 	}	
@@ -127,14 +87,14 @@ public class BaseLine extends Transaction {
 		System.out.println("Window " + window.id + " has " + results.size() + " results.");
 				
 		//if (output.isAvailable()) {
-			for(TreeSet<Event> sequence : results) { 
+			for(ArrayList<Event> trend : results) { 
 				/*try { 
-					for (Event event : sequence) {
+					for (Event event : trend) {
 						output.file.append(event.id + ",");					
 					}
 					output.file.append("\n");
 				} catch (IOException e) { e.printStackTrace(); }*/
-				memory4results += sequence.size();	
+				memory4results += trend.size();	
 			}
 			//output.setAvailable();
 		//}			
