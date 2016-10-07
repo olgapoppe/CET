@@ -31,5 +31,13 @@ public class StockEvent extends Event {
     	//System.out.println(event.toString());    	
         return event;
 	}
-
+	
+	public boolean isCompatible(Event other) {
+		if (other instanceof StockEvent) {
+			StockEvent o = (StockEvent) other;
+			return this.company.equals(o.company) && this.sec < other.sec;
+		}
+		return false;
+	}
+	
 }

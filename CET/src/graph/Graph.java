@@ -65,43 +65,44 @@ public class Graph {
 				graph.first_nodes.add(node);
 				node.isFirst = true;
 				graph.last_nodes.add(node);				
-				//System.out.println(event.id + " starts a new sequence.");
+				System.out.println(event.id + " starts a new sequence.");
 			} else {
 				
 				ArrayList<Node> new_last_nodes = new ArrayList<Node>();
 				ArrayList<Node> old_last_nodes = new ArrayList<Node>();
 								
-				for (Node last : graph.last_nodes) {					
+				for (Node last : graph.last_nodes) {		
+					
+					System.out.println(" ------------------ \nthis " + event.id + " last " + last.event.id);
 			
 					/*** Case II: This event is compatible with the last event. Add an edge between last and this. ***/
 					if (last.isCompatible(node)) {
 						graph.connect(last,node);
 						if (!old_last_nodes.contains(last)) old_last_nodes.add(last);
 						if (!new_last_nodes.contains(node)) new_last_nodes.add(node);
-						//System.out.println(last.event.id + " is connected to " + event.id);
+						System.out.println(last.event.id + " is connected to " + event.id);
 						
 					} else {
 							
 						/*** Case III: This event is compatible with a previous event of the last event. Add an edge between previous and this. ***/
-						boolean first = true;
 						for (Node comp_node : last.previous) {
-							if (comp_node.event.sec<event.sec) {
+							if (comp_node.event.isCompatible(event)) {
 								graph.connect(comp_node,node);
-								first = false;
-								//System.out.println(comp_node.event.id + " is connected to " + event.id);
-							}
-						}							 
-						/*** Case I: This event is compatible with no previous event. Add this event to the last nodes. ***/
-						if (first && !graph.first_nodes.contains(node)) {
-							graph.first_nodes.add(node);							
-							node.isFirst = true;
-							//System.out.println(event.id + " starts a new sequence.");
+								System.out.println(comp_node.event.id + " is connected to " + event.id);
+							} 						
 						}
-						if (!new_last_nodes.contains(node)) {
-							new_last_nodes.add(node);							
-						}					
-					}			
+					}
 				}
+				/*** Case I: This event is compatible with no previous event. Add this event to the last nodes. ***/
+				if (node.previous.isEmpty() && !graph.first_nodes.contains(node)) {
+					graph.first_nodes.add(node);							
+					node.isFirst = true;
+					System.out.println(event.id + " starts a new sequence.");
+				}
+				if (!new_last_nodes.contains(node)) {
+					new_last_nodes.add(node);							
+				}					
+								
 				graph.last_nodes.removeAll(old_last_nodes);
 				graph.last_nodes.addAll(new_last_nodes);
 			}

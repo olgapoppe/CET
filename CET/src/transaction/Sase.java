@@ -56,7 +56,7 @@ public class Sase extends Transaction {
 					
 					if (pointers == null) System.out.println("Pointers null");
 					
-					if (!pointers.contains(last)) {
+					if (!pointers.contains(last) && last.isCompatible(event)) {
 						pointers.add(last);
 						pointerCount++;
 				}}
@@ -65,7 +65,7 @@ public class Sase extends Transaction {
 				lastEvents.clear();
 				lastEvents.addAll(newLastEvents);
 				for (Event last : lastEvents) {
-					if (!pointers.contains(last)) {
+					if (!pointers.contains(last) && last.isCompatible(event)) {
 						pointers.add(last);
 						pointerCount++;
 				}}
@@ -107,7 +107,7 @@ public class Sase extends Transaction {
 			if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;	
 	       	results.add(result);  
 	        
-			//System.out.println("result " + result);
+			System.out.println("result " + result);
 				
 	    } else {
 	    /*** Recursive case: Traverse the following nodes. ***/     	
