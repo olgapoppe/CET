@@ -2,8 +2,11 @@ package event;
 
 public class CheckEvent extends Event {
 	
+	int compatibility;
+	
 	public CheckEvent (int s, int i, int v) {
 		super(s,i);
+		compatibility = v;
 	}
 	
 	public static Event parse (String line) {
@@ -22,7 +25,7 @@ public class CheckEvent extends Event {
 	public boolean isCompatible(Event other) {
 		if (other instanceof CheckEvent) {
 			CheckEvent o = (CheckEvent) other;
-			return this.id == o.id && this.sec < other.sec;
+			return this.compatibility == o.compatibility && this.sec < o.sec;
 		}
 		return false;
 	}

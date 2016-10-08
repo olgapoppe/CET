@@ -34,7 +34,7 @@ public class ActivityEvent extends Event {
 	public boolean isCompatible (Event other) {
 		if (other instanceof ActivityEvent) {
 			ActivityEvent o = (ActivityEvent) other;
-			return this.id == o.id && this.heartRate <= o.heartRate && this.activity == o.activity && this.sec < other.sec;
+			return this.id == o.id && this.heartRate < o.heartRate && this.activity == o.activity && this.sec < other.sec;
 		}
 		return false;
 	}

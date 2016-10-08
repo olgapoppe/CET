@@ -1,7 +1,6 @@
 package transaction;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
@@ -13,11 +12,11 @@ import iogenerator.*;
 
 public class Sase extends Transaction {
 	
-	HashSet<String> results;
+	ArrayList<String> results;
 	
 	public Sase (Window w, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
 		super(w,o,tn,time,mem);
-		results = new HashSet<String>();
+		results = new ArrayList<String>();
 	}
 	
 	public void run () {
@@ -28,8 +27,17 @@ public class Sase extends Transaction {
 		long duration = end - start;
 		total_cpu.set(total_cpu.get() + duration);
 		
-		System.out.println("Window " + window.id + " has " + results.size() + " results.");		
-		//writeOutput2File();		
+		int total_length = 0;
+		int max_length = 0;
+		for (String s : results) {
+			int l = s.length();
+			total_length += l;
+			if (max_length < l) max_length = l;
+		}
+		System.out.println("Window " + window.id + " has " + results.size() + 
+				" results of avg length " + total_length/results.size() + 
+				" and max length " + max_length);	
+		
 		transaction_number.countDown();
 	}
 	
