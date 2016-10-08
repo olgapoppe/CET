@@ -43,6 +43,15 @@ public class Node {
 		return memory4results;
 	}
 	
+	public int getMaxLength () {
+		int max = 0;
+		for(EventTrend trend : results) { 
+			int length = trend.getEventNumber();
+			if (max < length) max = length;		
+		}	
+		return max;
+	}
+	
 	public String resultsToString () {
 		String result = "";
 		for(EventTrend trend : results) { 				

@@ -61,11 +61,9 @@ public class EventDriver implements Runnable {
 	 			while (event != null && event.sec <= batch.end) {	 			
 	 				
 	 				/*** Put the event into the event queue and increment the counter ***/						
-	 				if (event.value > 0) {
-	 					eventqueue.contents.add(event);	
-	 					eventNumber.set(eventNumber.get()+1);
-	 				}
-	 					
+	 				eventqueue.contents.add(event);	
+	 				eventNumber.set(eventNumber.get()+1);
+	 					 					
 	 				/*** Set distributer progress ***/	
 	 				if (curr_sec < event.sec) {		
 	 					

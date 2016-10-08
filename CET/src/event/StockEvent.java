@@ -4,13 +4,15 @@ public class StockEvent extends Event {
 	
 	public int sector;
 	public String company;
+	public double price;
 	public int volume;
 	public String trtype;
 	
 	public StockEvent (int sec, int i, double p, int s, String c, int vol, String trt) {
-		super(sec,i,p);
+		super(sec,i);
 		sector = s;
 		company = c;
+		price = p;
 		volume = vol;
 		trtype = trt;
 	}
@@ -35,7 +37,7 @@ public class StockEvent extends Event {
 	public boolean isCompatible(Event other) {
 		if (other instanceof StockEvent) {
 			StockEvent o = (StockEvent) other;
-			return this.company.equals(o.company) && this.sec < other.sec;
+			return this.company.equals(o.company) && this.price < o.price && this.sec < o.sec;
 		}
 		return false;
 	}

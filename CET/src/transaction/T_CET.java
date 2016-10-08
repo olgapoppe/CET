@@ -106,11 +106,14 @@ public class T_CET extends Transaction {
 		
 		int memory4results = 0;
 		int count = 0;
+		int max = 0;
 				
 		if (output.isAvailable()) {
 			for (Node first : graph.first_nodes) {
 				memory4results += first.printResults(output);
 				count += first.results.size();
+				int length = first.getMaxLength();
+				if (max<length) max = length;			
 			}
 			output.setAvailable();
 		}
@@ -119,6 +122,8 @@ public class T_CET extends Transaction {
 		total_mem.set(total_mem.get() + memory);
 		//if (total_mem.get() < memory) total_mem.getAndAdd(memory);	
 		
-		System.out.println("Window " + window.id + " has " + count + " results.");
+		System.out.println("Window " + window.id + " has " + count + 
+				" results of avg length " + memory4results/count +
+				" and max length " + max);
 	}
 }

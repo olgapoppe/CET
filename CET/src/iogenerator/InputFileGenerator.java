@@ -107,7 +107,6 @@ public class InputFileGenerator {
 				if (event.id > 0) {					
 					count++;
 					event.id = count;
-					event.value = 1;
 					output.write(event.print2file());            	            	            	         	
 				}
 			}   

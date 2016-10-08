@@ -7,14 +7,12 @@ public abstract class Event implements Comparable<Event> {
 	
 	public int sec;
 	public int id;
-	public double value;
 	// Mapping of window identifier to the pointers of this event within this window     
 	public HashMap<String,ArrayList<Event>> pointers;
 	
-	public Event (int s, int i, double v) {
+	public Event (int s, int i) {
 		sec = s;
 		id = i;
-		value = v;
 		pointers = new HashMap<String,ArrayList<Event>>();
 	}	
 	
@@ -36,16 +34,12 @@ public abstract class Event implements Comparable<Event> {
 	}
 	
 	public int compareTo(Event other) {
-		if(this.value == other.value && this.sec > other.sec){
+		if(this.sec > other.sec){
             return 1;
         } else {
             return -1;
         }
     }
-	
-	public boolean isCompatible(Event other) {
-		return this.value == other.value && this.sec < other.sec;
-	}
 	
 	public boolean equals(Event other) {
 		return this.id == other.id;
@@ -68,11 +62,13 @@ public abstract class Event implements Comparable<Event> {
 	
 	/** Print this event to file */
 	public String print2file() {
-		return sec + "," + id + "," + value + "\n";
+		return sec + "," + id + "\n";
 	}
 	
 	/** Print this event in a sequence to file */
 	public String print2fileInASeq() {
-		return sec + "," + id + "," + value + "; ";
+		return sec + "," + id + "; ";
 	}
+	
+	public abstract boolean isCompatible(Event other);
 }

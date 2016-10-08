@@ -74,7 +74,7 @@ public class H_CET extends Transaction {
 				resulting_partitioning = max_partitioning.partitions.get(0).getPartitioning(cutset);
 				System.out.println("Chosen: " + resulting_partitioning.toString(3));
 								
-			} else {
+			} else { // Get partitioning that shares graphlets between overlapping windows
 				
 				// Get partition identifiers of this window	
 				ArrayList<String> partition_ids = new ArrayList<String>();
