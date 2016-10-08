@@ -33,10 +33,11 @@ public class Scheduler implements Runnable {
 	AtomicInteger total_memory;
 	OutputFileGenerator output;
 	
+	boolean overlap;
 	SharedPartitions shared_partitions;
 	
 	public Scheduler (EventQueue eq, int first, int last, int wl, int ws, String a, double ml, int pn, int sa, 
-			ExecutorService exe, AtomicInteger dp, CountDownLatch d, AtomicLong time, AtomicInteger mem, OutputFileGenerator o) {	
+			ExecutorService exe, AtomicInteger dp, CountDownLatch d, AtomicLong time, AtomicInteger mem, OutputFileGenerator o, boolean overl) {	
 		
 		eventqueue = eq;
 		firstsec = first;
@@ -60,6 +61,7 @@ public class Scheduler implements Runnable {
 		total_memory = mem;
 		output = o;
 		
+		overlap = overl;
 		shared_partitions = new SharedPartitions();
 	}
 	
@@ -151,7 +153,7 @@ public class Scheduler implements Runnable {
 		if (algorithm.equals("tcet")) {
 			transaction = new T_CET(window,output,transaction_number,total_cpu,total_memory);
 		} else {
-			transaction = new H_CET(window,output,transaction_number,total_cpu,total_memory,memory_limit,cut_number,search_algorithm,windows,window_slide,shared_partitions);
+			transaction = new H_CET(window,output,transaction_number,total_cpu,total_memory,memory_limit,cut_number,search_algorithm,windows,window_slide,overlap,shared_partitions);
 		}}}}		
 		executor.execute(transaction);	
 	}	

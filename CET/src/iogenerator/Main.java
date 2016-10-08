@@ -107,7 +107,7 @@ public class Main {
 		EventDriver driver = new EventDriver (input, type, realtime, lastsec, eventqueue, startOfSimulation, driverProgress, eventNumber);				
 				
 		Scheduler scheduler = new Scheduler (eventqueue, firstsec, lastsec, window_length, window_slide, algorithm, memory_limit, cut_number, search_algorithm, 
-				executor, driverProgress, done, total_cpu, total_memory, output);		
+				executor, driverProgress, done, total_cpu, total_memory, output, overlap);		
 		
 		Thread prodThread = new Thread(driver);
 		prodThread.setPriority(10);

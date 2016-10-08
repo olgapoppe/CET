@@ -45,8 +45,8 @@ public class Window {
 	}
 	
 	// The window that starts with this partition writes it
-	public boolean writes (int s, int window_number) {
-		return this.start == s || window_number == 1;
+	public boolean writes (int s, boolean overlap) {		
+		return this.start == s || !overlap;
 	}
 		
 	public String toString() {

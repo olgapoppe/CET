@@ -1,8 +1,11 @@
 package transaction;
 
 import iogenerator.OutputFileGenerator;
+
+import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
@@ -19,20 +22,20 @@ public class H_CET extends Transaction {
 	int cut_number;
 	int search_algorithm;
 	ArrayDeque<Window> windows;
-	int window_number;
 	int window_slide;
+	boolean overlap;
 	SharedPartitions shared_partitions;
 	ArrayList<String> results;
 	
 	public H_CET (Window w, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem, double ml, int pn, int sa, 
-			ArrayDeque<Window> ws, int wsl, SharedPartitions sp) {
+			ArrayDeque<Window> ws, int wsl, boolean overl, SharedPartitions sp) {
 		super(w,o,tn,time,mem);	
 		memory_limit = ml;
 		cut_number = pn;
 		search_algorithm = sa;
 		windows = ws;
-		window_number = ws.size();
 		window_slide = wsl;
+		overlap = overl;
 		shared_partitions = sp;
 		results = new ArrayList<String>();
 	}
@@ -43,7 +46,8 @@ public class H_CET extends Transaction {
 		
 		// Size of the graph
 		int size_of_the_graph = window.events.size();// + Graph.constructGraph(batch).edgeNumber;
-		
+		HashMap<Integer,Graph> graphlets = new HashMap<Integer,Graph>();
+				
 		if (search_algorithm<3) {
 			Partitioner partitioner;
 			if (search_algorithm==0) {
@@ -72,20 +76,22 @@ public class H_CET extends Transaction {
 								
 			} else {
 				
-				// Get partition identifiers of this window
+				// Get partition identifiers of this window	
 				ArrayList<String> partition_ids = new ArrayList<String>();
-				int partition_start = window.start;
-				for (int cut=window_slide; cut+window.start<=window.end; cut+=window_slide) { 
-					String partition_id = partition_start + " " + (cut+window.start-1);
+				int start = window.start;
+				while (start+window_slide<window.end) { 
+					String partition_id = start + " " + (start+window_slide-1);
 					partition_ids.add(partition_id);
-					partition_start = cut+window.start;				
+					start += window_slide;				
 				}
-				String partition_id = partition_start + " " + window.end;
+				String partition_id = start + " " + window.end;
 				partition_ids.add(partition_id);
+				
 				//System.out.println("Partitions: " + partition_ids.toString());
 				
 				// Write a new partition or read a stored partition
 				ArrayList<Partition> parts = new ArrayList<Partition>();
+				
 				for (String pid : partition_ids) {	
 					
 					// Get start and end of the window
@@ -93,7 +99,7 @@ public class H_CET extends Transaction {
 					int s = Integer.parseInt(array[0]);
 					int e = Integer.parseInt(array[1]);
 										
-					boolean writes = window.writes(s,window_number);
+					boolean writes = window.writes(s,overlap);
 					if (writes) {
 						
 						// Select events from the batch
@@ -106,15 +112,16 @@ public class H_CET extends Transaction {
 						Graph g = Graph.constructGraph(selected_events);						
 						Partition part = new Partition(s,e,selected_events.size(),g.edgeNumber,g.first_nodes,g.last_nodes);
 						parts.add(part);
-						//System.out.println("Graph written: " + part.id);			
-						
+						graphlets.put(s,g);
+						//System.out.println("Graph written: " + part.id + " " + g.first_nodes.size());									
+											
 					} else {
 						
 						// Read a stored partition
 						Partition part = shared_partitions.get(pid); 
 						parts.add(part);
 						//System.out.println("Graph read: " + part.id);
-					}
+					}					
 				}
 				resulting_partitioning = new Partitioning(parts);
 				//System.out.println("Resulting partitioning: " + resulting_partitioning.toString(3));				
@@ -129,7 +136,7 @@ public class H_CET extends Transaction {
 			for (Partition partition : resulting_partitioning.partitions) {	
 			
 				ArrayList<EventTrend> partitionResults = new ArrayList<EventTrend>();
-				boolean writes = window.writes(partition.start,window_number);
+				boolean writes = window.writes(partition.start,overlap);
 				
 				if (writes) {
 					
@@ -138,14 +145,27 @@ public class H_CET extends Transaction {
 					partition.results = T_CET.computeResults(partition.last_nodes,writes,partitionResults);
 					shared_partitions.add(partition.id, partition);
 					cets_within_partitions += partition.getCETlength();
-					//System.out.println("Results written: " + partition.id);
+					//System.out.println("Results written: " + partition.id + " " + partition.results.size());
 				} 			
-			}		
-		
+			}
+			/*** Draw edges between partitions ***/
+			for (Partition partition : resulting_partitioning.partitions) {
+				int prev_start = partition.start-window_slide;
+				if (prev_start >=0) {
+					
+					int prev_end = (partition.start == window.end) ? window.end : (partition.start-1);
+					String prev_pid = prev_start + " " + prev_end;	
+					Partition prev_partition = shared_partitions.get(prev_pid);			
+				
+					for (Node first_node : partition.first_nodes)
+						for (Node last_node : prev_partition.last_nodes)
+							if (last_node.isCompatible(first_node))
+								last_node.connect(first_node);
+			}}		
+			
 			/*** Compute results across partitions ***/
 			int max_cet_across_partitions = 0;
-			for (Node first_node : resulting_partitioning.partitions.get(0).first_nodes) {
-				
+			for (Node first_node : resulting_partitioning.partitions.get(0).first_nodes) {				
 				for (EventTrend event_trend : first_node.results) {
 					
 					int length = computeResults(event_trend, new Stack<EventTrend>(), max_cet_across_partitions);				
@@ -184,7 +204,7 @@ public class H_CET extends Transaction {
 	       	//System.out.println("result " + s);
 	   } else {
 	   /*** Recursive case: Traverse the following nodes. ***/        	
-	       	for(Node first_in_next_partition : event_trend.last_node.following) {    
+	       	for(Node first_in_next_partition : event_trend.last_node.following) {   	       		
 	       		for (EventTrend next_event_trend : first_in_next_partition.results) {       			
 	       			maxSeqLength = computeResults(next_event_trend, current_cet, maxSeqLength);       			
 	       		}	       		       		
@@ -198,11 +218,11 @@ public class H_CET extends Transaction {
 	
 	public void writeOutput2File(int memory) {
 		
-		//int maxSeqLength = 0;
+		int maxSeqLength = 0;
 		
 		System.out.println("Window " + window.id + " has " + results.size() + " results.");
 				
-		/*if (output.isAvailable()) {					
+		if (output.isAvailable()) {					
 				
 			for(String sequence : results) {							 				
 				try { output.file.append(sequence + "\n"); } catch (IOException e) { e.printStackTrace(); }
@@ -210,115 +230,10 @@ public class H_CET extends Transaction {
 				if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;			
 			}
 			output.setAvailable();
-		}*/	
+		}
 		// Output of statistics
 		total_mem.set(total_mem.get() + memory);
 		//if (total_mem.get() < memory) total_mem.getAndAdd(memory);			
 	}
 	
-	/*public void run() {	
-		
-		long start =  System.currentTimeMillis();
-		
-		*//*** Get the ideal memory in the middle of the search space 
-		 * to decide from where to start the search: from the top or from the bottom ***//*
-		int curr_sec = -1;
-		int number_of_min_partitions = 0;
-		for(Event event : batch) {
-			if (curr_sec < event.sec) {
-				curr_sec = event.sec;
-				number_of_min_partitions++;
-		}}		
-		int event_number = batch.size();
-		int edge_number = Graph.constructGraph(batch).edgeNumber;
-		int size_of_the_graph = event_number + edge_number;
-		double ideal_memory_in_the_middle = getIdealMEMcost(event_number, number_of_min_partitions/2, 3);
-		boolean top_down = (memory_limit > ideal_memory_in_the_middle);		
-		System.out.println("Top down: " + top_down);
-		//System.out.println("Ideal memory in the middle: " + ideal_memory_in_the_middle);
-		
-		Partitioning input_partitioning;
-		int algorithm = 0;
-		int bin_number = 0;
-		int bin_size = 0;
-		Partitioner partitioner;		
-		if (search_algorithm==1) { *//*** B&B ***//*
-			
-			input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
-			if (top_down) {
-				partitioner = new BnB_topDown(windows);
-				algorithm = 2;
-			} else {
-				partitioner = new BnB_bottomUp(windows,batch);
-				algorithm = 3; // 1 or 3
-			}			
-		} else {
-								 
-			if (top_down) {
-				bin_number = getMinNumberOfRequiredPartitions_walkDown(event_number,number_of_min_partitions,memory_limit);
-			} else {
-				bin_number = getMinNumberOfRequiredPartitions_walkUp(event_number,number_of_min_partitions,memory_limit);
-			}
-			bin_size = (bin_number==1) ? event_number : event_number/bin_number;
-			System.out.println("Bin number: " + bin_number + "\nBin size: " + bin_size);
-			
-			if (search_algorithm==2) { *//*** Greedy partitioning search ***//*
-				if (bin_size == 1) {
-					input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
-					algorithm = 1;
-				} else {
-				if (bin_number == 1) {
-					input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
-					algorithm = 2;	
-				} else {
-					input_partitioning = Partitioning.getPartitioningWithMinPartitions(batch);
-					algorithm = 3; 
-				}}			
-				partitioner = new RandomRoughlyBalancedPartitioning(windows);
-			
-			} else { *//*** Exhaustive partitioning search ***//*
-			
-				input_partitioning = Partitioning.getPartitioningWithMaxPartition(batch);
-				algorithm = 3;
-				partitioner = new OptimalRoughlyBalancedPartitioning(windows);
-		}}	
-		System.out.println("Input: " + input_partitioning.toString(windows,algorithm));
-		resulting_partitioning = partitioner.getPartitioning(input_partitioning, memory_limit, bin_number, bin_size);
-		System.out.println("Result: " + resulting_partitioning.toString(windows,3)); // 1 or 3
-		
-		// The case where the 1st algorithm is called is missing
-		
-		if (!resulting_partitioning.partitions.isEmpty()) {
-			
-			long start =  System.currentTimeMillis();
-			
-			*//*** Compute results per partition ***//*
-			int cets_within_partitions = 0;
-			for (Partition partition : resulting_partitioning.partitions) {	
-			
-				//if (partition.isShared(windows)) System.out.println("Shared partition: " + partition.toString());
-			
-				for (Node first_node : partition.first_nodes) { first_node.isFirst = true; }
-				T_CET.computeResults(partition.last_nodes);
-				cets_within_partitions += partition.getCETlength();			
-			}		
-		
-			*//*** Compute results across partition ***//*
-			int max_cet_across_partitions = 0;
-			for (Node first_node : resulting_partitioning.partitions.get(0).first_nodes) {
-				
-				for (EventTrend event_trend : first_node.results) {				
-					int length = computeResults(event_trend, new Stack<EventTrend>(), max_cet_across_partitions);				
-					if (max_cet_across_partitions < length) max_cet_across_partitions = length;		
-			}}
-		
-			long end =  System.currentTimeMillis();
-			long processingDuration = end - start;
-			processingTime.set(processingTime.get() + processingDuration);
-		
-			int memory = size_of_the_graph + cets_within_partitions + max_cet_across_partitions;
-			writeOutput2File(memory);
-		}
-		transaction_number.countDown();		
-	}*/
-}
+}	
