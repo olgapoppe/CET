@@ -155,8 +155,18 @@ public class H_CET extends Transaction {
 					
 					int prev_end = (partition.start == window.end) ? window.end : (partition.start-1);
 					String prev_pid = prev_start + " " + prev_end;	
-					Partition prev_partition = shared_partitions.get(prev_pid);			
-				
+					Partition prev_partition = shared_partitions.get(prev_pid);	
+					
+					while (prev_partition.first_nodes.isEmpty()) {
+						//System.err.println(prev_pid + " is empty!!!");
+						prev_start = prev_partition.start-window_slide;
+						if (prev_start >=0) {							
+							prev_end = (prev_partition.start == window.end) ? window.end : (prev_partition.start-1);
+							prev_pid = prev_start + " " + prev_end;	
+							prev_partition = shared_partitions.get(prev_pid);	
+						}
+					}
+					
 					for (Node first_node : partition.first_nodes)
 						for (Node last_node : prev_partition.last_nodes)
 							if (last_node.isCompatible(first_node))
@@ -165,7 +175,11 @@ public class H_CET extends Transaction {
 			
 			/*** Compute results across partitions ***/
 			int max_cet_across_partitions = 0;
-			for (Node first_node : resulting_partitioning.partitions.get(0).first_nodes) {				
+			Partition first = resulting_partitioning.partitions.get(0);
+			for(int i=1; first.first_nodes.isEmpty(); i++){
+				first = resulting_partitioning.partitions.get(i);
+			}			
+			for (Node first_node : first.first_nodes) {				
 				for (EventTrend event_trend : first_node.results) {
 					
 					int length = computeResults(event_trend, new Stack<EventTrend>(), max_cet_across_partitions);				

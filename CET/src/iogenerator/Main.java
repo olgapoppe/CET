@@ -18,7 +18,7 @@ public class Main {
 	/**
 	 * Example parameters: 
 	 * -type check -path src/iofiles/ -file stream.txt -to 120 -algo sase
-	 * -type stock -path ../../../Dropbox/DataSets/Stock/ -file replicated.txt -to 60 -algo sase
+	 * -type stock -path ../../../Dropbox/DataSets/Stock/ -file sorted.txt -to 60 -algo sase
 	 */
 	public static void main (String[] args) { 
 		
