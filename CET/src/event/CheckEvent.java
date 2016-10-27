@@ -15,9 +15,9 @@ public class CheckEvent extends Event {
 		
 		int s = Integer.parseInt(values[0]);
         int i = Integer.parseInt(values[1]);
-        int v = Integer.parseInt(values[2]);          	
+        int c = Integer.parseInt(values[2]);          	
     	    	    	
-    	Event event = new CheckEvent(s,i,v);    	
+    	Event event = new CheckEvent(s,i,c);    	
     	//System.out.println(event.toString());    	
         return event;
 	}
