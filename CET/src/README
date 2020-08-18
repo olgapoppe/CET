@@ -1,0 +1,17 @@
+*** Event Trend Detection Algorithms ***
+
+java iogenerator/Main "-path" "src/iofiles/" "-file" "stream.txt" "-type" "check" "-from" "0" "-to" "100" "-algo" "hcet"
+
+- path is path to input files
+- file is the name of input file
+- type is event type: activity, check, stock
+- from is the first second of the window
+- to is the last second of the window 
+- algo is an algorithm: sase, bl, mcet, tcet, hcet
+
+*** Graph Partitioning ***
+
+java iogenerator/Main "-path" "src/iofiles/" "-file" "stream.txt" "-type" "check" "-from" "0" "-to" "100" "-algo" "hcet" "-mem" "1000000" "-search" "1" 
+
+- mem is available memory
+- search is a search algorithm for a graph partitioning: exhaustive (0), branch and bound (1), greedy (2)  
